@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpinePlan Pro V11 - Planificación Quirúrgica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #111827; color: #f8fafc; overflow: hidden; margin: 0; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 3px; }
+        
+        #canvas-wrapper {
+            background-color: #000;
+            background-image: radial-gradient(#374151 1px, transparent 1px);
+            background-size: 20px 20px;
+            cursor: default;
+        }
+        
+        .tool-btn.active {
+            @apply ring-2 ring-teal-500 bg-slate-700 text-white border-teal-500/50 shadow-md shadow-teal-500/20;
+        }
+
+        .accordion-content {
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        
+        .accordion-content.open {
+            max-height: 500px;
+            opacity: 1;
+        }
+
+        #ctx-menu {
+            position: absolute;
+            z-index: 50;
+            display: none;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+        }
+        #ctx-menu.flex {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen antialiased" oncontextmenu="return false;">
+
+    <!-- Navbar Superior -->
+    <nav class="h-14 bg-gray-900 border-b border-gray-700 flex items-center justify-between px-4 z-20 shrink-0 shadow-md">
+        <div class="flex items-center gap-3">
+            <svg class="w-7 h-7 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+            </svg>
+            <span class="font-bold text-lg tracking-tight">SpinePlan <span class="text-teal-400 font-light">Pro V11</span></span>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <label class="bg-teal-600 hover:bg-teal-500 text-white px-4 py-1.5 rounded-md text-sm font-medium cursor-pointer transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                <span>Cargar Radiografía</span>
+                <input type="file" id="uploadInput" class="hidden" accept="image/*">
+            </label>
+            <button id="clearBtn" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-1.5 rounded-md text-sm font-medium transition-colors border border-gray-600">
+                Limpiar Todo
+            </button>
+            <div class="w-px h-6 bg-gray-700 mx-1"></div>
+            <button id="toggleChatBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors border border-indigo-500/30 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                Asistente IA
+            </button>
+        </div>
+    </nav>
+
+    <!-- Barra de Datos del Paciente -->
+    <div class="bg-gray-800 border-b border-gray-700 px-4 py-2 flex flex-wrap gap-4 items-center shrink-0 z-10 shadow-sm text-xs">
+        <div class="flex items-center gap-2">
+            <label class="text-gray-400 font-medium">Nombre:</label>
+            <input type="text" class="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-gray-200 focus:border-teal-500 outline-none w-32 shadow-inner" placeholder="Ej. Juan">
+        </div>
+        <div class="flex items-center gap-2">
+            <label class="text-gray-400 font-medium">Apellido:</label>
+            <input type="text" class="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-gray-200 focus:border-teal-500 outline-none w-32 shadow-inner" placeholder="Ej. Pérez">
+        </div>
+        <div class="flex items-center gap-2">
+            <label class="text-gray-400 font-medium">Edad:</label>
+            <input type="number" class="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-gray-200 focus:border-teal-500 outline-none w-16 shadow-inner text-center" placeholder="Años">
+        </div>
+        <div class="flex items-center gap-2">
+            <label class="text-gray-400 font-medium">Cédula:</label>
+            <input type="text" class="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-gray-200 focus:border-teal-500 outline-none w-32 shadow-inner" placeholder="ID Paciente">
+        </div>
+        <div class="flex items-center gap-2">
+            <label class="text-gray-400 font-medium">Fecha Nac.:</label>
+            <input type="date" class="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-gray-200 focus:border-teal-500 outline-none shadow-inner">
+        </div>
+    </div>
+
+    <!-- Workspace Principal -->
+    <div class="flex flex-1 overflow-hidden relative">
+        <aside class="w-72 bg-gray-800/90 border-r border-gray-700 flex flex-col flex-shrink-0 z-10 overflow-y-auto">
+            <div class="p-3 flex flex-col gap-2">
+                
+                <div class="bg-gray-900 rounded-lg border border-gray-700 overflow-hidden">
+                    <button class="accordion-header w-full flex items-center justify-between p-3 bg-gray-800 hover:bg-gray-700 transition-colors">
+                        <span class="text-sm font-bold text-gray-300">1. Herramientas Básicas</span>
+                        <svg class="w-4 h-4 transform transition-transform text-gray-400 chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content open px-3 pb-3">
+                        <div class="grid grid-cols-2 gap-2 pt-2">
+                            <button data-tool="line" class="tool-btn bg-gray-800 text-gray-300 hover:text-white text-xs py-2 px-2 rounded border border-gray-600 transition-all text-center">Línea Simple</button>
+                            <button data-tool="circle" class="tool-btn bg-gray-800 text-gray-300 hover:text-white text-xs py-2 px-2 rounded border border-gray-600 transition-all text-center">Círculo</button>
+                            <button data-tool="angle" class="tool-btn bg-gray-800 text-gray-300 hover:text-white text-xs py-2 px-2 rounded border border-gray-600 transition-all text-center">Ángulo Simple</button>
+                            <button data-tool="cobb" class="tool-btn bg-gray-800 text-gray-300 hover:text-white text-xs py-2 px-2 rounded border border-gray-600 transition-all text-center">Ángulo Cobb</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900 rounded-lg border border-gray-700 overflow-hidden border-purple-500/30">
+                    <button class="accordion-header w-full flex items-center justify-between p-3 bg-gray-800 hover:bg-gray-700 transition-colors">
+                        <span class="text-sm font-bold text-purple-400">2. Parámetros Pélvicos</span>
+                        <svg class="w-4 h-4 transform transition-transform text-gray-400 chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content open px-3 pb-3">
+                        <div class="grid grid-cols-1 gap-2 pt-2">
+                            <button data-tool="pelvic_combo" class="tool-btn bg-purple-900/40 text-purple-300 hover:bg-purple-800/60 text-xs py-2.5 px-2 rounded border border-purple-700/50 transition-all text-center font-semibold">Incidencia Pélvica (PI, PT, SS)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900 rounded-lg border border-gray-700 overflow-hidden border-rose-500/30">
+                    <button class="accordion-header w-full flex items-center justify-between p-3 bg-gray-800 hover:bg-gray-700 transition-colors">
+                        <span class="text-sm font-bold text-rose-400">3. Lordosis Lumbar</span>
+                        <svg class="w-4 h-4 transform transition-transform text-gray-400 chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content open px-3 pb-3">
+                        <div class="grid grid-cols-1 gap-2 pt-2">
+                            <button data-tool="lord_l1_s1" class="tool-btn bg-rose-900/40 text-rose-300 hover:bg-rose-800/60 text-xs py-2 px-2 rounded border border-rose-700/50 transition-all text-center font-medium">L1-S1</button>
+                            <button data-tool="lord_l4_l5" class="tool-btn bg-rose-900/40 text-rose-300 hover:bg-rose-800/60 text-xs py-2 px-2 rounded border border-rose-700/50 transition-all text-center font-medium">L4-L5</button>
+                            <button data-tool="lord_l4_s1" class="tool-btn bg-rose-900/40 text-rose-300 hover:bg-rose-800/60 text-xs py-2 px-2 rounded border border-rose-700/50 transition-all text-center font-medium">L4-S1</button>
+                            <button data-tool="lord_l5_s1" class="tool-btn bg-rose-900/40 text-rose-300 hover:bg-rose-800/60 text-xs py-2 px-2 rounded border border-rose-700/50 transition-all text-center font-medium">L5-S1</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900 rounded-lg border border-gray-700 overflow-hidden border-yellow-500/30">
+                    <button class="accordion-header w-full flex items-center justify-between p-3 bg-gray-800 hover:bg-gray-700 transition-colors">
+                        <span class="text-sm font-bold text-yellow-400">4. Balance Sagital</span>
+                        <svg class="w-4 h-4 transform transition-transform text-gray-400 chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content open px-3 pb-3">
+                        <div class="grid grid-cols-2 gap-2 pt-2">
+                            <button data-tool="l1_pa" class="tool-btn bg-yellow-900/40 text-yellow-300 hover:bg-yellow-800/60 text-xs py-2 px-2 rounded border border-yellow-700/50 transition-all text-center font-medium">L1-PA</button>
+                            <button data-tool="l4_pa" class="tool-btn bg-yellow-900/40 text-yellow-300 hover:bg-yellow-800/60 text-xs py-2 px-2 rounded border border-yellow-700/50 transition-all text-center font-medium">L4-PA</button>
+                            <button data-tool="t4_pa" class="tool-btn bg-yellow-900/40 text-yellow-300 hover:bg-yellow-800/60 text-xs py-2 px-2 rounded border border-yellow-700/50 transition-all text-center font-medium">T4-PA</button>
+                            <button data-tool="c2_pa" class="tool-btn bg-yellow-900/40 text-yellow-300 hover:bg-yellow-800/60 text-xs py-2 px-2 rounded border border-yellow-700/50 transition-all text-center font-medium">C2-PA</button>
+                            <button data-tool="l1_tilt" class="tool-btn bg-orange-900/40 text-orange-300 hover:bg-orange-800/60 text-xs py-2 px-2 rounded border border-orange-700/50 transition-all text-center font-medium">L1-Tilt</button>
+                            <button data-tool="t4_tilt" class="tool-btn bg-orange-900/40 text-orange-300 hover:bg-orange-800/60 text-xs py-2 px-2 rounded border border-orange-700/50 transition-all text-center font-medium">T4-Tilt</button>
+                            <button data-tool="c2_tilt" class="tool-btn bg-orange-900/40 text-orange-300 hover:bg-orange-800/60 text-xs py-2 px-2 rounded border border-orange-700/50 transition-all text-center font-medium">C2-Tilt</button>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-2 leading-tight text-center">Requiere Parámetros Pélvicos. Luego 1 CLIC en la vértebra.</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900 rounded-lg border border-gray-700 overflow-hidden border-emerald-500/30">
+                    <button class="accordion-header w-full flex items-center justify-between p-3 bg-gray-800 hover:bg-gray-700 transition-colors">
+                        <span class="text-sm font-bold text-emerald-400">5. Bases e Ideales</span>
+                        <svg class="w-4 h-4 transform transition-transform text-gray-400 chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content px-3 pb-3">
+                        <div class="pt-2">
+                            <button id="generateTableBtn" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white text-xs py-2.5 px-2 rounded border border-emerald-500 transition-all text-center font-bold shadow-lg">Generar Cuadro Clínico</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- Main Canvas Area -->
+        <main id="canvas-wrapper" class="flex-1 relative overflow-hidden flex items-center justify-center">
+            <canvas id="mainCanvas" class="absolute z-10 w-full h-full"></canvas>
+            
+            <div id="instructions" class="absolute top-6 left-1/2 transform -translate-x-1/2 bg-gray-800/95 text-gray-200 text-sm px-6 py-2.5 rounded-full border border-teal-500/40 shadow-2xl z-20 backdrop-blur-md hidden items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></div>
+                <span id="instText">Selecciona una herramienta.</span>
+            </div>
+
+            <div id="emptyState" class="absolute z-0 flex flex-col items-center justify-center text-gray-500 pointer-events-none">
+                <svg class="w-20 h-20 mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <p class="text-xl font-medium">Carga un estudio radiológico</p>
+            </div>
+            
+            <!-- Floating Table Generator -->
+            <div id="resultsTable" class="absolute hidden bg-gray-900/95 border border-gray-600 rounded-lg shadow-2xl z-40 w-[420px] backdrop-blur-md left-1/2 top-1/4 transform -translate-x-1/2">
+                <div id="tableHeader" class="bg-gray-800 p-2.5 border-b border-gray-600 cursor-move flex justify-between items-center rounded-t-lg">
+                    <span class="font-bold text-sm text-emerald-400 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Parámetros Bases e Ideales
+                    </span>
+                    <button id="closeTableBtn" class="text-gray-400 hover:text-white">&times;</button>
+                </div>
+                <div class="p-4">
+                    <table class="w-full text-xs text-left text-gray-200">
+                        <thead>
+                            <tr class="border-b border-gray-700 text-gray-400">
+                                <th class="py-2 font-medium">Parámetro</th>
+                                <th class="py-2 font-medium">Base</th>
+                                <th class="py-2 font-medium text-emerald-400">Ideal</th>
+                                <th class="py-2 font-medium">Logrado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Floating Context Menu -->
+            <div id="ctx-menu" class="bg-gray-800 border border-gray-600 rounded-lg p-4 flex-col gap-3 w-64 text-sm">
+                <h4 class="font-bold border-b border-gray-700 pb-2 text-gray-200 flex justify-between items-center">
+                    Editar Visual
+                    <button id="ctx-close" class="text-gray-400 hover:text-white">&times;</button>
+                </h4>
+                <div>
+                    <label class="block text-gray-400 text-xs mb-1">Color</label>
+                    <input type="color" id="ctx-color" class="w-full h-8 bg-gray-900 rounded cursor-pointer border border-gray-700">
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-xs mb-1 flex justify-between">
+                        <span>Grosor de Línea</span> <span id="ctx-thick-val" class="text-teal-400 font-medium">1px</span>
+                    </label>
+                    <input type="range" id="ctx-thickness" min="1" max="10" value="1" class="w-full accent-teal-500">
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-xs mb-1 flex justify-between">
+                        <span>Tamaño de Texto</span> <span id="ctx-font-val" class="text-teal-400 font-medium">10px</span>
+                    </label>
+                    <!-- MIN FONT SIZE DROPPED TO 8 -->
+                    <input type="range" id="ctx-font" min="8" max="40" value="10" class="w-full accent-teal-500">
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-xs mb-1">Etiqueta Personalizada</label>
+                    <input type="text" id="ctx-label" class="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1.5 outline-none focus:border-teal-500 text-white" placeholder="Escribe aquí...">
+                </div>
+                <button id="ctx-delete" class="text-red-400 hover:text-red-300 hover:bg-red-400/10 text-left pt-2 pb-1 px-2 rounded border-t border-gray-700 mt-1 flex items-center gap-2 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    Eliminar
+                </button>
+            </div>
+        </main>
+
+        <aside id="chat-sidebar" class="w-80 bg-gray-800 border-l border-gray-700 flex flex-col flex-shrink-0 z-20 shadow-xl transition-all duration-300 hidden absolute right-0 top-0 h-full">
+            <div class="p-3 border-b border-gray-700 flex justify-between items-center bg-indigo-900/30">
+                <div class="flex items-center gap-2 text-indigo-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <span class="font-semibold text-sm">Spine IA (Gemini)</span>
+                </div>
+                <button id="closeChatBtn" class="text-gray-400 hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+            <div id="chat-log" class="flex-1 p-4 overflow-y-auto flex flex-col gap-4 text-sm bg-gray-900/50">
+                <div class="bg-gray-700 border border-gray-600 p-3 rounded-lg rounded-tl-none max-w-[90%] self-start text-gray-200 shadow-md">
+                    ¡Hola! Soy tu asistente quirúrgico. Pregúntame sobre técnicas o el Mismatch del perfil sagital.
+                </div>
+            </div>
+            <div class="p-3 border-t border-gray-700 bg-gray-800 flex gap-2">
+                <input type="text" id="chat-input" class="flex-1 bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 outline-none text-white focus:border-indigo-500 placeholder-gray-500 text-sm shadow-inner" placeholder="Consulta clínica...">
+                <button id="chat-send" class="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg shadow-md transition-colors flex items-center justify-center">
+                    <svg class="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </button>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                const chevron = header.querySelector('.chevron');
+                content.classList.toggle('open');
+                chevron.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+            });
+        });
+
+        document.getElementById('toggleChatBtn').addEventListener('click', () => document.getElementById('chat-sidebar').classList.toggle('hidden'));
+        document.getElementById('closeChatBtn').addEventListener('click', () => document.getElementById('chat-sidebar').classList.add('hidden'));
+
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+        const wrapper = document.getElementById('canvas-wrapper');
+        const emptyState = document.getElementById('emptyState');
+        const instDiv = document.getElementById('instructions');
+        const instText = document.getElementById('instText');
+
+        let img = null;
+        let activeTool = null;
+        let annotations = []; 
+        let currentPoints = []; 
+        let isDrawing = false;
+        let draggedItem = null; 
+        let selectedAnnIndex = -1; 
+
+        // Tool Config (Default values will be forced to 1px line / 10px font in finalizeAnnotation)
+        const TOOL_CONFIG = {
+            'line': { color: '#38bdf8', inst: 'ARRASTRA para trazar la línea.', req: 2, labelPrefix: '' }, 
+            'circle': { color: '#a78bfa', inst: 'ARRASTRA desde el centro hacia afuera.', req: 2, labelPrefix: 'r: ' }, 
+            'angle': { color: '#4ade80', inst: 'ARRASTRA línea 1, luego ARRASTRA línea 2.', req: 4, labelPrefix: '' }, 
+            'cobb': { color: '#14b8a6', inst: 'ARRASTRA platillo superior, luego inferior.', req: 4, labelPrefix: 'Cobb: ' }, 
+            'lord_l1_s1': { color: '#f43f5e', inst: 'ARRASTRA platillo L1, luego platillo S1.', req: 4, labelPrefix: 'L1-S1: ' }, 
+            'lord_l4_l5': { color: '#f59e0b', inst: 'ARRASTRA platillo L4, luego platillo L5.', req: 4, labelPrefix: 'L4-L5: ' }, 
+            'lord_l4_s1': { color: '#fb7185', inst: 'ARRASTRA platillo L4, luego platillo S1.', req: 4, labelPrefix: 'L4-S1: ' }, 
+            'lord_l5_s1': { color: '#8b5cf6', inst: 'ARRASTRA platillo L5, luego platillo S1.', req: 4, labelPrefix: 'L5-S1: ' }, 
+            'pelvic_combo': { color: '#c084fc', inst: 'ARRASTRA Femur Izq. | ARRASTRA Femur Der. | ARRASTRA S1.', req: 6, labelPrefix: '' },
+            'l1_pa': { color: '#fbbf24', inst: 'Haz UN CLIC en el centro de L1.', req: 1, labelPrefix: 'L1-PA: ' },
+            'l4_pa': { color: '#fcd34d', inst: 'Haz UN CLIC en el centro de L4.', req: 1, labelPrefix: 'L4-PA: ' },
+            't4_pa': { color: '#fcd34d', inst: 'Haz UN CLIC en el centro de T4.', req: 1, labelPrefix: 'T4-PA: ' },
+            'c2_pa': { color: '#fde68a', inst: 'Haz UN CLIC en el centro de C2.', req: 1, labelPrefix: 'C2-PA: ' },
+            'l1_tilt': { color: '#fdba74', inst: 'Haz UN CLIC en L1 para calcular el Tilt.', req: 1, labelPrefix: 'L1-Tilt: ' },
+            't4_tilt': { color: '#fb923c', inst: 'Haz UN CLIC en T4 para calcular el Tilt.', req: 1, labelPrefix: 'T4-Tilt: ' },
+            'c2_tilt': { color: '#f97316', inst: 'Haz UN CLIC en C2 para calcular el Tilt.', req: 1, labelPrefix: 'C2-Tilt: ' }
+        };
+
+        function resizeCanvas() {
+            if (!img) return;
+            const rect = wrapper.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            drawAll();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        document.getElementById('uploadInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const image = new Image();
+                image.onload = () => {
+                    img = image;
+                    emptyState.style.display = 'none';
+                    annotations = []; currentPoints = []; selectedAnnIndex = -1; closeCtxMenu();
+                    resizeCanvas();
+                };
+                image.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            annotations = []; currentPoints = []; selectedAnnIndex = -1; activeTool = null; closeCtxMenu();
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            instDiv.classList.add('hidden'); drawAll();
+        });
+
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                const toolName = btn.getAttribute('data-tool');
+                
+                if (activeTool === toolName) {
+                    activeTool = null; instDiv.classList.add('hidden');
+                } else {
+                    activeTool = toolName; 
+                    btn.classList.add('active');
+                    instText.textContent = TOOL_CONFIG[toolName].inst;
+                    instDiv.classList.remove('hidden'); instDiv.classList.add('flex');
+                }
+                currentPoints = []; draggedItem = null; isDrawing = false; selectedAnnIndex = -1; closeCtxMenu(); drawAll();
+            });
+        });
+
+        function calculatePelvicRefs() {
+            for (let i = annotations.length - 1; i >= 0; i--) {
+                let ann = annotations[i];
+                if (ann.tool === 'pelvic_combo' && ann.points.length >= 6) {
+                    let fhc = { x: (ann.points[0].x + ann.points[2].x)/2, y: (ann.points[0].y + ann.points[2].y)/2 };
+                    let s1m = { x: (ann.points[4].x + ann.points[5].x)/2, y: (ann.points[4].y + ann.points[5].y)/2 };
+                    return { fhc, s1m };
+                }
+            }
+            return null;
+        }
+
+        function getDist(p1, p2) { return Math.hypot(p2.x - p1.x, p2.y - p1.y); }
+        function distToSegment(p, v, w) {
+            let l2 = Math.pow(w.x - v.x, 2) + Math.pow(w.y - v.y, 2);
+            if (l2 === 0) return getDist(p, v);
+            let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+            t = Math.max(0, Math.min(1, t));
+            let proj = { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) };
+            return getDist(p, proj);
+        }
+
+        function getHoveredHandle(x, y) {
+            const NODE_TOL = 12; 
+            const LINE_TOL = 8;
+            
+            for (let i = annotations.length - 1; i >= 0; i--) {
+                const ann = annotations[i];
+                
+                if (ann._cachedBounds) {
+                    const b = ann._cachedBounds;
+                    const pad = 10;
+                    if (x >= b.x - pad && x <= b.x + b.w + pad && y >= b.y - pad && y <= b.y + b.h + pad) {
+                        return { type: 'text', ann, annIndex: i };
+                    }
+                }
+                
+                if (i === selectedAnnIndex) {
+                    for (let j = 0; j < ann.points.length; j++) {
+                        if (getDist({x, y}, ann.points[j]) <= NODE_TOL) return { type: 'node', ann, index: j, annIndex: i };
+                    }
+                }
+                
+                if (ann.tool === 'circle' && ann.points.length >= 2) {
+                    let r = getDist(ann.points[0], ann.points[1]);
+                    if (Math.abs(getDist({x,y}, ann.points[0]) - r) <= LINE_TOL) return { type: 'line', ann, annIndex: i, pA: 0, pB: 1 };
+                } 
+                else if (ann.tool === 'pelvic_combo') {
+                    if (ann.points.length >= 6) {
+                        let fhc = { x: (ann.points[0].x + ann.points[2].x)/2, y: (ann.points[0].y + ann.points[2].y)/2 };
+                        let s1m = { x: (ann.points[4].x + ann.points[5].x)/2, y: (ann.points[4].y + ann.points[5].y)/2 };
+                        if (distToSegment({x,y}, fhc, s1m) <= LINE_TOL) return { type: 'select_only', ann, annIndex: i };
+                        if (distToSegment({x,y}, ann.points[4], ann.points[5]) <= LINE_TOL) return { type: 'line', ann, annIndex: i, pA: 4, pB: 5 };
+                    }
+                    if (ann.points.length >= 2) {
+                        let r1 = getDist(ann.points[0], ann.points[1]);
+                        if (Math.abs(getDist({x,y}, ann.points[0]) - r1) <= LINE_TOL) return { type: 'line', ann, annIndex: i, pA: 0, pB: 1 };
+                    }
+                    if (ann.points.length >= 4) {
+                        let r2 = getDist(ann.points[2], ann.points[3]);
+                        if (Math.abs(getDist({x,y}, ann.points[2]) - r2) <= LINE_TOL) return { type: 'line', ann, annIndex: i, pA: 2, pB: 3 };
+                    }
+                } 
+                else if (ann.tool.endsWith('_pa') || ann.tool.endsWith('_tilt')) {
+                    let refs = calculatePelvicRefs();
+                    if (refs && ann.points.length >= 1) {
+                        if (distToSegment({x,y}, ann.points[0], refs.fhc) <= LINE_TOL) return { type: 'select_only', ann, annIndex: i };
+                    }
+                }
+                else {
+                    for(let j=0; j<ann.points.length-1; j+=2) {
+                        if (distToSegment({x,y}, ann.points[j], ann.points[j+1]) <= LINE_TOL) return { type: 'line', ann, annIndex: i, pA: j, pB: j+1 };
+                    }
+                }
+            }
+            return null;
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (!img) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            if (e.button === 2) { 
+                let hover = getHoveredHandle(x, y);
+                if (hover) openCtxMenu(e.clientX, e.clientY, hover.annIndex);
+                else closeCtxMenu();
+                return;
+            }
+
+            closeCtxMenu();
+            let hover = getHoveredHandle(x, y);
+
+            if (hover && !activeTool) {
+                selectedAnnIndex = hover.annIndex; 
+                draggedItem = hover;
+                
+                if (hover.type === 'text') {
+                    draggedItem.offsetX = x - hover.ann.textPos.x;
+                    draggedItem.offsetY = y - hover.ann.textPos.y;
+                } else if (hover.type === 'line') {
+                    let ptA = hover.ann.points[hover.pA];
+                    let ptB = hover.ann.points[hover.pB];
+                    draggedItem.offsetAx = x - ptA.x; draggedItem.offsetAy = y - ptA.y;
+                    draggedItem.offsetBx = x - ptB.x; draggedItem.offsetBy = y - ptB.y;
+                }
+                drawAll();
+                return;
+            } else if (!activeTool) {
+                selectedAnnIndex = -1; 
+                drawAll();
+                return;
+            }
+
+            if (activeTool) {
+                selectedAnnIndex = -1; 
+                
+                if (activeTool.endsWith('_pa') || activeTool.endsWith('_tilt')) {
+                    let refs = calculatePelvicRefs();
+                    if (!refs) {
+                        instText.textContent = "Error: Mide primero los Parámetros Pélvicos.";
+                        return;
+                    }
+                    currentPoints.push({x, y});
+                    finalizeAnnotation();
+                } else {
+                    currentPoints.push({x, y});
+                    currentPoints.push({x, y}); 
+                    isDrawing = true;
+                    drawAll();
+                }
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!img) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            mousePos = {x, y};
+
+            if (draggedItem) {
+                if (draggedItem.type === 'text') {
+                    draggedItem.ann.textPos.x = x - draggedItem.offsetX;
+                    draggedItem.ann.textPos.y = y - draggedItem.offsetY;
+                } 
+                else if (draggedItem.type === 'node') {
+                    draggedItem.ann.points[draggedItem.index].x = x;
+                    draggedItem.ann.points[draggedItem.index].y = y;
+                }
+                else if (draggedItem.type === 'line') {
+                    draggedItem.ann.points[draggedItem.pA].x = x - draggedItem.offsetAx;
+                    draggedItem.ann.points[draggedItem.pA].y = y - draggedItem.offsetAy;
+                    draggedItem.ann.points[draggedItem.pB].x = x - draggedItem.offsetBx;
+                    draggedItem.ann.points[draggedItem.pB].y = y - draggedItem.offsetBy;
+                }
+                drawAll();
+                return;
+            }
+
+            if (isDrawing && currentPoints.length >= 2) {
+                currentPoints[currentPoints.length - 1].x = x;
+                currentPoints[currentPoints.length - 1].y = y;
+                drawAll();
+                return;
+            }
+
+            let hover = getHoveredHandle(x, y);
+            if (hover) {
+                if (hover.type === 'line') wrapper.style.cursor = 'move';
+                else if (hover.type === 'select_only') wrapper.style.cursor = 'pointer';
+                else wrapper.style.cursor = 'grab';
+            } else {
+                wrapper.style.cursor = activeTool ? 'crosshair' : 'default';
+            }
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (draggedItem) { draggedItem = null; return; } 
+            
+            if (isDrawing) {
+                isDrawing = false;
+                let p1 = currentPoints[currentPoints.length-2];
+                let p2 = currentPoints[currentPoints.length-1];
+                if (getDist(p1, p2) < 5) { p2.x += 30; p2.y += 10; } 
+
+                let config = TOOL_CONFIG[activeTool];
+                if (currentPoints.length >= config.req) {
+                    finalizeAnnotation();
+                } else {
+                    if (config.req === 4 && currentPoints.length === 2) instText.textContent = "Bien. Ahora ARRASTRA la segunda línea.";
+                    if (config.req === 6) {
+                        if (currentPoints.length === 2) instText.textContent = "ARRASTRA para Cabeza Femoral Derecha.";
+                        if (currentPoints.length === 4) instText.textContent = "ARRASTRA para marcar el platillo S1.";
+                    }
+                }
+                drawAll();
+            }
+        });
+
+        function finalizeAnnotation() {
+            annotations.push({
+                tool: activeTool,
+                points: [...currentPoints],
+                color: TOOL_CONFIG[activeTool].color,
+                textPos: null,
+                thickness: 1, // DEFAULT THICKNESS = 1
+                fontSize: 10, // DEFAULT FONT SIZE = 10
+                customLabel: ''
+            });
+            selectedAnnIndex = annotations.length - 1; 
+            
+            currentPoints = []; activeTool = null;
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            instDiv.classList.add('hidden'); wrapper.style.cursor = 'default'; 
+            drawAll();
+        }
+
+        function drawAll() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (!img) return;
+
+            const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+            const w = img.width * scale;
+            const h = img.height * scale;
+            const dx = (canvas.width - w) / 2;
+            const dy = (canvas.height - h) / 2;
+            ctx.drawImage(img, dx, dy, w, h);
+
+            let paAngles = { l1: null, t4: null, l1Idx: -1, t4Idx: -1 };
+            let refs = calculatePelvicRefs();
+            
+            if (refs) {
+                annotations.forEach((ann, idx) => {
+                    if ((ann.tool.endsWith('_pa') || ann.tool.endsWith('_tilt')) && ann.points.length >= 1) {
+                        let dxV = ann.points[0].x - refs.fhc.x; 
+                        let dyV = ann.points[0].y - refs.fhc.y;
+                        
+                        if (ann.tool.endsWith('_pa')) {
+                            let dxS1 = refs.s1m.x - refs.fhc.x; let dyS1 = refs.s1m.y - refs.fhc.y;
+                            let aV = Math.atan2(dyV, dxV);
+                            let aS1 = Math.atan2(dyS1, dxS1);
+                            let ang = Math.abs(aV - aS1) * 180 / Math.PI;
+                            if (ang > 180) ang = 360 - ang;
+                            
+                            ann._computedVal = ang;
+                            
+                            if (ann.tool === 'l1_pa') { paAngles.l1 = ang; paAngles.l1Idx = idx; }
+                            if (ann.tool === 't4_pa') { paAngles.t4 = ang; paAngles.t4Idx = idx; }
+                        } else if (ann.tool.endsWith('_tilt')) {
+                            let ang = Math.abs(Math.atan2(dxV, -dyV)) * 180 / Math.PI;
+                            ann._computedVal = ang;
+                        }
+                        ann._mismatchStr = null; 
+                    }
+                });
+                
+                if (paAngles.l1 !== null && paAngles.t4 !== null) {
+                    let mismatch = Math.abs(paAngles.l1 - paAngles.t4);
+                    let targetIdx = Math.max(paAngles.l1Idx, paAngles.t4Idx);
+                    annotations[targetIdx]._mismatchStr = `Mismatch (T4-L1): ${mismatch.toFixed(1)}°`;
+                }
+            }
+
+            annotations.forEach((ann, idx) => {
+                let isSelected = (idx === selectedAnnIndex);
+                renderShape(ann, isSelected, false, refs);
+            });
+
+            if (activeTool && currentPoints.length > 0) {
+                renderShape({tool: activeTool, points: currentPoints, color: TOOL_CONFIG[activeTool].color, thickness: 1}, false, true, refs);
+            }
+        }
+
+        function renderShape(ann, isSelected, isGhost, refs) {
+            let pts = ann.points;
+            let tool = ann.tool;
+            let color = ann.color;
+            let lineThick = ann.thickness || 1; // 1px default
+            let conf = TOOL_CONFIG[tool];
+            
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = lineThick;
+            
+            if (isSelected) { 
+                ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 10; 
+                ctx.lineWidth = lineThick + 1;
+            } else { 
+                ctx.shadowBlur = 0; 
+            }
+
+            let mathStr = '';
+
+            if (tool === 'line' && pts.length >= 2) {
+                drawLine(pts[0], pts[1], isGhost);
+                if (!isGhost) mathStr = `${getDist(pts[0], pts[1]).toFixed(1)} px`;
+            } 
+            else if (tool === 'circle' && pts.length >= 2) {
+                drawCleanCircle(pts[0], pts[1], isGhost);
+                if (!isGhost) mathStr = `${getDist(pts[0], pts[1]).toFixed(1)} px`;
+            }
+            else if ((tool === 'angle' || tool === 'cobb' || tool.startsWith('lord_')) && pts.length >= 2) {
+                drawLine(pts[0], pts[1], isGhost);
+                if (pts.length >= 4) {
+                    drawLine(pts[2], pts[3], isGhost);
+                    let dx1 = pts[1].x - pts[0].x; let dy1 = pts[1].y - pts[0].y;
+                    let dx2 = pts[3].x - pts[2].x; let dy2 = pts[3].y - pts[2].y;
+                    let a1 = Math.atan2(dy1, dx1); let a2 = Math.atan2(dy2, dx2);
+                    let ang = Math.abs(a1 - a2) * 180 / Math.PI;
+                    ang = ang % 180; if (ang > 90) ang = 180 - ang;
+                    if (!isGhost) {
+                        mathStr = `${ang.toFixed(1)}°`;
+                        ann._computedVal = ang; 
+                    }
+                }
+            }
+            else if (tool === 'pelvic_combo') {
+                if (pts.length >= 2) drawCleanCircle(pts[0], pts[1], isGhost);
+                if (pts.length >= 4) drawCleanCircle(pts[2], pts[3], isGhost);
+                if (pts.length >= 6) {
+                    let fhc = { x: (pts[0].x + pts[2].x)/2, y: (pts[0].y + pts[2].y)/2 };
+                    let s1m = { x: (pts[4].x + pts[5].x)/2, y: (pts[4].y + pts[5].y)/2 };
+                    
+                    drawLine(pts[4], pts[5], isGhost); 
+                    drawLine(fhc, s1m, isGhost); 
+                    
+                    let dxS1 = pts[5].x - pts[4].x; let dyS1 = pts[5].y - pts[4].y;
+                    let SS = Math.atan2(Math.abs(dyS1), Math.abs(dxS1)) * 180 / Math.PI;
+                    
+                    let dxFhc = s1m.x - fhc.x; let dyFhc = s1m.y - fhc.y;
+                    let PT = Math.atan2(Math.abs(dxFhc), Math.abs(dyFhc)) * 180 / Math.PI;
+                    let PI = PT + SS;
+
+                    if (!isGhost) {
+                        ann._pelvicVals = { PI, PT, SS }; 
+                        mathStr = 'pelvic';
+                    }
+                }
+            }
+            else if (tool.endsWith('_pa') || tool.endsWith('_tilt')) {
+                if (!refs) { mathStr = 'Faltan parámetros pélvicos'; }
+                else if (pts.length >= 1) {
+                    let vert = pts[0];
+                    drawLine(vert, refs.fhc, isGhost); 
+                    
+                    if (!isGhost && ann._computedVal !== undefined) {
+                        mathStr = `${ann._computedVal.toFixed(1)}°`;
+                    }
+                }
+            }
+
+            ctx.shadowBlur = 0;
+
+            if (isSelected || isGhost) {
+                pts.forEach((p, i) => {
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); 
+                    ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
+                });
+            }
+
+            if (!isGhost && pts.length > 0) {
+                let labelLines = [];
+                if (ann.customLabel) labelLines.push(ann.customLabel); 
+                
+                if (mathStr === 'pelvic' && ann._pelvicVals) {
+                    labelLines.push(`PI: ${ann._pelvicVals.PI.toFixed(1)}°`);
+                    labelLines.push(`PT: ${ann._pelvicVals.PT.toFixed(1)}°`);
+                    labelLines.push(`SS: ${ann._pelvicVals.SS.toFixed(1)}°`);
+                } else if (mathStr && mathStr !== 'pelvic') {
+                    labelLines.push(`${conf.labelPrefix}${mathStr}`);
+                    if (ann._mismatchStr) {
+                        labelLines.push(ann._mismatchStr);
+                    }
+                }
+
+                if (labelLines.length > 0) {
+                    if (!ann.textPos) {
+                        let lp = pts[pts.length - 1];
+                        if (tool === 'pelvic_combo') lp = { x: pts[4].x + 30, y: pts[4].y - 30 }; 
+                        else if (tool.endsWith('_pa') || tool.endsWith('_tilt')) lp = { x: pts[0].x + 20, y: pts[0].y - 10 };
+                        else lp = { x: lp.x + 15, y: lp.y + 15 };
+                        ann.textPos = lp;
+                    }
+
+                    // Default to 10px minimum
+                    let fSize = ann.fontSize || 10;
+                    ctx.font = `bold ${fSize}px Inter, sans-serif`;
+                    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+                    let lx = ann.textPos.x; let ly = ann.textPos.y;
+                    let maxWidth = 0; let lineHeight = fSize * 1.5;
+
+                    labelLines.forEach(line => {
+                        let w = ctx.measureText(line).width;
+                        if (w > maxWidth) maxWidth = w;
+                        
+                        ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 3;
+                        ctx.lineWidth = fSize > 20 ? 4 : 3; ctx.lineJoin = 'round'; ctx.strokeStyle = '#000000';
+                        ctx.strokeText(line, lx, ly);
+                        
+                        ctx.shadowBlur = 0; ctx.fillStyle = isSelected ? '#ffffff' : color;
+                        if (line.startsWith("Mismatch:")) ctx.fillStyle = '#ef4444'; 
+                        
+                        ctx.fillText(line, lx, ly);
+                        ly += lineHeight; 
+                    });
+
+                    ann._cachedBounds = { x: lx, y: ann.textPos.y, w: maxWidth, h: labelLines.length * lineHeight };
+                }
+            }
+        }
+
+        function drawLine(p1, p2, isGhost) {
+            ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+            if (isGhost) ctx.setLineDash([5, 5]);
+            ctx.stroke(); ctx.setLineDash([]);
+        }
+
+        function drawCleanCircle(c, p, isGhost) {
+            let r = getDist(c, p);
+            ctx.beginPath(); ctx.arc(c.x, c.y, r, 0, Math.PI*2);
+            if (isGhost) ctx.setLineDash([5,5]);
+            ctx.stroke(); ctx.setLineDash([]);
+        }
+
+        const ctxMenu = document.getElementById('ctx-menu');
+        const ctxColor = document.getElementById('ctx-color');
+        const ctxThickness = document.getElementById('ctx-thickness');
+        const ctxFont = document.getElementById('ctx-font');
+        const ctxLabel = document.getElementById('ctx-label');
+
+        function openCtxMenu(x, y, index) {
+            selectedAnnIndex = index;
+            const ann = annotations[index];
+            
+            ctxColor.value = ann.color;
+            ctxThickness.value = ann.thickness || 1;
+            document.getElementById('ctx-thick-val').textContent = (ann.thickness || 1) + 'px';
+            ctxFont.value = ann.fontSize || 10;
+            document.getElementById('ctx-font-val').textContent = (ann.fontSize || 10) + 'px';
+            ctxLabel.value = ann.customLabel || '';
+            
+            ctxMenu.classList.remove('hidden'); 
+            ctxMenu.classList.add('flex');
+            
+            let mw = ctxMenu.offsetWidth;
+            let mh = ctxMenu.offsetHeight;
+            
+            let mx = x; let my = y;
+            if (mx + mw > window.innerWidth) mx -= mw;
+            if (my + mh > window.innerHeight) my -= mh;
+            
+            ctxMenu.style.left = `${mx}px`; 
+            ctxMenu.style.top = `${my}px`;
+            
+            drawAll();
+        }
+
+        function closeCtxMenu() {
+            ctxMenu.classList.add('hidden'); ctxMenu.classList.remove('flex');
+            drawAll(); 
+        }
+        
+        window.addEventListener('mousedown', (e) => {
+            if (!ctxMenu.contains(e.target) && e.target !== canvas) closeCtxMenu();
+        });
+
+        ctxColor.addEventListener('input', (e) => {
+            if (selectedAnnIndex > -1) { annotations[selectedAnnIndex].color = e.target.value; drawAll(); }
+        });
+        ctxThickness.addEventListener('input', (e) => {
+            if (selectedAnnIndex > -1) { 
+                annotations[selectedAnnIndex].thickness = parseInt(e.target.value); 
+                document.getElementById('ctx-thick-val').textContent = e.target.value + 'px';
+                drawAll(); 
+            }
+        });
+        ctxFont.addEventListener('input', (e) => {
+            if (selectedAnnIndex > -1) { 
+                annotations[selectedAnnIndex].fontSize = parseInt(e.target.value); 
+                document.getElementById('ctx-font-val').textContent = e.target.value + 'px';
+                drawAll(); 
+            }
+        });
+        ctxLabel.addEventListener('input', (e) => {
+            if (selectedAnnIndex > -1) { annotations[selectedAnnIndex].customLabel = e.target.value; drawAll(); }
+        });
+        document.getElementById('ctx-delete').addEventListener('click', () => {
+            if (selectedAnnIndex > -1) { annotations.splice(selectedAnnIndex, 1); selectedAnnIndex = -1; closeCtxMenu(); drawAll(); }
+        });
+
+        const resultsTable = document.getElementById('resultsTable');
+        const tableHeader = document.getElementById('tableHeader');
+        const closeTableBtn = document.getElementById('closeTableBtn');
+        const generateTableBtn = document.getElementById('generateTableBtn');
+        const tableBody = document.getElementById('tableBody');
+
+        let isDraggingTable = false;
+        let tableDragOffsetX = 0;
+        let tableDragOffsetY = 0;
+
+        tableHeader.addEventListener('mousedown', (e) => {
+            isDraggingTable = true;
+            const rect = resultsTable.getBoundingClientRect();
+            tableDragOffsetX = e.clientX - rect.left;
+            tableDragOffsetY = e.clientY - rect.top;
+            resultsTable.style.transform = 'none'; 
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isDraggingTable) {
+                resultsTable.style.left = `${e.clientX - tableDragOffsetX}px`;
+                resultsTable.style.top = `${e.clientY - tableDragOffsetY}px`;
+            }
+        });
+
+        window.addEventListener('mouseup', () => { isDraggingTable = false; });
+
+        closeTableBtn.addEventListener('click', () => resultsTable.classList.add('hidden'));
+
+        generateTableBtn.addEventListener('click', () => {
+            let vals = { PI: null, L1S1: null, L4S1: null, L1PA: null, L4PA: null };
+            
+            annotations.forEach(a => {
+                if (a.tool === 'pelvic_combo' && a._pelvicVals) vals.PI = a._pelvicVals.PI;
+                if (a.tool === 'lord_l1_s1' && a._computedVal !== undefined) vals.L1S1 = a._computedVal;
+                if (a.tool === 'lord_l4_s1' && a._computedVal !== undefined) vals.L4S1 = a._computedVal;
+                if (a.tool === 'l1_pa' && a._computedVal !== undefined) vals.L1PA = a._computedVal;
+                if (a.tool === 'l4_pa' && a._computedVal !== undefined) vals.L4PA = a._computedVal;
+            });
+
+            const pi = vals.PI;
+            
+            const renderRow = (name, base, ideal) => `
+                <tr class="border-b border-gray-800 hover:bg-gray-800/50">
+                    <td class="py-2.5 font-semibold text-gray-300">${name}</td>
+                    <td class="py-2.5 text-gray-400">${base !== null ? base.toFixed(1) + '°' : '-'}</td>
+                    <td class="py-2.5 text-emerald-400 font-bold tracking-wide">${ideal}</td>
+                    <td class="py-2.5">
+                        <input type="text" class="w-16 bg-gray-950 border border-gray-700 rounded px-1.5 py-1 text-white text-xs outline-none focus:border-emerald-500 text-center shadow-inner" placeholder="0°">
+                    </td>
+                </tr>
+            `;
+
+            tableBody.innerHTML = 
+                renderRow('Incidencia Pélvica', pi, pi !== null ? pi.toFixed(1) + '°' : '-') +
+                renderRow('L1-S1', vals.L1S1, pi !== null ? ((pi * 0.6) + 30).toFixed(1) + '°' : '-') +
+                renderRow('L4-S1', vals.L4S1, '35.0° - 40.0°') +
+                renderRow('L1-PA', vals.L1PA, pi !== null ? ((pi * 0.5) - 20).toFixed(1) + '°' : '-') +
+                renderRow('L4-PA', vals.L4PA, pi !== null ? ((pi * 0.5) - 20).toFixed(1) + '°' : '-');
+
+            resultsTable.classList.remove('hidden');
+        });
+
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+        const chatLog = document.getElementById('chat-log');
+
+        async function handleSend() {
+            const query = chatInput.value.trim();
+            if (!query) return;
+            chatInput.value = '';
+            
+            const divUser = document.createElement('div');
+            divUser.className = "p-3 rounded-lg max-w-[90%] shadow-md bg-teal-700/80 text-white self-end rounded-tr-none text-sm";
+            divUser.textContent = query;
+            chatLog.appendChild(divUser);
+            chatLog.scrollTop = chatLog.scrollHeight;
+            
+            const divBot = document.createElement('div');
+            divBot.className = "p-3 rounded-lg max-w-[90%] shadow-md bg-gray-700 border border-gray-600 text-gray-200 self-start rounded-tl-none text-sm mt-2";
+            divBot.innerHTML = `<span class="animate-pulse">Consultando a Gemini AI...</span>`;
+            chatLog.appendChild(divBot);
+
+            try {
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                const payload = {
+                    contents: [{ parts: [{ text: query }] }],
+                    systemInstruction: { parts: [{ text: "Eres experto en cirugía de columna. Responde en español clínica y brevemente." }] }
+                };
+
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (text) divBot.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                else divBot.innerHTML = "No pude generar respuesta.";
+            } catch (error) {
+                divBot.innerHTML = "Error al conectar con la API.";
+            }
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        chatSend.addEventListener('click', handleSend);
+        chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
+
+    </script>
+</body>
+</html>
