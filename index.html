@@ -976,5 +976,92 @@
         chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
 
     </script>
+  <!-- MÓDULO DE PLANIFICACIÓN CERVICAL -->
+<div class="bg-gray-800 rounded-xl shadow-lg p-6 mb-8 border border-gray-700">
+  <h2 class="text-2xl font-bold text-emerald-400 mb-6 flex items-center">
+    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+    Alineación Sagital Cervical
+  </h2>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <div>
+      <label class="block text-sm font-medium text-gray-300">Lordosis Cervical C2-C7 (Grados)</label>
+      <input type="number" id="cervical_cl" class="w-full mt-2 p-3 bg-gray-900 border border-gray-600 rounded-lg text-white focus:ring-emerald-500 focus:border-emerald-500" placeholder="Ej: 15" oninput="calcularCervical()">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-300">T1 Slope - T1S (Grados)</label>
+      <input type="number" id="cervical_t1s" class="w-full mt-2 p-3 bg-gray-900 border border-gray-600 rounded-lg text-white focus:ring-emerald-500 focus:border-emerald-500" placeholder="Ej: 25" oninput="calcularCervical()">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-300">C2-C7 SVA (Milímetros)</label>
+      <input type="number" id="cervical_sva" class="w-full mt-2 p-3 bg-gray-900 border border-gray-600 rounded-lg text-white focus:ring-emerald-500 focus:border-emerald-500" placeholder="Ej: 35" oninput="calcularCervical()">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-300">Ángulo Mentón-Cejas CBVA (Grados)</label>
+      <input type="number" id="cervical_cbva" class="w-full mt-2 p-3 bg-gray-900 border border-gray-600 rounded-lg text-white focus:ring-emerald-500 focus:border-emerald-500" placeholder="Opcional">
+    </div>
+  </div>
+
+  <div class="mt-6 p-5 bg-gray-900 rounded-lg border border-gray-700">
+    <h3 class="text-sm uppercase tracking-wider font-semibold text-gray-400 mb-4">Análisis Predictivo</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <p class="text-sm text-gray-300">Mismatch (T1S - CL):</p>
+        <div class="flex items-baseline mt-1">
+          <span id="resultado_mismatch" class="text-3xl font-bold text-white">-</span>
+          <span id="alerta_mismatch" class="ml-3 text-sm font-medium"></span>
+        </div>
+      </div>
+      <div>
+        <p class="text-sm text-gray-300">Eje Sagital Vertical:</p>
+        <p id="resultado_sva" class="text-xl font-bold text-white mt-1">-</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function calcularCervical() {
+  let cl = parseFloat(document.getElementById('cervical_cl').value);
+  let t1s = parseFloat(document.getElementById('cervical_t1s').value);
+  let sva = parseFloat(document.getElementById('cervical_sva').value);
+
+  let outMismatch = document.getElementById('resultado_mismatch');
+  let alertaMismatch = document.getElementById('alerta_mismatch');
+  let outSva = document.getElementById('resultado_sva');
+
+  if (!isNaN(cl) && !isNaN(t1s)) {
+    let mismatch = t1s - cl;
+    outMismatch.innerText = mismatch.toFixed(1) + "°";
+    if (mismatch <= 15) {
+      outMismatch.className = "text-3xl font-bold text-emerald-400";
+      alertaMismatch.innerText = "✓ Compensado (≤ 15°)";
+      alertaMismatch.className = "ml-3 text-sm font-medium text-emerald-400";
+    } else {
+      outMismatch.className = "text-3xl font-bold text-red-500";
+      alertaMismatch.innerText = "⚠ Desbalance Sagital (> 15°)";
+      alertaMismatch.className = "ml-3 text-sm font-medium text-red-500";
+    }
+  } else {
+    outMismatch.innerText = "-";
+    outMismatch.className = "text-3xl font-bold text-white";
+    alertaMismatch.innerText = "";
+  }
+
+  if (!isNaN(sva)) {
+    if (sva <= 40) {
+      outSva.innerText = sva + " mm - ✓ Rango Normal";
+      outSva.className = "text-xl font-bold text-emerald-400 mt-1";
+    } else {
+      outSva.innerText = sva + " mm - ⚠ Traslación Patológica";
+      outSva.className = "text-xl font-bold text-red-500 mt-1";
+    }
+  } else {
+    outSva.innerText = "-";
+    outSva.className = "text-xl font-bold text-white mt-1";
+  }
+}
+</script>
+<!-- FIN MÓDULO CERVICAL -->
 </body>
 </html>
