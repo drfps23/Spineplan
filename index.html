@@ -426,6 +426,9 @@
                 if(item.points && item.points.length >= 2) {
                     item.points[dragObj.idx1].x += dx; item.points[dragObj.idx1].y += dy;
                     item.points[dragObj.idx2].x += dx; item.points[dragObj.idx2].y += dy;
+                } else if (item.line && item.line.length === 2) {
+                    item.line[dragObj.idx1].x += dx; item.line[dragObj.idx1].y += dy;
+                    item.line[dragObj.idx2].x += dx; item.line[dragObj.idx2].y += dy;
                 }
                 dragObj.lastX = mouseX; dragObj.lastY = mouseY;
             }
@@ -737,8 +740,20 @@
             if (m.type === 'pelvic') {
                 for(let c=0; c<m.circles.length; c++) {
                     let d = Math.hypot(x - m.circles[c].x, y - m.circles[c].y);
-                    if (d < 15) return { type: 'circleCenter', item: m, index: c }; // Ampliada área de agarre central
+                    if (d < 15) return { type: 'circleCenter', item: m, index: c }; 
                     if (Math.abs(d - m.circles[c].r) < 8) return { type: 'circleRadius', item: m, index: c };
+                }
+                if (m.line && m.line.length === 2) {
+                    let d1 = Math.hypot(x - m.line[0].x, y - m.line[0].y);
+                    let d2 = Math.hypot(x - m.line[1].x, y - m.line[1].y);
+                    if (d1 < 10) return { type: 'pelvicLine', item: m, index: 0 };
+                    if (d2 < 10) return { type: 'pelvicLine', item: m, index: 1 };
+                    
+                    let lineLen = Math.hypot(m.line[1].x-m.line[0].x, m.line[1].y-m.line[0].y);
+                    let dist = Math.abs((m.line[1].y-m.line[0].y)*x - (m.line[1].x-m.line[0].x)*y + m.line[1].x*m.line[0].y - m.line[1].y*m.line[0].x) / lineLen;
+                    if(dist < 5 && x >= Math.min(m.line[0].x, m.line[1].x)-5 && x <= Math.max(m.line[0].x, m.line[1].x)+5) {
+                        return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y };
+                    }
                 }
             }
             else if (m.type === 'sagittal') {
