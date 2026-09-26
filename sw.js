@@ -1,6 +1,6 @@
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open('spineplan-store').then((cache) => cache.addAll([
+    caches.open('spineplan-store-v2').then((cache) => cache.addAll([
       './',
       './index.html',
       './manifest.json'
