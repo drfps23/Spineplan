@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpinePlan Pro V13 - Estable</title>
+    <title>SpinePlan Pro V14 - Definitivo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: white; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; }
@@ -28,7 +28,12 @@
             <span>SpinePlan <span class="text-white text-sm font-normal">Pro</span></span>
         </div>
         
-        <div class="flex space-x-3">
+        <div class="flex items-center space-x-3">
+            <!-- BOTÓN DE ORIENTACIÓN (MIRADA) -->
+            <button onclick="toggleGaze()" id="gaze-btn" class="bg-gray-800 hover:bg-gray-700 text-emerald-400 border border-emerald-600/50 px-3 py-1.5 rounded text-xs font-semibold transition-colors flex items-center shadow-sm">
+                Mirada: ➡️
+            </button>
+            
             <label class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded text-sm font-medium cursor-pointer flex items-center transition-colors">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                 Cargar Radiografía
@@ -64,7 +69,7 @@
                     <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">2. Parámetros Pélvicos</div>
                     <div class="p-3 bg-gray-900/50">
                         <button onclick="activateTool('pelvic', 'Parámetros Pélvicos')" class="tool-btn w-full border border-gray-700 rounded px-2 py-2 text-xs text-gray-300 hover:bg-gray-800 flex justify-center items-center">
-                            Medir IP, PT y SS
+                            Medir PI, PT y SS
                         </button>
                     </div>
                 </div>
@@ -116,7 +121,7 @@
             <canvas id="mainCanvas" class="absolute z-10"></canvas>
             
             <!-- TABLA DEL PERFIL TEÓRICO -->
-            <div id="theoretical-table" class="hidden absolute top-12 left-4 bg-gray-900/95 border border-emerald-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md min-w-[280px]">
+            <div id="theoretical-table" class="hidden absolute top-12 left-4 bg-gray-900/95 border border-emerald-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md min-w-[300px]">
                 <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2">
                     <h3 class="text-emerald-400 font-bold text-sm">Perfil Teórico Ideal</h3>
                     <button onclick="document.getElementById('theoretical-table').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs">&times; Cerrar</button>
@@ -124,8 +129,8 @@
                 <table class="text-xs text-left w-full text-gray-200">
                     <thead>
                         <tr class="text-gray-400 border-b border-gray-700">
-                            <th class="pb-2 pr-4 font-semibold">Parámetro</th>
-                            <th class="pb-2 pr-4 font-semibold">Base</th>
+                            <th class="pb-2 pr-3 font-semibold">Parámetro</th>
+                            <th class="pb-2 pr-3 font-semibold">Base</th>
                             <th class="pb-2 font-semibold text-emerald-400">Ideal</th>
                         </tr>
                     </thead>
@@ -177,6 +182,14 @@
     let activeSubType = null;
     let pelvicStep = 0;
     let dragObj = null;
+
+    // Dirección de la mirada: 1 = derecha (positivo a la der), -1 = izquierda
+    let gazeDirection = 1;
+    function toggleGaze() {
+        gazeDirection *= -1;
+        document.getElementById('gaze-btn').innerText = gazeDirection === 1 ? "Mirada: ➡️" : "Mirada: ⬅️";
+        draw();
+    }
 
     // Almacenamos resultados para calcular el Perfil Teórico
     window.currentResults = {};
@@ -262,49 +275,56 @@
 
     // --- LÓGICA DEL PERFIL TEÓRICO ---
     function showTheoreticalProfile() {
-        if (!window.currentResults['IP']) {
-            updateStatus("⚠️ Debes medir los Parámetros Pélvicos (IP) primero.", true);
+        if (!window.currentResults['PI']) {
+            updateStatus("⚠️ Debes medir los Parámetros Pélvicos (PI) primero.", true);
             document.getElementById('theoretical-table').classList.add('hidden');
             return;
         }
 
-        let ip = window.currentResults['IP'];
+        let pi = window.currentResults['PI'];
         
         // Fórmulas Clínicas Exactas
-        let ideal_L1S1 = (ip * 0.6) + 30;
-        let ideal_PA = (ip * 0.5) - 20;
+        let ideal_L1S1 = (pi * 0.6) + 30;
+        let ideal_PA = (pi * 0.5) - 20;
 
+        let base_PI = window.currentResults['PI'] ? window.currentResults['PI'].toFixed(1) + '°' : '-';
         let base_L1S1 = window.currentResults['L1-S1'] ? window.currentResults['L1-S1'].toFixed(1) + '°' : '-';
         let base_L4S1 = window.currentResults['L4-S1'] ? window.currentResults['L4-S1'].toFixed(1) + '°' : '-';
-        let base_L1PA = window.currentResults['L1-PA'] ? window.currentResults['L1-PA'].toFixed(1) + '°' : '-';
-        let base_T4PA = window.currentResults['T4-PA'] ? window.currentResults['T4-PA'].toFixed(1) + '°' : '-';
+        let base_L1PA = window.currentResults['L1-PA'] !== undefined ? (window.currentResults['L1-PA'] >= 0 ? '+' : '') + window.currentResults['L1-PA'].toFixed(1) + '°' : '-';
+        let base_T4PA = window.currentResults['T4-PA'] !== undefined ? (window.currentResults['T4-PA'] >= 0 ? '+' : '') + window.currentResults['T4-PA'].toFixed(1) + '°' : '-';
+        let base_C2Tilt = window.currentResults['C2 Tilt'] !== undefined ? (window.currentResults['C2 Tilt'] >= 0 ? '+' : '') + window.currentResults['C2 Tilt'].toFixed(1) + '°' : '-';
 
         let tbody = document.getElementById('theo-tbody');
         tbody.innerHTML = `
             <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors">
-                <td class="py-2 font-medium text-emerald-400">IP</td>
-                <td class="py-2">${ip.toFixed(1)}°</td>
-                <td class="py-2 font-bold text-emerald-400">${ip.toFixed(1)}°</td>
+                <td class="py-2 pr-3 font-medium text-emerald-400">PI</td>
+                <td class="py-2 pr-3">${base_PI}</td>
+                <td class="py-2 font-bold text-emerald-400">${base_PI}</td>
             </tr>
             <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors">
-                <td class="py-2 font-medium text-white">L1-S1</td>
-                <td class="py-2 text-gray-300">${base_L1S1}</td>
+                <td class="py-2 pr-3 font-medium text-white">L1-S1</td>
+                <td class="py-2 pr-3 text-gray-300">${base_L1S1}</td>
                 <td class="py-2 font-bold text-emerald-400">${ideal_L1S1.toFixed(1)}°</td>
             </tr>
             <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors">
-                <td class="py-2 font-medium text-white">L4-S1</td>
-                <td class="py-2 text-gray-300">${base_L4S1}</td>
+                <td class="py-2 pr-3 font-medium text-white">L4-S1</td>
+                <td class="py-2 pr-3 text-gray-300">${base_L4S1}</td>
                 <td class="py-2 font-bold text-emerald-400">35° - 40°</td>
             </tr>
             <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors">
-                <td class="py-2 font-medium text-white">L1-PA</td>
-                <td class="py-2 text-gray-300">${base_L1PA}</td>
+                <td class="py-2 pr-3 font-medium text-white">L1-PA</td>
+                <td class="py-2 pr-3 text-gray-300">${base_L1PA}</td>
+                <td class="py-2 font-bold text-emerald-400">${ideal_PA.toFixed(1)}°</td>
+            </tr>
+            <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors">
+                <td class="py-2 pr-3 font-medium text-white">T4-PA</td>
+                <td class="py-2 pr-3 text-gray-300">${base_T4PA}</td>
                 <td class="py-2 font-bold text-emerald-400">${ideal_PA.toFixed(1)}°</td>
             </tr>
             <tr class="hover:bg-gray-800/50 transition-colors">
-                <td class="py-2 font-medium text-white">T4-PA</td>
-                <td class="py-2 text-gray-300">${base_T4PA}</td>
-                <td class="py-2 font-bold text-emerald-400">${ideal_PA.toFixed(1)}°</td>
+                <td class="py-2 pr-3 font-medium text-white">C2 Tilt</td>
+                <td class="py-2 pr-3 text-gray-300">${base_C2Tilt}</td>
+                <td class="py-2 font-bold text-emerald-400">+1° a -3°</td>
             </tr>
         `;
 
@@ -634,10 +654,10 @@
                         let pt = Math.abs((Math.atan2(pt_dy, pt_dx) * 180 / Math.PI) - 90);
                         if(pt > 90) pt = Math.abs(pt - 180);
                         
-                        let ip = ss + pt;
-                        window.currentResults['IP'] = ip;
+                        let pi = ss + pt;
+                        window.currentResults['PI'] = pi;
                         
-                        let resultText = `IP: ${ip.toFixed(1)}°\nPT: ${pt.toFixed(1)}°\nSS: ${ss.toFixed(1)}°`;
+                        let resultText = `PI: ${pi.toFixed(1)}°\nPT: ${pt.toFixed(1)}°\nSS: ${ss.toFixed(1)}°`;
                         drawText(m.textPos.x, m.textPos.y, null, resultText, m.color, m.fontSize);
                     }
                 }
@@ -656,6 +676,7 @@
                     ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke();
 
                     let angle = 0;
+                    let signedAngle = 0;
                     let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y};
                     let mag1 = Math.hypot(v1.x, v1.y);
 
@@ -666,20 +687,31 @@
                         let mag2 = Math.hypot(v2.x, v2.y);
                         
                         let dot = v1.x*v2.x + v1.y*v2.y;
-                        angle = Math.acos(dot / (mag1*mag2)) * 180 / Math.PI;
+                        angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI;
                         
-                        window.currentResults[m.title] = angle;
-                        if (m.title === 'L1-PA') val_L1PA = angle;
-                        if (m.title === 'T4-PA') val_T4PA = angle;
+                        // Regla vectorial: Delante del vector HA-S1 es positivo, detrás es negativo (ajustado por mirada)
+                        let cross = v2.x * v1.y - v2.y * v1.x;
+                        let side = cross * gazeDirection;
+                        signedAngle = side >= 0 ? angle : -angle;
+
+                        window.currentResults[m.title] = signedAngle;
+                        if (m.title === 'L1-PA') val_L1PA = signedAngle;
+                        if (m.title === 'T4-PA') val_T4PA = signedAngle;
                     } 
                     else if (m.subType === 'tilt') {
                         let v2 = {x: 0, y: -1}; 
                         let dot = v1.x*v2.x + v1.y*v2.y;
                         let mag2 = 1;
-                        angle = Math.acos(dot / (mag1*mag2)) * 180 / Math.PI;
+                        angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI;
+                        
+                        let side = v1.x * gazeDirection;
+                        signedAngle = side >= 0 ? angle : -angle;
+
+                        window.currentResults[m.title] = signedAngle;
                     }
                     
-                    drawText(m.textPos.x, m.textPos.y, m.title, `${angle.toFixed(1)}°`, m.color, m.fontSize);
+                    let prefix = signedAngle >= 0 ? '+' : '';
+                    drawText(m.textPos.x, m.textPos.y, m.title, `${prefix}${signedAngle.toFixed(1)}°`, m.color, m.fontSize);
 
                 } else {
                     drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize);
@@ -688,13 +720,14 @@
         });
 
         if(val_L1PA !== null && val_T4PA !== null) {
-            let mismatch = Math.abs(val_L1PA - val_T4PA);
-            let mColor = mismatch <= 4 ? '#10b981' : '#f43f5e';
+            let mismatch = val_T4PA - val_L1PA;
+            let absMismatch = Math.abs(mismatch);
+            let mColor = absMismatch <= 4 ? '#10b981' : '#f43f5e';
             ctx.shadowColor = 'rgba(0,0,0,0.9)';
             ctx.shadowBlur = 4;
             ctx.fillStyle = mColor;
             ctx.font = `bold 14px sans-serif`;
-            ctx.fillText(`Mismatch (L1PA - T4PA): ${mismatch.toFixed(1)}°`, canvas.width - 240, 30);
+            ctx.fillText(`Mismatch (T4PA - L1PA): ${mismatch.toFixed(1)}°`, canvas.width - 260, 30);
             ctx.shadowBlur = 0;
         }
     }
