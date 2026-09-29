@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpinePlan Pro V14 - Definitivo</title>
-    <!-- Configuración de íconos para iPhone y Web con tu nuevo logo -->
+    <title>SpinePlan Pro V22 - Definitivo</title>
+    <!-- Configuración para iOS y Logo -->
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -28,16 +28,14 @@
     <!-- BARRA SUPERIOR -->
     <header class="bg-gray-900 border-b border-gray-800 p-3 flex justify-between items-center z-10 shrink-0">
         <div class="flex items-center space-x-3 text-emerald-400 font-bold text-xl">
-            <img src="nuevo_logo.jpeg" alt="Logo" class="w-8 h-8 object-cover rounded">
+            <img src="nuevo_logo.jpeg" alt="Logo" class="w-8 h-8 object-cover rounded bg-gray-800">
             <span>SpinePlan <span class="text-white text-sm font-normal">Pro</span></span>
         </div>
         
         <div class="flex items-center space-x-3">
-            <!-- BOTÓN DE ORIENTACIÓN (MIRADA) -->
             <button onclick="toggleGaze()" id="gaze-btn" class="bg-gray-800 hover:bg-gray-700 text-emerald-400 border border-emerald-600/50 px-3 py-1.5 rounded text-xs font-semibold transition-colors flex items-center shadow-sm">
                 Mirada: ➡️
             </button>
-            
             <label class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded text-sm font-medium cursor-pointer flex items-center transition-colors">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                 Cargar Radiografía
@@ -107,12 +105,13 @@
                 </div>
 
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">6. Alineación Cervical</div>
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">6. Perfil Sagital Cervical</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
-                        <button onclick="activateTool('cobb', 'C2-C7 (LC)')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C2-C7 (LC)</button>
-                        <button onclick="activateTool('cobb', 'T1S')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">T1S</button>
-                        <button onclick="activateTool('line', 'SVA C2-C7')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">SVA</button>
-                        <button onclick="activateTool('cobb', 'CBVA')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">CBVA</button>
+                        <button onclick="activateTool('thoracic', 'Opérculo Torácico')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 flex justify-center">TIA, NT, T1S</button>
+                        <button onclick="activateTool('cobb', 'C2-C7')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C2-C7</button>
+                        <button onclick="activateTool('cobb', 'C0-C2')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C0-C2</button>
+                        <button onclick="activateTool('sba', 'SBA')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">SBA</button>
+                        <button onclick="activateTool('cbva', 'CBVA')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">CBVA</button>
                     </div>
                 </div>
                 
@@ -139,25 +138,21 @@
                         </tr>
                     </thead>
                     <tbody id="theo-tbody">
-                        <!-- Llenado dinámico por JavaScript -->
+                        <!-- Llenado dinámico -->
                     </tbody>
                 </table>
             </div>
 
-            <!-- MENÚ CONTEXTUAL (CLIC DERECHO) -->
+            <!-- MENÚ CONTEXTUAL -->
             <div id="context-menu">
                 <label class="menu-label">Título de la medición</label>
                 <input type="text" id="ctx-title" class="menu-input">
-                
                 <label class="menu-label">Grosor de línea (<span id="ctx-width-val">1</span>px)</label>
                 <input type="range" id="ctx-width" class="menu-slider" min="1" max="5" value="1">
-                
                 <label class="menu-label">Tamaño de letra (<span id="ctx-size-val">11</span>px)</label>
                 <input type="range" id="ctx-size" class="menu-slider" min="10" max="30" value="11">
-                
                 <label class="menu-label">Color</label>
                 <input type="color" id="ctx-color" class="w-full h-8 mb-3 rounded bg-transparent border-none cursor-pointer">
-                
                 <button id="ctx-delete" class="w-full bg-red-600 hover:bg-red-700 text-white py-1.5 rounded text-xs font-semibold">Eliminar Medición</button>
             </div>
         </main>
@@ -172,10 +167,12 @@
     const contextMenu = document.getElementById('context-menu');
     
     let bgImage = null;
-    let imgX = 0, imgY = 0, imgScale = 1;
+    let baseScale = 1;
+    let zoomScale = 1;
+    let panX = 0, panY = 0;
     
     const DEFAULT_LINE_WIDTH = 1; 
-    const DEFAULT_FONT_SIZE = 11;
+    const DEFAULT_FONT_SIZE = 12;
     const COLORS = ['#10b981', '#06b6d4', '#d946ef', '#f59e0b', '#f43f5e', '#3b82f6'];
     let colorIndex = 0;
 
@@ -184,18 +181,19 @@
     let activeTool = null;
     let activeTitle = '';
     let activeSubType = null;
-    let pelvicStep = 0;
+    let stepCount = 0;
     let dragObj = null;
+    let isPanning = false;
 
     let gazeDirection = 1;
+    window.currentResults = {};
+
     function toggleGaze() {
         gazeDirection *= -1;
         document.getElementById('gaze-btn').innerText = gazeDirection === 1 ? "Mirada: ➡️" : "Mirada: ⬅️";
         draw();
     }
 
-    window.currentResults = {};
-    
     function getNextColor() {
         let c = COLORS[colorIndex];
         colorIndex = (colorIndex + 1) % COLORS.length;
@@ -208,25 +206,53 @@
             bgImage = new Image();
             bgImage.onload = function() {
                 placeholder.style.display = 'none';
-                resizeCanvas();
+                resetView();
             }
             bgImage.src = event.target.result;
         }
         reader.readAsDataURL(e.target.files[0]);
     });
 
-    window.addEventListener('resize', resizeCanvas);
-    function resizeCanvas() {
+    window.addEventListener('resize', () => { if(bgImage) resetView(); });
+
+    function resetView() {
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight;
-        if (bgImage) {
-            const scaleX = canvas.width / bgImage.width;
-            const scaleY = canvas.height / bgImage.height;
-            imgScale = Math.min(scaleX, scaleY) * 0.95;
-            imgX = (canvas.width - bgImage.width * imgScale) / 2;
-            imgY = (canvas.height - bgImage.height * imgScale) / 2;
-        }
+        const scaleX = canvas.width / bgImage.width;
+        const scaleY = canvas.height / bgImage.height;
+        baseScale = Math.min(scaleX, scaleY) * 0.95;
+        zoomScale = 1;
+        panX = (canvas.width - bgImage.width * baseScale) / 2;
+        panY = (canvas.height - bgImage.height * baseScale) / 2;
         draw();
+    }
+
+    container.addEventListener('wheel', (e) => {
+        if (!bgImage) return;
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        
+        const zoomIntensity = 0.1;
+        const wheel = e.deltaY < 0 ? 1 : -1;
+        const zoomFactor = Math.exp(wheel * zoomIntensity);
+        
+        const newZoomScale = zoomScale * zoomFactor;
+        if (newZoomScale < 0.5 || newZoomScale > 10) return;
+        
+        panX = mouseX - (mouseX - panX) * zoomFactor;
+        panY = mouseY - (mouseY - panY) * zoomFactor;
+        zoomScale = newZoomScale;
+        draw();
+    });
+
+    function getLogicalPos(evt) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+            x: (evt.clientX - rect.left - panX) / (baseScale * zoomScale),
+            y: (evt.clientY - rect.top - panY) / (baseScale * zoomScale)
+        };
     }
 
     function clearCanvas() {
@@ -248,15 +274,14 @@
         activeTitle = title;
         activeSubType = subType;
         currentMeasurement = null;
+        stepCount = 0;
         
-        if(type === 'pelvic') {
-            pelvicStep = 1;
-            updateStatus(`Traza la Primera Cabeza Femoral (Clic y Arrastrar)`);
-        } else if (type === 'sagittal') {
-            updateStatus(`Haz un solo clic sobre la vértebra ${title}`);
-        } else {
-            updateStatus(`Herramienta activa: ${title}. Haz clic y arrastra.`);
-        }
+        if(type === 'pelvic') updateStatus(`Traza la Primera Cabeza Femoral`);
+        else if (type === 'sagittal') updateStatus(`Haz clic sobre la vértebra ${title}`);
+        else if (type === 'sba') updateStatus(`Haz clic en la esquina posterior de T1`);
+        else if (type === 'cbva') updateStatus(`Haz clic en el Mentón`);
+        else if (type === 'thoracic') updateStatus(`Traza el platillo de T1 (Clic y Arrastrar)`);
+        else updateStatus(`Herramienta: ${title}. Traza la línea.`);
     }
 
     function deactivateTool() {
@@ -264,7 +289,7 @@
         activeTool = null;
         activeSubType = null;
         currentMeasurement = null;
-        pelvicStep = 0;
+        stepCount = 0;
         updateStatus("Sistema Listo.");
     }
 
@@ -331,15 +356,23 @@
         updateStatus("Perfil Teórico calculado exitosamente.");
     }
 
+    // --- INTERACCIONES DEL RATÓN ---
     canvas.addEventListener('mousedown', function(e) {
-        if(e.button !== 0) return;
+        if(e.button !== 0 || !bgImage) return;
         hideContextMenu();
         
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
+        const pos = getLogicalPos(e);
+        dragObj = checkHit(pos.x, pos.y);
+        
+        // PANNING SOLO SI HAY ZOOM Y NO SE TOCA NADA NI HAY HERRAMIENTA
+        if (!dragObj && !activeTool) {
+            if (zoomScale > 1.01) {
+                isPanning = true;
+                canvas.style.cursor = 'grabbing';
+            }
+            return;
+        }
 
-        dragObj = checkHit(mouseX, mouseY);
         if(dragObj && !activeTool) {
             canvas.style.cursor = 'grabbing';
             return;
@@ -347,112 +380,108 @@
 
         if (activeTool) {
             const color = getNextColor();
-            if (activeTool === 'sagittal') {
-                currentMeasurement = {
-                    id: Date.now(), type: 'sagittal', title: activeTitle, subType: activeSubType,
-                    color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE,
-                    points: [{x: mouseX, y: mouseY}],
-                    textPos: {x: mouseX + 20, y: mouseY - 20}
-                };
-                measurements.push(currentMeasurement);
-                deactivateTool();
-                draw();
-            }
-            else if (activeTool === 'line' || activeTool === 'angle') {
-                currentMeasurement = {
-                    id: Date.now(), type: activeTool, title: activeTitle,
-                    color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE,
-                    points: [{x: mouseX, y: mouseY}, {x: mouseX, y: mouseY}],
-                    textPos: {x: mouseX + 20, y: mouseY + 20}
-                };
+            if (activeTool === 'line' || activeTool === 'angle') {
+                currentMeasurement = { id: Date.now(), type: activeTool, title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], textPos: {x: pos.x + 20, y: pos.y + 20} };
                 measurements.push(currentMeasurement);
             } 
             else if (activeTool === 'cobb') {
                 if(!currentMeasurement) {
-                    currentMeasurement = {
-                        id: Date.now(), type: 'cobb', title: activeTitle,
-                        color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE,
-                        points: [{x: mouseX, y: mouseY}, {x: mouseX, y: mouseY}],
-                        textPos: null
-                    };
+                    currentMeasurement = { id: Date.now(), type: 'cobb', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], textPos: null };
                     measurements.push(currentMeasurement);
                 } else {
-                    currentMeasurement.points.push({x: mouseX, y: mouseY}, {x: mouseX, y: mouseY});
+                    currentMeasurement.points.push({x: pos.x, y: pos.y}, {x: pos.x, y: pos.y});
                 }
             }
             else if (activeTool === 'circle') {
-                currentMeasurement = {
-                    id: Date.now(), type: 'circle', title: activeTitle,
-                    color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE,
-                    points: [{x: mouseX, y: mouseY}], radius: 0,
-                    textPos: {x: mouseX + 20, y: mouseY + 20}
-                };
+                currentMeasurement = { id: Date.now(), type: 'circle', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], radius: 0, textPos: {x: pos.x + 20, y: pos.y + 20} };
                 measurements.push(currentMeasurement);
             }
             else if (activeTool === 'pelvic') {
-                if (pelvicStep === 1) {
-                    currentMeasurement = {
-                        id: Date.now(), type: 'pelvic', title: activeTitle,
-                        color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE,
-                        circles: [ {x: mouseX, y: mouseY, r: 0} ], 
-                        line: [], textPos: null
-                    };
+                if (stepCount === 0) {
+                    currentMeasurement = { id: Date.now(), type: 'pelvic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, circles: [ {x: pos.x, y: pos.y, r: 0} ], line: [], textPos: null };
                     measurements.push(currentMeasurement);
-                } 
-                else if (pelvicStep === 2) {
-                    currentMeasurement.circles.push({x: mouseX, y: mouseY, r: 0});
-                }
-                else if (pelvicStep === 3) {
-                    currentMeasurement.line = [{x: mouseX, y: mouseY}, {x: mouseX, y: mouseY}];
+                } else if (stepCount === 1) {
+                    currentMeasurement.circles.push({x: pos.x, y: pos.y, r: 0});
+                } else if (stepCount === 2) {
+                    currentMeasurement.line = [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}];
                 }
             }
+            else if (activeTool === 'sagittal') {
+                currentMeasurement = { id: Date.now(), type: 'sagittal', title: activeTitle, subType: activeSubType, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: {x: pos.x + 20, y: pos.y - 20} };
+                measurements.push(currentMeasurement);
+                deactivateTool();
+            }
+            else if (activeTool === 'sba') {
+                currentMeasurement = { id: Date.now(), type: 'sba', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: {x: pos.x + 10, y: pos.y + 30} };
+                measurements.push(currentMeasurement);
+                deactivateTool();
+            }
+            else if (activeTool === 'cbva') {
+                if(!currentMeasurement) {
+                    currentMeasurement = { id: Date.now(), type: 'cbva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: null };
+                    measurements.push(currentMeasurement);
+                    stepCount = 1;
+                    updateStatus(`Haz clic en la Ceja`);
+                } else {
+                    currentMeasurement.points.push({x: pos.x, y: pos.y});
+                    currentMeasurement.textPos = {x: pos.x + 20, y: pos.y + 20};
+                    deactivateTool();
+                }
+            }
+            else if (activeTool === 'thoracic') {
+                if(stepCount === 0) {
+                    currentMeasurement = { id: Date.now(), type: 'thoracic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], sternum: null, textPos: null };
+                    measurements.push(currentMeasurement);
+                } else if (stepCount === 1) {
+                    currentMeasurement.sternum = {x: pos.x, y: pos.y};
+                    currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 20};
+                    deactivateTool();
+                }
+            }
+            draw();
         }
-        draw();
     });
 
     canvas.addEventListener('mousemove', function(e) {
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
+        if (!bgImage) return;
+        
+        if (isPanning && e.buttons === 1) {
+            panX += e.movementX;
+            panY += e.movementY;
+            draw();
+            return;
+        }
+
+        const pos = getLogicalPos(e);
 
         if (dragObj && e.buttons === 1) {
             let item = dragObj.item;
             if (dragObj.type === 'text') {
-                item.textPos.x = mouseX; item.textPos.y = mouseY;
+                item.textPos.x = pos.x; item.textPos.y = pos.y;
             } else if (dragObj.type === 'point') {
-                item.points[dragObj.index].x = mouseX;
-                item.points[dragObj.index].y = mouseY;
-            } else if (dragObj.type === 'circleCenter') {
-                if(item.type === 'pelvic') {
-                    item.circles[dragObj.index].x = mouseX;
-                    item.circles[dragObj.index].y = mouseY;
-                } else {
-                    item.points[0].x = mouseX; item.points[0].y = mouseY;
-                }
+                item.points[dragObj.index].x = pos.x;
+                item.points[dragObj.index].y = pos.y;
             } else if (dragObj.type === 'circleRadius') {
-                if(item.type === 'pelvic') {
-                    let cx = item.circles[dragObj.index].x, cy = item.circles[dragObj.index].y;
-                    item.circles[dragObj.index].r = Math.hypot(mouseX - cx, mouseY - cy);
-                } else {
-                    item.radius = Math.hypot(mouseX - item.points[0].x, mouseY - item.points[0].y);
-                }
-            } else if (dragObj.type === 'pelvicLine') {
-                item.line[dragObj.index].x = mouseX;
-                item.line[dragObj.index].y = mouseY;
+                let cx = item.circles[dragObj.index].x, cy = item.circles[dragObj.index].y;
+                item.circles[dragObj.index].r = Math.hypot(pos.x - cx, pos.y - cy);
+            } else if (dragObj.type === 'circleCenter') {
+                item.circles[dragObj.index].x = pos.x;
+                item.circles[dragObj.index].y = pos.y;
             } else if (dragObj.type === 'lineSegment') {
-                let dx = mouseX - dragObj.lastX;
-                let dy = mouseY - dragObj.lastY;
-                if(item.points && item.points.length >= 2) {
+                let dx = pos.x - dragObj.lastX;
+                let dy = pos.y - dragObj.lastY;
+                if (item.points && item.points.length >= 2) {
                     item.points[dragObj.idx1].x += dx; item.points[dragObj.idx1].y += dy;
                     item.points[dragObj.idx2].x += dx; item.points[dragObj.idx2].y += dy;
                 } else if (item.line && item.line.length === 2) {
                     item.line[dragObj.idx1].x += dx; item.line[dragObj.idx1].y += dy;
                     item.line[dragObj.idx2].x += dx; item.line[dragObj.idx2].y += dy;
                 }
-                dragObj.lastX = mouseX; dragObj.lastY = mouseY;
+                dragObj.lastX = pos.x; dragObj.lastY = pos.y;
+            } else if (dragObj.type === 'sbaLine') {
+                item.points[0].x = pos.x;
             }
             draw();
-            
             if(!document.getElementById('theoretical-table').classList.contains('hidden')){
                 showTheoreticalProfile();
             }
@@ -461,96 +490,82 @@
 
         if (currentMeasurement && e.buttons === 1) {
             if (activeTool === 'line' || activeTool === 'angle') {
-                currentMeasurement.points[1] = {x: mouseX, y: mouseY};
-            }
-            else if (activeTool === 'cobb') {
-                if (currentMeasurement.points.length === 2) {
-                    currentMeasurement.points[1] = {x: mouseX, y: mouseY};
-                } else if (currentMeasurement.points.length === 4) {
-                    currentMeasurement.points[3] = {x: mouseX, y: mouseY};
-                }
-            }
-            else if (activeTool === 'circle') {
-                currentMeasurement.radius = Math.hypot(mouseX - currentMeasurement.points[0].x, mouseY - currentMeasurement.points[0].y);
-            }
-            else if (activeTool === 'pelvic') {
-                if (pelvicStep === 1) {
-                    let c = currentMeasurement.circles[0];
-                    c.r = Math.hypot(mouseX - c.x, mouseY - c.y);
-                } else if (pelvicStep === 2) {
-                    let c = currentMeasurement.circles[1];
-                    c.r = Math.hypot(mouseX - c.x, mouseY - c.y);
-                } else if (pelvicStep === 3) {
-                    currentMeasurement.line[1] = {x: mouseX, y: mouseY};
-                }
+                currentMeasurement.points[1] = {x: pos.x, y: pos.y};
+            } else if (activeTool === 'cobb') {
+                if (currentMeasurement.points.length === 2) currentMeasurement.points[1] = {x: pos.x, y: pos.y};
+                else if (currentMeasurement.points.length === 4) currentMeasurement.points[3] = {x: pos.x, y: pos.y};
+            } else if (activeTool === 'circle') {
+                currentMeasurement.radius = Math.hypot(pos.x - currentMeasurement.points[0].x, pos.y - currentMeasurement.points[0].y);
+            } else if (activeTool === 'pelvic') {
+                if (stepCount === 0) currentMeasurement.circles[0].r = Math.hypot(pos.x - currentMeasurement.circles[0].x, pos.y - currentMeasurement.circles[0].y);
+                else if (stepCount === 1) currentMeasurement.circles[1].r = Math.hypot(pos.x - currentMeasurement.circles[1].x, pos.y - currentMeasurement.circles[1].y);
+                else if (stepCount === 2) currentMeasurement.line[1] = {x: pos.x, y: pos.y};
+            } else if (activeTool === 'thoracic' && stepCount === 0) {
+                currentMeasurement.points[1] = {x: pos.x, y: pos.y};
             }
             draw();
         } else {
-            let hover = checkHit(mouseX, mouseY);
-            if(hover) canvas.style.cursor = (hover.type==='text'||hover.type==='circleCenter'||hover.type==='lineSegment') ? 'move' : 'pointer';
-            else canvas.style.cursor = activeTool ? 'crosshair' : 'default';
+            let hover = checkHit(pos.x, pos.y);
+            if(hover) canvas.style.cursor = (hover.type==='text'||hover.type==='lineSegment'||hover.type==='circleCenter') ? 'move' : 'pointer';
+            else canvas.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
         }
     });
 
     canvas.addEventListener('mouseup', function(e) {
-        if(dragObj) {
+        if (isPanning) {
+            isPanning = false;
+            canvas.style.cursor = zoomScale > 1.01 ? 'grab' : 'default';
+            return;
+        }
+        
+        if (dragObj) {
             dragObj = null;
             canvas.style.cursor = 'default';
             if(!document.getElementById('theoretical-table').classList.contains('hidden')){
                 showTheoreticalProfile();
             }
+            draw();
             return;
         }
 
         if (currentMeasurement) {
             if (activeTool === 'line' || activeTool === 'circle' || activeTool === 'angle') {
                 deactivateTool();
-                draw(); 
-            } 
-            else if (activeTool === 'cobb') {
+            } else if (activeTool === 'cobb') {
                 if (currentMeasurement.points.length === 2) {
                     updateStatus(`Traza el Segundo Platillo`);
                 } else if (currentMeasurement.points.length === 4) {
-                    if(!currentMeasurement.textPos) {
-                        currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20};
-                    }
+                    if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20};
                     deactivateTool();
-                    draw(); 
                 }
-            }
-            else if (activeTool === 'pelvic') {
-                if(pelvicStep === 1) {
-                    pelvicStep = 2;
-                    updateStatus(`Traza la Segunda Cabeza Femoral`);
-                } else if(pelvicStep === 2) {
-                    pelvicStep = 3;
-                    updateStatus(`Traza el Platillo de S1 (Línea)`);
-                } else if(pelvicStep === 3) {
-                    if(!currentMeasurement.textPos) {
-                        currentMeasurement.textPos = {x: currentMeasurement.line[0].x + 40, y: currentMeasurement.line[0].y - 20};
-                    }
-                    deactivateTool();
-                    draw(); 
+            } else if (activeTool === 'pelvic') {
+                if(stepCount === 0) { stepCount = 1; updateStatus(`Traza la Segunda Cabeza Femoral`); }
+                else if(stepCount === 1) { stepCount = 2; updateStatus(`Traza el Platillo de S1`); }
+                else if(stepCount === 2) { 
+                    if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.line[0].x + 40, y: currentMeasurement.line[0].y - 20};
+                    deactivateTool(); 
+                }
+            } else if (activeTool === 'thoracic') {
+                if(stepCount === 0) {
+                    stepCount = 1;
+                    updateStatus(`Haz clic en el Manubrio del Esternón`);
                 }
             }
         }
+        draw();
     });
 
-    let selectedForContext = null;
     canvas.addEventListener('contextmenu', function(e) {
         e.preventDefault();
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        
-        let hit = checkHit(mouseX, mouseY);
+        if(!bgImage) return;
+        const pos = getLogicalPos(e);
+        let hit = checkHit(pos.x, pos.y);
         if(hit) {
             selectedForContext = hit.item;
             contextMenu.style.display = 'block';
             contextMenu.style.left = e.clientX + 'px';
             contextMenu.style.top = e.clientY + 'px';
-            
-            document.getElementById('ctx-title').value = selectedForContext.title;
+            document.getElementById('ctx-title').value = selectedForContext.title || '';
             document.getElementById('ctx-width').value = selectedForContext.width;
             document.getElementById('ctx-width-val').innerText = selectedForContext.width;
             document.getElementById('ctx-size').value = selectedForContext.fontSize;
@@ -566,6 +581,7 @@
         selectedForContext = null;
     }
 
+    let selectedForContext = null;
     document.getElementById('ctx-title').addEventListener('input', e => { if(selectedForContext){ selectedForContext.title = e.target.value; draw(); }});
     document.getElementById('ctx-width').addEventListener('input', e => { if(selectedForContext){ selectedForContext.width = parseInt(e.target.value); document.getElementById('ctx-width-val').innerText = e.target.value; draw(); }});
     document.getElementById('ctx-size').addEventListener('input', e => { if(selectedForContext){ selectedForContext.fontSize = parseInt(e.target.value); document.getElementById('ctx-size-val').innerText = e.target.value; draw(); }});
@@ -581,239 +597,191 @@
         }
     });
 
-    function draw() {
-        ctx.clearRect(0,0, canvas.width, canvas.height);
-        window.currentResults = {}; 
-
-        if (bgImage) {
-            ctx.drawImage(bgImage, imgX, imgY, bgImage.width * imgScale, bgImage.height * imgScale);
-        }
-
-        let val_L1PA = null;
-        let val_T4PA = null;
-
-        measurements.forEach(m => {
-            ctx.strokeStyle = m.color;
-            ctx.fillStyle = m.color;
-            ctx.lineWidth = m.width;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            
-            if (m.type === 'line' || m.type === 'angle') {
-                ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke();
-                let dist = (Math.hypot(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y) / imgScale).toFixed(1);
-                let text = m.type === 'line' ? `${dist} mm` : 'Ángulo (WIP)';
-                drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize);
-            }
-            else if (m.type === 'circle') {
-                ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, m.radius, 0, 2*Math.PI); ctx.stroke();
-                drawText(m.textPos.x, m.textPos.y, m.title, `R: ${(m.radius/imgScale).toFixed(1)}mm`, m.color, m.fontSize);
-            }
-            else if (m.type === 'cobb') {
-                if(m.points.length >= 2) {
-                    ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke();
-                }
-                if(m.points.length === 4) {
-                    ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
-                    
-                    let dx1 = m.points[1].x - m.points[0].x, dy1 = m.points[1].y - m.points[0].y;
-                    let dx2 = m.points[3].x - m.points[2].x, dy2 = m.points[3].y - m.points[2].y;
-                    let angle1 = Math.atan2(dy1, dx1);
-                    let angle2 = Math.atan2(dy2, dx2);
-                    let diff = Math.abs((angle1 - angle2) * 180 / Math.PI);
-                    if (diff > 90) diff = 180 - diff;
-                    
-                    window.currentResults[m.title] = diff;
-                    
-                    if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${diff.toFixed(1)}°`, m.color, m.fontSize);
-                }
-            }
-            else if (m.type === 'pelvic') {
-                m.circles.forEach(c => {
-                    ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke();
-                });
-                
-                if(m.line && m.line.length === 2) {
-                    ctx.beginPath(); ctx.moveTo(m.line[0].x, m.line[0].y); ctx.lineTo(m.line[1].x, m.line[1].y); ctx.stroke();
-                    
-                    if(m.circles.length === 2 && m.textPos) {
-                        let ha_x = (m.circles[0].x + m.circles[1].x) / 2;
-                        let ha_y = (m.circles[0].y + m.circles[1].y) / 2;
-                        let s1_mid_x = (m.line[0].x + m.line[1].x) / 2;
-                        let s1_mid_y = (m.line[0].y + m.line[1].y) / 2;
-                        
-                        let dx = m.line[1].x - m.line[0].x;
-                        let dy = m.line[1].y - m.line[0].y;
-                        
-                        let ss = Math.abs(Math.atan2(dy, dx) * 180 / Math.PI);
-                        if(ss > 90) ss = 180 - ss;
-                        
-                        let pt_dx = s1_mid_x - ha_x;
-                        let pt_dy = s1_mid_y - ha_y;
-                        let pt = Math.abs((Math.atan2(pt_dy, pt_dx) * 180 / Math.PI) - 90);
-                        if(pt > 90) pt = Math.abs(pt - 180);
-                        
-                        let pi = ss + pt;
-                        window.currentResults['PI'] = pi;
-                        
-                        let resultText = `PI: ${pi.toFixed(1)}°\nPT: ${pt.toFixed(1)}°\nSS: ${ss.toFixed(1)}°`;
-                        drawText(m.textPos.x, m.textPos.y, null, resultText, m.color, m.fontSize);
-                    }
-                }
-            }
-            else if (m.type === 'sagittal') {
-                let pelvic = measurements.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2);
-                if (pelvic) {
-                    let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2;
-                    let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2;
-                    
-                    ctx.beginPath();
-                    ctx.arc(ha_x, ha_y, 2, 0, 2*Math.PI);
-                    ctx.fillStyle = '#ef4444'; ctx.fill();
-                    ctx.fillStyle = m.color;
-
-                    ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke();
-
-                    let angle = 0;
-                    let signedAngle = 0;
-                    let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y};
-                    let mag1 = Math.hypot(v1.x, v1.y);
-
-                    if (m.subType === 'pa') {
-                        let s1_x = (pelvic.line[0].x + pelvic.line[1].x) / 2;
-                        let s1_y = (pelvic.line[0].y + pelvic.line[1].y) / 2;
-                        let v2 = {x: s1_x - ha_x, y: s1_y - ha_y};
-                        let mag2 = Math.hypot(v2.x, v2.y);
-                        
-                        let dot = v1.x*v2.x + v1.y*v2.y;
-                        angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI;
-                        
-                        let cross = v2.x * v1.y - v2.y * v1.x;
-                        let side = cross * gazeDirection;
-                        signedAngle = side >= 0 ? angle : -angle;
-
-                        window.currentResults[m.title] = signedAngle;
-                        if (m.title === 'L1-PA') val_L1PA = signedAngle;
-                        if (m.title === 'T4-PA') val_T4PA = signedAngle;
-                    } 
-                    else if (m.subType === 'tilt') {
-                        let v2 = {x: 0, y: -1}; 
-                        let dot = v1.x*v2.x + v1.y*v2.y;
-                        let mag2 = 1;
-                        angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI;
-                        
-                        let side = v1.x * gazeDirection;
-                        signedAngle = side >= 0 ? angle : -angle;
-
-                        window.currentResults[m.title] = signedAngle;
-                    }
-                    
-                    let prefix = signedAngle >= 0 ? '+' : '';
-                    drawText(m.textPos.x, m.textPos.y, m.title, `${prefix}${signedAngle.toFixed(1)}°`, m.color, m.fontSize);
-
-                } else {
-                    drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize);
-                }
-            }
-        });
-
-        if(val_L1PA !== null && val_T4PA !== null) {
-            let mismatch = val_T4PA - val_L1PA;
-            let absMismatch = Math.abs(mismatch);
-            let mColor = absMismatch <= 4 ? '#10b981' : '#f43f5e';
-            ctx.shadowColor = 'rgba(0,0,0,0.9)';
-            ctx.shadowBlur = 4;
-            ctx.fillStyle = mColor;
-            ctx.font = `bold 14px sans-serif`;
-            ctx.fillText(`Mismatch (T4PA - L1PA): ${mismatch.toFixed(1)}°`, canvas.width - 260, 30);
-            ctx.shadowBlur = 0;
-        }
-    }
-
-    function drawText(x, y, title, text, color, fontSize) {
-        ctx.font = `bold ${fontSize}px sans-serif`;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        ctx.shadowColor = 'rgba(0,0,0,0.8)';
-        ctx.shadowBlur = 4;
-        ctx.shadowOffsetX = 1;
-        ctx.shadowOffsetY = 1;
-
-        let curY = y;
-        ctx.fillStyle = color;
-
-        if(title) {
-            ctx.fillText(title, x, curY);
-            curY += fontSize + 4;
-        }
-
-        let lines = text.split('\n');
-        lines.forEach(l => {
-            ctx.fillText(l, x, curY);
-            curY += fontSize + 2;
-        });
-
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 0;
-    }
-
     function checkHit(x, y) {
+        const HIT_RADIUS = 10 / (baseScale * zoomScale);
         for (let i = measurements.length - 1; i >= 0; i--) {
             let m = measurements[i];
             
             if (m.textPos) {
-                let h = (m.type === 'pelvic') ? m.fontSize * 4 : m.fontSize * 3;
-                if (x >= m.textPos.x - 10 && x <= m.textPos.x + 80 && y >= m.textPos.y - 10 && y <= m.textPos.y + h) {
-                    return { type: 'text', item: m };
-                }
+                if (x >= m.textPos.x - 20 && x <= m.textPos.x + 80 && y >= m.textPos.y - 10 && y <= m.textPos.y + 40) return { type: 'text', item: m };
             }
+            
             if (m.type === 'pelvic') {
                 for(let c=0; c<m.circles.length; c++) {
                     let d = Math.hypot(x - m.circles[c].x, y - m.circles[c].y);
-                    if (d < 15) return { type: 'circleCenter', item: m, index: c }; 
-                    if (Math.abs(d - m.circles[c].r) < 8) return { type: 'circleRadius', item: m, index: c };
+                    if (d < HIT_RADIUS) return { type: 'circleCenter', item: m, index: c }; 
+                    if (Math.abs(d - m.circles[c].r) < HIT_RADIUS) return { type: 'circleRadius', item: m, index: c };
                 }
                 if (m.line && m.line.length === 2) {
-                    let d1 = Math.hypot(x - m.line[0].x, y - m.line[0].y);
-                    let d2 = Math.hypot(x - m.line[1].x, y - m.line[1].y);
-                    if (d1 < 10) return { type: 'pelvicLine', item: m, index: 0 };
-                    if (d2 < 10) return { type: 'pelvicLine', item: m, index: 1 };
-                    
-                    let lineLen = Math.hypot(m.line[1].x-m.line[0].x, m.line[1].y-m.line[0].y);
-                    let dist = Math.abs((m.line[1].y-m.line[0].y)*x - (m.line[1].x-m.line[0].x)*y + m.line[1].x*m.line[0].y - m.line[1].y*m.line[0].x) / lineLen;
-                    if(dist < 5 && x >= Math.min(m.line[0].x, m.line[1].x)-5 && x <= Math.max(m.line[0].x, m.line[1].x)+5) {
-                        return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y };
+                    for(let l=0; l<2; l++){
+                        if (Math.hypot(x - m.line[l].x, y - m.line[l].y) < HIT_RADIUS) return { type: 'point', item: {points: m.line}, index: l };
                     }
+                    if(distToSegment(x, y, m.line[0], m.line[1]) < HIT_RADIUS) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y };
                 }
-            }
-            else if (m.type === 'sagittal') {
-                let d = Math.hypot(x - m.points[0].x, y - m.points[0].y);
-                if (d < 10) return { type: 'point', item: m, index: 0 };
             }
             else if (m.points) {
                 for(let p=0; p<m.points.length; p++){
-                    if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < 10) {
-                        return { type: 'point', item: m, index: p };
-                    }
+                    if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < HIT_RADIUS) return { type: 'point', item: m, index: p };
                 }
                 if(m.points.length >= 2) {
-                    let lineLen = Math.hypot(m.points[1].x-m.points[0].x, m.points[1].y-m.points[0].y);
-                    let dist = Math.abs((m.points[1].y-m.points[0].y)*x - (m.points[1].x-m.points[0].x)*y + m.points[1].x*m.points[0].y - m.points[1].y*m.points[0].x) / lineLen;
-                    if(dist < 5 && x >= Math.min(m.points[0].x, m.points[1].x)-5 && x <= Math.max(m.points[0].x, m.points[1].x)+5) {
-                        return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y };
-                    }
+                    if(distToSegment(x, y, m.points[0], m.points[1]) < HIT_RADIUS) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y };
                 }
                 if(m.points.length === 4) {
-                    let lineLen = Math.hypot(m.points[3].x-m.points[2].x, m.points[3].y-m.points[2].y);
-                    let dist = Math.abs((m.points[3].y-m.points[2].y)*x - (m.points[3].x-m.points[2].x)*y + m.points[3].x*m.points[2].y - m.points[3].y*m.points[2].x) / lineLen;
-                    if(dist < 5 && x >= Math.min(m.points[2].x, m.points[3].x)-5 && x <= Math.max(m.points[2].x, m.points[3].x)+5) {
-                        return { type: 'lineSegment', item: m, idx1: 2, idx2: 3, lastX: x, lastY: y };
-                    }
+                    if(distToSegment(x, y, m.points[2], m.points[3]) < HIT_RADIUS) return { type: 'lineSegment', item: m, idx1: 2, idx2: 3, lastX: x, lastY: y };
                 }
+            }
+            if (m.type === 'sba') {
+                if(Math.abs(x - m.points[0].x) < HIT_RADIUS) return { type: 'sbaLine', item: m };
             }
         }
         return null;
+    }
+
+    function distToSegment(x, y, p1, p2) {
+        let A = x - p1.x; let B = y - p1.y; let C = p2.x - p1.x; let D = p2.y - p1.y;
+        let dot = A * C + B * D; let len_sq = C * C + D * D;
+        let param = -1;
+        if (len_sq != 0) param = dot / len_sq;
+        let xx, yy;
+        if (param < 0) { xx = p1.x; yy = p1.y; }
+        else if (param > 1) { xx = p2.x; yy = p2.y; }
+        else { xx = p1.x + param * C; yy = p1.y + param * D; }
+        let dx = x - xx; let dy = y - yy;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function draw() {
+        ctx.clearRect(0,0, canvas.width, canvas.height);
+        window.currentResults = {}; 
+        
+        if (bgImage) {
+            ctx.save();
+            ctx.translate(panX, panY);
+            ctx.scale(baseScale * zoomScale, baseScale * zoomScale);
+            ctx.drawImage(bgImage, 0, 0);
+
+            let val_L1PA = null; let val_T4PA = null;
+
+            measurements.forEach(m => {
+                ctx.strokeStyle = m.color; ctx.fillStyle = m.color;
+                ctx.lineWidth = m.width / (baseScale * zoomScale);
+                ctx.lineCap = 'round';
+                
+                if (m.type === 'line' || m.type === 'angle') {
+                    ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke();
+                    let dist = Math.hypot(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y).toFixed(1);
+                    let text = m.type === 'line' ? `${dist} mm` : 'WIP';
+                    drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize);
+                }
+                else if (m.type === 'circle') {
+                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, m.radius, 0, 2*Math.PI); ctx.stroke();
+                    drawText(m.textPos.x, m.textPos.y, m.title, `${m.radius.toFixed(1)}mm`, m.color, m.fontSize);
+                }
+                else if (m.type === 'cobb') {
+                    if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
+                    if(m.points.length === 4) {
+                        ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
+                        let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x);
+                        let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
+                        let diff = Math.abs((a1 - a2) * 180 / Math.PI);
+                        if (diff > 90) diff = 180 - diff;
+                        window.currentResults[m.title] = diff;
+                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${diff.toFixed(1)}°`, m.color, m.fontSize);
+                    }
+                }
+                else if (m.type === 'pelvic') {
+                    m.circles.forEach(c => { ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); });
+                    if(m.line && m.line.length === 2) {
+                        ctx.beginPath(); ctx.moveTo(m.line[0].x, m.line[0].y); ctx.lineTo(m.line[1].x, m.line[1].y); ctx.stroke();
+                        if(m.circles.length === 2 && m.textPos) {
+                            let ha_x = (m.circles[0].x + m.circles[1].x)/2; let ha_y = (m.circles[0].y + m.circles[1].y)/2;
+                            let s1_x = (m.line[0].x + m.line[1].x)/2; let s1_y = (m.line[0].y + m.line[1].y)/2;
+                            let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if(ss>90) ss=180-ss;
+                            let pt = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if(pt>90) pt=Math.abs(pt-180);
+                            let pi = ss + pt;
+                            window.currentResults['PI'] = pi;
+                            let text = `PI: ${pi.toFixed(1)}°\nPT: ${pt.toFixed(1)}°\nSS: ${ss.toFixed(1)}°`;
+                            drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize);
+                        }
+                    }
+                }
+                else if (m.type === 'thoracic') {
+                    if (m.points.length === 2) {
+                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke();
+                        if(m.sternum && m.textPos) {
+                            ctx.beginPath(); ctx.arc(m.sternum.x, m.sternum.y, 4, 0, 2*Math.PI); ctx.fill();
+                            let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2;
+                            ctx.beginPath(); ctx.moveTo(midX, midY); ctx.lineTo(m.sternum.x, m.sternum.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
+                            let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI);
+                            let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI);
+                            let tia = t1s + nt;
+                            let text = `TIA: ${tia.toFixed(1)}°\nNT: ${nt.toFixed(1)}°\nT1S: ${t1s.toFixed(1)}°`;
+                            drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize);
+                        }
+                    }
+                }
+                else if (m.type === 'sba') {
+                    ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y - 500); ctx.lineTo(m.points[0].x, m.points[0].y + 1000); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
+                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 3, 0, 2*Math.PI); ctx.fill();
+                    drawText(m.textPos.x, m.textPos.y, m.title, `Plomada`, m.color, m.fontSize);
+                }
+                else if (m.type === 'cbva' && m.points.length === 2) {
+                    ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke();
+                    let ang = Math.abs(Math.atan2(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y) * 180 / Math.PI);
+                    if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(1)}°`, m.color, m.fontSize);
+                }
+                else if (m.type === 'sagittal') {
+                    let pelvic = measurements.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2);
+                    if (pelvic) {
+                        let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2; let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2;
+                        ctx.beginPath(); ctx.arc(ha_x, ha_y, 2, 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill(); ctx.fillStyle = m.color;
+                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke();
+
+                        let angle = 0; let signedAngle = 0; let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 = Math.hypot(v1.x, v1.y);
+
+                        if (m.subType === 'pa') {
+                            let s1_x = (pelvic.line[0].x + pelvic.line[1].x)/2; let s1_y = (pelvic.line[0].y + pelvic.line[1].y)/2;
+                            let v2 = {x: s1_x - ha_x, y: s1_y - ha_y}; let mag2 = Math.hypot(v2.x, v2.y);
+                            let dot = v1.x*v2.x + v1.y*v2.y; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI;
+                            let cross = v2.x * v1.y - v2.y * v1.x; let side = cross * gazeDirection; signedAngle = side >= 0 ? angle : -angle;
+                            window.currentResults[m.title] = signedAngle;
+                            if (m.title === 'L1-PA') val_L1PA = signedAngle; if (m.title === 'T4-PA') val_T4PA = signedAngle;
+                        } else if (m.subType === 'tilt') {
+                            let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y; let mag2 = 1;
+                            angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI;
+                            let side = v1.x * gazeDirection; signedAngle = side >= 0 ? angle : -angle;
+                            window.currentResults[m.title] = signedAngle;
+                        }
+                        let prefix = signedAngle >= 0 ? '+' : '';
+                        drawText(m.textPos.x, m.textPos.y, m.title, `${prefix}${signedAngle.toFixed(1)}°`, m.color, m.fontSize);
+                    } else {
+                        drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize);
+                    }
+                }
+            });
+            ctx.restore();
+
+            if(val_L1PA !== null && val_T4PA !== null) {
+                let mismatch = val_T4PA - val_L1PA; let absMismatch = Math.abs(mismatch);
+                let mColor = absMismatch <= 4 ? '#10b981' : '#f43f5e';
+                ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 4; ctx.fillStyle = mColor;
+                ctx.font = `bold 14px sans-serif`; ctx.fillText(`Mismatch (T4PA - L1PA): ${mismatch.toFixed(1)}°`, canvas.width - 260, 30);
+                ctx.shadowBlur = 0;
+            }
+        }
+    }
+
+    function drawText(x, y, title, text, color, fontSize) {
+        let sc = baseScale * zoomScale;
+        ctx.font = `bold ${fontSize/sc}px sans-serif`;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = color;
+        ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 4/sc;
+        
+        let curY = y;
+        if(title) { ctx.fillText(title, x, curY); curY += (fontSize + 4)/sc; }
+        let lines = text.split('\n');
+        lines.forEach(l => { ctx.fillText(l, x, curY); curY += (fontSize + 2)/sc; });
+        ctx.shadowBlur = 0;
     }
 </script>
 </body>
