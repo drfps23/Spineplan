@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V24 - Zoom Móvil</title>
+    <title>SpinePlan Pro V25 - Sternum Fix</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -363,6 +363,7 @@
             let item = dragObj.item;
             if (dragObj.type === 'text') { item.textPos.x = pos.x; item.textPos.y = pos.y; }
             else if (dragObj.type === 'point') { item.points[dragObj.index].x = pos.x; item.points[dragObj.index].y = pos.y; }
+            else if (dragObj.type === 'sternumPoint') { item.sternum.x = pos.x; item.sternum.y = pos.y; } // <-- CORRECCIÓN ESTERNÓN
             else if (dragObj.type === 'circleRadius') { let cx = item.circles[dragObj.index].x, cy = item.circles[dragObj.index].y; item.circles[dragObj.index].r = Math.hypot(pos.x - cx, pos.y - cy); }
             else if (dragObj.type === 'circleCenter') { item.circles[dragObj.index].x = pos.x; item.circles[dragObj.index].y = pos.y; }
             else if (dragObj.type === 'lineSegment') {
@@ -393,7 +394,7 @@
             draw();
         } else {
             let hover = checkHit(pos.x, pos.y);
-            if(hover) canvas.style.cursor = (hover.type==='text'||hover.type==='lineSegment'||hover.type==='circleCenter') ? 'move' : 'pointer';
+            if(hover) canvas.style.cursor = (hover.type==='text'||hover.type==='lineSegment'||hover.type==='circleCenter'||hover.type==='sternumPoint') ? 'move' : 'pointer';
             else canvas.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
         }
     });
@@ -459,6 +460,14 @@
                     for(let l=0; l<2; l++){ if (Math.hypot(x - m.line[l].x, y - m.line[l].y) < HIT_RADIUS) return { type: 'point', item: {points: m.line}, index: l }; }
                     if(distToSegment(x, y, m.line[0], m.line[1]) < HIT_RADIUS) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y };
                 }
+            }
+            else if (m.type === 'thoracic') {
+                // <-- CORRECCIÓN ESTERNÓN: Permitir arrastrar el punto del esternón
+                if (m.sternum && Math.hypot(x - m.sternum.x, y - m.sternum.y) < HIT_RADIUS) {
+                    return { type: 'sternumPoint', item: m };
+                }
+                for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < HIT_RADIUS) return { type: 'point', item: m, index: p };
+                if(m.points.length >= 2) if(distToSegment(x, y, m.points[0], m.points[1]) < HIT_RADIUS) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y };
             }
             else if (m.points) {
                 for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < HIT_RADIUS) return { type: 'point', item: m, index: p };
