@@ -24,7 +24,7 @@
     <!-- BARRA SUPERIOR -->
     <header class="bg-gray-900 border-b border-gray-800 p-3 flex justify-between items-center z-10 shrink-0">
         <div class="flex items-center space-x-3 text-emerald-400 font-bold text-xl">
-            <img src="nombre_de_tu_logo.png" alt="Logo" class="w-8 h-8">
+            <img src="nuevo_logo.jpeg" alt="Logo" class="w-8 h-8 object-cover rounded">
             <span>SpinePlan <span class="text-white text-sm font-normal">Pro</span></span>
         </div>
         
@@ -183,7 +183,6 @@
     let pelvicStep = 0;
     let dragObj = null;
 
-    // Dirección de la mirada: 1 = derecha (positivo a la der), -1 = izquierda
     let gazeDirection = 1;
     function toggleGaze() {
         gazeDirection *= -1;
@@ -191,7 +190,6 @@
         draw();
     }
 
-    // Almacenamos resultados para calcular el Perfil Teórico
     window.currentResults = {};
     
     function getNextColor() {
@@ -273,7 +271,6 @@
         statusBar.innerHTML = `<span class="w-2 h-2 rounded-full ${colorClass} mr-2 ${!isError ? 'animate-pulse' : ''}"></span> ${text}`;
     }
 
-    // --- LÓGICA DEL PERFIL TEÓRICO ---
     function showTheoreticalProfile() {
         if (!window.currentResults['PI']) {
             updateStatus("⚠️ Debes medir los Parámetros Pélvicos (PI) primero.", true);
@@ -282,8 +279,6 @@
         }
 
         let pi = window.currentResults['PI'];
-        
-        // Fórmulas Clínicas Exactas
         let ideal_L1S1 = (pi * 0.6) + 30;
         let ideal_PA = (pi * 0.5) - 20;
 
@@ -689,7 +684,6 @@
                         let dot = v1.x*v2.x + v1.y*v2.y;
                         angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI;
                         
-                        // Regla vectorial: Delante del vector HA-S1 es positivo, detrás es negativo (ajustado por mirada)
                         let cross = v2.x * v1.y - v2.y * v1.x;
                         let side = cross * gazeDirection;
                         signedAngle = side >= 0 ? angle : -angle;
