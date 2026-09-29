@@ -2,57 +2,69 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpinePlan Pro V22 - Definitivo</title>
-    <!-- Configuración para iOS y Logo -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SpinePlan Pro V23 - Responsive</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0f172a; color: white; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: #0f172a; color: white; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; touch-action: none; }
         .scrollable-panel::-webkit-scrollbar { width: 6px; }
         .scrollable-panel::-webkit-scrollbar-track { background: #1e293b; }
         .scrollable-panel::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
         .tool-btn.active { background-color: #10b981; color: white; border-color: #059669; }
         #canvas-container { cursor: crosshair; background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 20px 20px; }
-        
         #context-menu { display: none; position: fixed; z-index: 50; background: #1e293b; border: 1px solid #334155; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); width: 220px; padding: 12px; }
         .menu-label { font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; display: block; }
         .menu-input { width: 100%; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 4px; padding: 4px 8px; font-size: 13px; margin-bottom: 10px; }
         .menu-slider { width: 100%; margin-bottom: 10px; }
     </style>
 </head>
-<body class="h-screen flex flex-col">
+<body class="h-screen flex flex-col overscroll-none">
 
-    <!-- BARRA SUPERIOR -->
-    <header class="bg-gray-900 border-b border-gray-800 p-3 flex justify-between items-center z-10 shrink-0">
-        <div class="flex items-center space-x-3 text-emerald-400 font-bold text-xl">
-            <img src="nuevo_logo.jpeg" alt="Logo" class="w-8 h-8 object-cover rounded bg-gray-800">
-            <span>SpinePlan <span class="text-white text-sm font-normal">Pro</span></span>
+    <!-- BARRA SUPERIOR (RESPONSIVE) -->
+    <header class="bg-gray-900 border-b border-gray-800 p-2 md:p-3 flex justify-between items-center z-30 shrink-0">
+        <div class="flex items-center space-x-2 text-emerald-400 font-bold text-lg md:text-xl">
+            <!-- Botón Menú Móvil -->
+            <button onclick="toggleMobileMenu()" class="md:hidden text-gray-400 hover:text-white p-1 focus:outline-none">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            <img src="nuevo_logo.jpeg" alt="Logo" class="w-7 h-7 md:w-8 md:h-8 object-cover rounded bg-gray-800">
+            <span class="hidden sm:inline">SpinePlan <span class="text-white text-sm font-normal">Pro</span></span>
         </div>
         
-        <div class="flex items-center space-x-3">
-            <button onclick="toggleGaze()" id="gaze-btn" class="bg-gray-800 hover:bg-gray-700 text-emerald-400 border border-emerald-600/50 px-3 py-1.5 rounded text-xs font-semibold transition-colors flex items-center shadow-sm">
-                Mirada: ➡️
+        <div class="flex items-center space-x-1.5 md:space-x-3">
+            <button onclick="toggleGaze()" id="gaze-btn" class="bg-gray-800 hover:bg-gray-700 text-emerald-400 border border-emerald-600/50 px-2 py-1.5 md:px-3 rounded text-xs font-semibold transition-colors flex items-center shadow-sm">
+                <span class="hidden md:inline mr-1">Mirada:</span>➡️
             </button>
-            <label class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded text-sm font-medium cursor-pointer flex items-center transition-colors">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                Cargar Radiografía
+            <label class="bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1.5 md:px-4 rounded text-xs md:text-sm font-medium cursor-pointer flex items-center transition-colors">
+                <svg class="w-4 h-4 md:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                <span class="hidden md:inline">Cargar Radiografía</span>
                 <input type="file" id="imageLoader" class="hidden" accept="image/*">
             </label>
-            <button onclick="clearCanvas()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-1.5 rounded text-sm font-medium transition-colors border border-gray-600">Limpiar Todo</button>
+            <button onclick="clearCanvas()" class="bg-gray-700 hover:bg-gray-600 text-white px-2 py-1.5 md:px-4 rounded text-xs md:text-sm font-medium transition-colors border border-gray-600">
+                <span class="hidden md:inline">Limpiar Todo</span>
+                <span class="md:hidden">Limpiar</span>
+            </button>
         </div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden">
+    <div class="flex flex-1 overflow-hidden relative">
         
-        <!-- PANEL IZQUIERDO -->
-        <aside class="w-80 bg-gray-900 border-r border-gray-800 flex flex-col shrink-0 relative z-20">
-            <div class="p-3 bg-gray-800 border-b border-gray-700">
+        <!-- OVERLAY MÓVIL (Oscurece el fondo al abrir menú) -->
+        <div id="mobile-overlay" onclick="toggleMobileMenu()" class="absolute inset-0 bg-black/60 z-40 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
+
+        <!-- PANEL IZQUIERDO (DRAWER EN MÓVIL) -->
+        <aside id="sidebar" class="absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 w-72 md:w-80 bg-gray-900 border-r border-gray-800 flex flex-col shrink-0 z-50 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
+            
+            <div class="p-3 bg-gray-800 border-b border-gray-700 flex justify-between items-center">
                 <p id="status-bar" class="text-xs font-semibold text-emerald-400 flex items-center">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span> Sistema Listo
                 </p>
+                <button onclick="toggleMobileMenu()" class="md:hidden text-gray-400 hover:text-white p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
             
             <div class="flex-1 overflow-y-auto scrollable-panel p-3 space-y-3 pb-24">
@@ -120,11 +132,10 @@
 
         <!-- ZONA PRINCIPAL DE DIBUJO -->
         <main class="flex-1 relative bg-black flex items-center justify-center overflow-hidden" id="canvas-container">
-            <span id="placeholder-text" class="absolute text-gray-600 font-medium text-lg pointer-events-none">Selecciona "Cargar Radiografía" para comenzar</span>
+            <span id="placeholder-text" class="absolute text-gray-600 font-medium text-lg pointer-events-none px-4 text-center">Selecciona "Cargar Radiografía" para comenzar</span>
             <canvas id="mainCanvas" class="absolute z-10"></canvas>
             
-            <!-- TABLA DEL PERFIL TEÓRICO -->
-            <div id="theoretical-table" class="hidden absolute top-12 left-4 bg-gray-900/95 border border-emerald-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md min-w-[300px]">
+            <div id="theoretical-table" class="hidden absolute top-4 left-4 bg-gray-900/95 border border-emerald-500 rounded-lg p-4 shadow-2xl z-30 backdrop-blur-md min-w-[280px]">
                 <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2">
                     <h3 class="text-emerald-400 font-bold text-sm">Perfil Teórico Ideal</h3>
                     <button onclick="document.getElementById('theoretical-table').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs">&times; Cerrar</button>
@@ -166,6 +177,21 @@
     const statusBar = document.getElementById('status-bar');
     const contextMenu = document.getElementById('context-menu');
     
+    // --- LÓGICA DE MENÚ MÓVIL (NUEVO) ---
+    let isMobileMenuOpen = false;
+    function toggleMobileMenu() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('mobile-overlay');
+        isMobileMenuOpen = !isMobileMenuOpen;
+        if (isMobileMenuOpen) {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        }
+    }
+
     let bgImage = null;
     let baseScale = 1;
     let zoomScale = 1;
@@ -190,7 +216,7 @@
 
     function toggleGaze() {
         gazeDirection *= -1;
-        document.getElementById('gaze-btn').innerText = gazeDirection === 1 ? "Mirada: ➡️" : "Mirada: ⬅️";
+        document.getElementById('gaze-btn').innerHTML = `<span class="hidden md:inline mr-1">Mirada:</span>${gazeDirection === 1 ? '➡️' : '⬅️'}`;
         draw();
     }
 
@@ -282,6 +308,11 @@
         else if (type === 'cbva') updateStatus(`Haz clic en el Mentón`);
         else if (type === 'thoracic') updateStatus(`Traza el platillo de T1 (Clic y Arrastrar)`);
         else updateStatus(`Herramienta: ${title}. Traza la línea.`);
+        
+        // CERRAR EL MENÚ EN MÓVILES AL SELECCIONAR HERRAMIENTA
+        if (window.innerWidth < 768 && isMobileMenuOpen) {
+            toggleMobileMenu();
+        }
     }
 
     function deactivateTool() {
@@ -353,6 +384,7 @@
         `;
 
         document.getElementById('theoretical-table').classList.remove('hidden');
+        if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
         updateStatus("Perfil Teórico calculado exitosamente.");
     }
 
@@ -360,11 +392,9 @@
     canvas.addEventListener('mousedown', function(e) {
         if(e.button !== 0 || !bgImage) return;
         hideContextMenu();
-        
         const pos = getLogicalPos(e);
         dragObj = checkHit(pos.x, pos.y);
         
-        // PANNING SOLO SI HAY ZOOM Y NO SE TOCA NADA NI HAY HERRAMIENTA
         if (!dragObj && !activeTool) {
             if (zoomScale > 1.01) {
                 isPanning = true;
@@ -373,10 +403,7 @@
             return;
         }
 
-        if(dragObj && !activeTool) {
-            canvas.style.cursor = 'grabbing';
-            return;
-        }
+        if(dragObj && !activeTool) { canvas.style.cursor = 'grabbing'; return; }
 
         if (activeTool) {
             const color = getNextColor();
@@ -400,32 +427,23 @@
                 if (stepCount === 0) {
                     currentMeasurement = { id: Date.now(), type: 'pelvic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, circles: [ {x: pos.x, y: pos.y, r: 0} ], line: [], textPos: null };
                     measurements.push(currentMeasurement);
-                } else if (stepCount === 1) {
-                    currentMeasurement.circles.push({x: pos.x, y: pos.y, r: 0});
-                } else if (stepCount === 2) {
-                    currentMeasurement.line = [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}];
-                }
+                } else if (stepCount === 1) currentMeasurement.circles.push({x: pos.x, y: pos.y, r: 0});
+                else if (stepCount === 2) currentMeasurement.line = [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}];
             }
             else if (activeTool === 'sagittal') {
                 currentMeasurement = { id: Date.now(), type: 'sagittal', title: activeTitle, subType: activeSubType, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: {x: pos.x + 20, y: pos.y - 20} };
-                measurements.push(currentMeasurement);
-                deactivateTool();
+                measurements.push(currentMeasurement); deactivateTool();
             }
             else if (activeTool === 'sba') {
                 currentMeasurement = { id: Date.now(), type: 'sba', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: {x: pos.x + 10, y: pos.y + 30} };
-                measurements.push(currentMeasurement);
-                deactivateTool();
+                measurements.push(currentMeasurement); deactivateTool();
             }
             else if (activeTool === 'cbva') {
                 if(!currentMeasurement) {
                     currentMeasurement = { id: Date.now(), type: 'cbva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: null };
-                    measurements.push(currentMeasurement);
-                    stepCount = 1;
-                    updateStatus(`Haz clic en la Ceja`);
+                    measurements.push(currentMeasurement); stepCount = 1; updateStatus(`Haz clic en la Ceja`);
                 } else {
-                    currentMeasurement.points.push({x: pos.x, y: pos.y});
-                    currentMeasurement.textPos = {x: pos.x + 20, y: pos.y + 20};
-                    deactivateTool();
+                    currentMeasurement.points.push({x: pos.x, y: pos.y}); currentMeasurement.textPos = {x: pos.x + 20, y: pos.y + 20}; deactivateTool();
                 }
             }
             else if (activeTool === 'thoracic') {
@@ -433,9 +451,7 @@
                     currentMeasurement = { id: Date.now(), type: 'thoracic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], sternum: null, textPos: null };
                     measurements.push(currentMeasurement);
                 } else if (stepCount === 1) {
-                    currentMeasurement.sternum = {x: pos.x, y: pos.y};
-                    currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 20};
-                    deactivateTool();
+                    currentMeasurement.sternum = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 20}; deactivateTool();
                 }
             }
             draw();
@@ -446,10 +462,7 @@
         if (!bgImage) return;
         
         if (isPanning && e.buttons === 1) {
-            panX += e.movementX;
-            panY += e.movementY;
-            draw();
-            return;
+            panX += e.movementX; panY += e.movementY; draw(); return;
         }
 
         const pos = getLogicalPos(e);
@@ -459,17 +472,14 @@
             if (dragObj.type === 'text') {
                 item.textPos.x = pos.x; item.textPos.y = pos.y;
             } else if (dragObj.type === 'point') {
-                item.points[dragObj.index].x = pos.x;
-                item.points[dragObj.index].y = pos.y;
+                item.points[dragObj.index].x = pos.x; item.points[dragObj.index].y = pos.y;
             } else if (dragObj.type === 'circleRadius') {
                 let cx = item.circles[dragObj.index].x, cy = item.circles[dragObj.index].y;
                 item.circles[dragObj.index].r = Math.hypot(pos.x - cx, pos.y - cy);
             } else if (dragObj.type === 'circleCenter') {
-                item.circles[dragObj.index].x = pos.x;
-                item.circles[dragObj.index].y = pos.y;
+                item.circles[dragObj.index].x = pos.x; item.circles[dragObj.index].y = pos.y;
             } else if (dragObj.type === 'lineSegment') {
-                let dx = pos.x - dragObj.lastX;
-                let dy = pos.y - dragObj.lastY;
+                let dx = pos.x - dragObj.lastX; let dy = pos.y - dragObj.lastY;
                 if (item.points && item.points.length >= 2) {
                     item.points[dragObj.idx1].x += dx; item.points[dragObj.idx1].y += dy;
                     item.points[dragObj.idx2].x += dx; item.points[dragObj.idx2].y += dy;
@@ -482,27 +492,21 @@
                 item.points[0].x = pos.x;
             }
             draw();
-            if(!document.getElementById('theoretical-table').classList.contains('hidden')){
-                showTheoreticalProfile();
-            }
+            if(!document.getElementById('theoretical-table').classList.contains('hidden')){ showTheoreticalProfile(); }
             return;
         }
 
         if (currentMeasurement && e.buttons === 1) {
-            if (activeTool === 'line' || activeTool === 'angle') {
-                currentMeasurement.points[1] = {x: pos.x, y: pos.y};
-            } else if (activeTool === 'cobb') {
+            if (activeTool === 'line' || activeTool === 'angle') currentMeasurement.points[1] = {x: pos.x, y: pos.y};
+            else if (activeTool === 'cobb') {
                 if (currentMeasurement.points.length === 2) currentMeasurement.points[1] = {x: pos.x, y: pos.y};
                 else if (currentMeasurement.points.length === 4) currentMeasurement.points[3] = {x: pos.x, y: pos.y};
-            } else if (activeTool === 'circle') {
-                currentMeasurement.radius = Math.hypot(pos.x - currentMeasurement.points[0].x, pos.y - currentMeasurement.points[0].y);
-            } else if (activeTool === 'pelvic') {
+            } else if (activeTool === 'circle') currentMeasurement.radius = Math.hypot(pos.x - currentMeasurement.points[0].x, pos.y - currentMeasurement.points[0].y);
+            else if (activeTool === 'pelvic') {
                 if (stepCount === 0) currentMeasurement.circles[0].r = Math.hypot(pos.x - currentMeasurement.circles[0].x, pos.y - currentMeasurement.circles[0].y);
                 else if (stepCount === 1) currentMeasurement.circles[1].r = Math.hypot(pos.x - currentMeasurement.circles[1].x, pos.y - currentMeasurement.circles[1].y);
                 else if (stepCount === 2) currentMeasurement.line[1] = {x: pos.x, y: pos.y};
-            } else if (activeTool === 'thoracic' && stepCount === 0) {
-                currentMeasurement.points[1] = {x: pos.x, y: pos.y};
-            }
+            } else if (activeTool === 'thoracic' && stepCount === 0) currentMeasurement.points[1] = {x: pos.x, y: pos.y};
             draw();
         } else {
             let hover = checkHit(pos.x, pos.y);
@@ -512,29 +516,14 @@
     });
 
     canvas.addEventListener('mouseup', function(e) {
-        if (isPanning) {
-            isPanning = false;
-            canvas.style.cursor = zoomScale > 1.01 ? 'grab' : 'default';
-            return;
-        }
-        
-        if (dragObj) {
-            dragObj = null;
-            canvas.style.cursor = 'default';
-            if(!document.getElementById('theoretical-table').classList.contains('hidden')){
-                showTheoreticalProfile();
-            }
-            draw();
-            return;
-        }
+        if (isPanning) { isPanning = false; canvas.style.cursor = zoomScale > 1.01 ? 'grab' : 'default'; return; }
+        if (dragObj) { dragObj = null; canvas.style.cursor = 'default'; draw(); return; }
 
         if (currentMeasurement) {
-            if (activeTool === 'line' || activeTool === 'circle' || activeTool === 'angle') {
-                deactivateTool();
-            } else if (activeTool === 'cobb') {
-                if (currentMeasurement.points.length === 2) {
-                    updateStatus(`Traza el Segundo Platillo`);
-                } else if (currentMeasurement.points.length === 4) {
+            if (activeTool === 'line' || activeTool === 'circle' || activeTool === 'angle') deactivateTool();
+            else if (activeTool === 'cobb') {
+                if (currentMeasurement.points.length === 2) updateStatus(`Traza el Segundo Platillo`);
+                else if (currentMeasurement.points.length === 4) {
                     if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20};
                     deactivateTool();
                 }
@@ -542,44 +531,31 @@
                 if(stepCount === 0) { stepCount = 1; updateStatus(`Traza la Segunda Cabeza Femoral`); }
                 else if(stepCount === 1) { stepCount = 2; updateStatus(`Traza el Platillo de S1`); }
                 else if(stepCount === 2) { 
-                    if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.line[0].x + 40, y: currentMeasurement.line[0].y - 20};
-                    deactivateTool(); 
+                    if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.line[0].x + 40, y: currentMeasurement.line[0].y - 20}; deactivateTool(); 
                 }
             } else if (activeTool === 'thoracic') {
-                if(stepCount === 0) {
-                    stepCount = 1;
-                    updateStatus(`Haz clic en el Manubrio del Esternón`);
-                }
+                if(stepCount === 0) { stepCount = 1; updateStatus(`Haz clic en el Manubrio del Esternón`); }
             }
         }
         draw();
     });
 
     canvas.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        if(!bgImage) return;
-        const pos = getLogicalPos(e);
-        let hit = checkHit(pos.x, pos.y);
+        e.preventDefault(); if(!bgImage) return;
+        const pos = getLogicalPos(e); let hit = checkHit(pos.x, pos.y);
         if(hit) {
-            selectedForContext = hit.item;
-            contextMenu.style.display = 'block';
-            contextMenu.style.left = e.clientX + 'px';
-            contextMenu.style.top = e.clientY + 'px';
+            selectedForContext = hit.item; contextMenu.style.display = 'block';
+            contextMenu.style.left = e.clientX + 'px'; contextMenu.style.top = e.clientY + 'px';
             document.getElementById('ctx-title').value = selectedForContext.title || '';
             document.getElementById('ctx-width').value = selectedForContext.width;
             document.getElementById('ctx-width-val').innerText = selectedForContext.width;
             document.getElementById('ctx-size').value = selectedForContext.fontSize;
             document.getElementById('ctx-size-val').innerText = selectedForContext.fontSize;
             document.getElementById('ctx-color').value = selectedForContext.color;
-        } else {
-            hideContextMenu();
-        }
+        } else hideContextMenu();
     });
 
-    function hideContextMenu() {
-        contextMenu.style.display = 'none';
-        selectedForContext = null;
-    }
+    function hideContextMenu() { contextMenu.style.display = 'none'; selectedForContext = null; }
 
     let selectedForContext = null;
     document.getElementById('ctx-title').addEventListener('input', e => { if(selectedForContext){ selectedForContext.title = e.target.value; draw(); }});
@@ -587,24 +563,14 @@
     document.getElementById('ctx-size').addEventListener('input', e => { if(selectedForContext){ selectedForContext.fontSize = parseInt(e.target.value); document.getElementById('ctx-size-val').innerText = e.target.value; draw(); }});
     document.getElementById('ctx-color').addEventListener('input', e => { if(selectedForContext){ selectedForContext.color = e.target.value; draw(); }});
     document.getElementById('ctx-delete').addEventListener('click', () => {
-        if(selectedForContext) {
-            measurements = measurements.filter(m => m.id !== selectedForContext.id);
-            hideContextMenu();
-            draw();
-            if(!document.getElementById('theoretical-table').classList.contains('hidden')){
-                showTheoreticalProfile();
-            }
-        }
+        if(selectedForContext) { measurements = measurements.filter(m => m.id !== selectedForContext.id); hideContextMenu(); draw(); }
     });
 
     function checkHit(x, y) {
         const HIT_RADIUS = 10 / (baseScale * zoomScale);
         for (let i = measurements.length - 1; i >= 0; i--) {
             let m = measurements[i];
-            
-            if (m.textPos) {
-                if (x >= m.textPos.x - 20 && x <= m.textPos.x + 80 && y >= m.textPos.y - 10 && y <= m.textPos.y + 40) return { type: 'text', item: m };
-            }
+            if (m.textPos) if (x >= m.textPos.x - 20 && x <= m.textPos.x + 80 && y >= m.textPos.y - 10 && y <= m.textPos.y + 40) return { type: 'text', item: m };
             
             if (m.type === 'pelvic') {
                 for(let c=0; c<m.circles.length; c++) {
@@ -613,59 +579,38 @@
                     if (Math.abs(d - m.circles[c].r) < HIT_RADIUS) return { type: 'circleRadius', item: m, index: c };
                 }
                 if (m.line && m.line.length === 2) {
-                    for(let l=0; l<2; l++){
-                        if (Math.hypot(x - m.line[l].x, y - m.line[l].y) < HIT_RADIUS) return { type: 'point', item: {points: m.line}, index: l };
-                    }
+                    for(let l=0; l<2; l++){ if (Math.hypot(x - m.line[l].x, y - m.line[l].y) < HIT_RADIUS) return { type: 'point', item: {points: m.line}, index: l }; }
                     if(distToSegment(x, y, m.line[0], m.line[1]) < HIT_RADIUS) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y };
                 }
             }
             else if (m.points) {
-                for(let p=0; p<m.points.length; p++){
-                    if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < HIT_RADIUS) return { type: 'point', item: m, index: p };
-                }
-                if(m.points.length >= 2) {
-                    if(distToSegment(x, y, m.points[0], m.points[1]) < HIT_RADIUS) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y };
-                }
-                if(m.points.length === 4) {
-                    if(distToSegment(x, y, m.points[2], m.points[3]) < HIT_RADIUS) return { type: 'lineSegment', item: m, idx1: 2, idx2: 3, lastX: x, lastY: y };
-                }
+                for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < HIT_RADIUS) return { type: 'point', item: m, index: p };
+                if(m.points.length >= 2) if(distToSegment(x, y, m.points[0], m.points[1]) < HIT_RADIUS) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y };
+                if(m.points.length === 4) if(distToSegment(x, y, m.points[2], m.points[3]) < HIT_RADIUS) return { type: 'lineSegment', item: m, idx1: 2, idx2: 3, lastX: x, lastY: y };
             }
-            if (m.type === 'sba') {
-                if(Math.abs(x - m.points[0].x) < HIT_RADIUS) return { type: 'sbaLine', item: m };
-            }
+            if (m.type === 'sba') if(Math.abs(x - m.points[0].x) < HIT_RADIUS) return { type: 'sbaLine', item: m };
         }
         return null;
     }
 
     function distToSegment(x, y, p1, p2) {
         let A = x - p1.x; let B = y - p1.y; let C = p2.x - p1.x; let D = p2.y - p1.y;
-        let dot = A * C + B * D; let len_sq = C * C + D * D;
-        let param = -1;
+        let dot = A * C + B * D; let len_sq = C * C + D * D; let param = -1;
         if (len_sq != 0) param = dot / len_sq;
         let xx, yy;
-        if (param < 0) { xx = p1.x; yy = p1.y; }
-        else if (param > 1) { xx = p2.x; yy = p2.y; }
-        else { xx = p1.x + param * C; yy = p1.y + param * D; }
-        let dx = x - xx; let dy = y - yy;
-        return Math.sqrt(dx * dx + dy * dy);
+        if (param < 0) { xx = p1.x; yy = p1.y; } else if (param > 1) { xx = p2.x; yy = p2.y; } else { xx = p1.x + param * C; yy = p1.y + param * D; }
+        let dx = x - xx; let dy = y - yy; return Math.sqrt(dx * dx + dy * dy);
     }
 
     function draw() {
-        ctx.clearRect(0,0, canvas.width, canvas.height);
-        window.currentResults = {}; 
+        ctx.clearRect(0,0, canvas.width, canvas.height); window.currentResults = {}; 
         
         if (bgImage) {
-            ctx.save();
-            ctx.translate(panX, panY);
-            ctx.scale(baseScale * zoomScale, baseScale * zoomScale);
-            ctx.drawImage(bgImage, 0, 0);
-
+            ctx.save(); ctx.translate(panX, panY); ctx.scale(baseScale * zoomScale, baseScale * zoomScale); ctx.drawImage(bgImage, 0, 0);
             let val_L1PA = null; let val_T4PA = null;
 
             measurements.forEach(m => {
-                ctx.strokeStyle = m.color; ctx.fillStyle = m.color;
-                ctx.lineWidth = m.width / (baseScale * zoomScale);
-                ctx.lineCap = 'round';
+                ctx.strokeStyle = m.color; ctx.fillStyle = m.color; ctx.lineWidth = m.width / (baseScale * zoomScale); ctx.lineCap = 'round';
                 
                 if (m.type === 'line' || m.type === 'angle') {
                     ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke();
@@ -681,11 +626,8 @@
                     if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
                     if(m.points.length === 4) {
                         ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
-                        let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x);
-                        let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
-                        let diff = Math.abs((a1 - a2) * 180 / Math.PI);
-                        if (diff > 90) diff = 180 - diff;
-                        window.currentResults[m.title] = diff;
+                        let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x); let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
+                        let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff; window.currentResults[m.title] = diff;
                         if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${diff.toFixed(1)}°`, m.color, m.fontSize);
                     }
                 }
@@ -698,8 +640,7 @@
                             let s1_x = (m.line[0].x + m.line[1].x)/2; let s1_y = (m.line[0].y + m.line[1].y)/2;
                             let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if(ss>90) ss=180-ss;
                             let pt = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if(pt>90) pt=Math.abs(pt-180);
-                            let pi = ss + pt;
-                            window.currentResults['PI'] = pi;
+                            let pi = ss + pt; window.currentResults['PI'] = pi;
                             let text = `PI: ${pi.toFixed(1)}°\nPT: ${pt.toFixed(1)}°\nSS: ${ss.toFixed(1)}°`;
                             drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize);
                         }
@@ -713,8 +654,7 @@
                             let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2;
                             ctx.beginPath(); ctx.moveTo(midX, midY); ctx.lineTo(m.sternum.x, m.sternum.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
                             let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI);
-                            let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI);
-                            let tia = t1s + nt;
+                            let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI); let tia = t1s + nt;
                             let text = `TIA: ${tia.toFixed(1)}°\nNT: ${nt.toFixed(1)}°\nT1S: ${t1s.toFixed(1)}°`;
                             drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize);
                         }
@@ -738,7 +678,6 @@
                         ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke();
 
                         let angle = 0; let signedAngle = 0; let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 = Math.hypot(v1.x, v1.y);
-
                         if (m.subType === 'pa') {
                             let s1_x = (pelvic.line[0].x + pelvic.line[1].x)/2; let s1_y = (pelvic.line[0].y + pelvic.line[1].y)/2;
                             let v2 = {x: s1_x - ha_x, y: s1_y - ha_y}; let mag2 = Math.hypot(v2.x, v2.y);
@@ -749,14 +688,10 @@
                         } else if (m.subType === 'tilt') {
                             let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y; let mag2 = 1;
                             angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI;
-                            let side = v1.x * gazeDirection; signedAngle = side >= 0 ? angle : -angle;
-                            window.currentResults[m.title] = signedAngle;
+                            let side = v1.x * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle;
                         }
-                        let prefix = signedAngle >= 0 ? '+' : '';
-                        drawText(m.textPos.x, m.textPos.y, m.title, `${prefix}${signedAngle.toFixed(1)}°`, m.color, m.fontSize);
-                    } else {
-                        drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize);
-                    }
+                        let prefix = signedAngle >= 0 ? '+' : ''; drawText(m.textPos.x, m.textPos.y, m.title, `${prefix}${signedAngle.toFixed(1)}°`, m.color, m.fontSize);
+                    } else drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize);
                 }
             });
             ctx.restore();
@@ -765,24 +700,44 @@
                 let mismatch = val_T4PA - val_L1PA; let absMismatch = Math.abs(mismatch);
                 let mColor = absMismatch <= 4 ? '#10b981' : '#f43f5e';
                 ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 4; ctx.fillStyle = mColor;
-                ctx.font = `bold 14px sans-serif`; ctx.fillText(`Mismatch (T4PA - L1PA): ${mismatch.toFixed(1)}°`, canvas.width - 260, 30);
+                ctx.font = `bold 14px sans-serif`; ctx.fillText(`Mismatch (T4PA-L1PA): ${mismatch.toFixed(1)}°`, canvas.width - 250, 40);
                 ctx.shadowBlur = 0;
             }
         }
     }
 
     function drawText(x, y, title, text, color, fontSize) {
-        let sc = baseScale * zoomScale;
-        ctx.font = `bold ${fontSize/sc}px sans-serif`;
-        ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = color;
-        ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 4/sc;
-        
-        let curY = y;
+        let sc = baseScale * zoomScale; ctx.font = `bold ${fontSize/sc}px sans-serif`; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = color;
+        ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 4/sc; let curY = y;
         if(title) { ctx.fillText(title, x, curY); curY += (fontSize + 4)/sc; }
-        let lines = text.split('\n');
-        lines.forEach(l => { ctx.fillText(l, x, curY); curY += (fontSize + 2)/sc; });
-        ctx.shadowBlur = 0;
+        let lines = text.split('\n'); lines.forEach(l => { ctx.fillText(l, x, curY); curY += (fontSize + 2)/sc; }); ctx.shadowBlur = 0;
     }
+
+    // --- SOPORTE TÁCTIL NATIVO PARA iPHONE ---
+    // Traduce los toques de la pantalla en clics y drags del ratón sin cambiar la matemática
+    function initTouch() {
+        canvas.addEventListener('touchstart', function(e) {
+            if(e.touches.length === 1) {
+                e.preventDefault(); let touch = e.touches[0];
+                canvas.dispatchEvent(new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 1 }));
+            }
+        }, {passive: false});
+        
+        canvas.addEventListener('touchmove', function(e) {
+            if(e.touches.length === 1) {
+                e.preventDefault(); let touch = e.touches[0];
+                canvas.dispatchEvent(new MouseEvent('mousemove', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 1 }));
+            }
+        }, {passive: false});
+        
+        canvas.addEventListener('touchend', function(e) {
+            if(e.changedTouches.length === 1) {
+                e.preventDefault(); let touch = e.changedTouches[0];
+                canvas.dispatchEvent(new MouseEvent('mouseup', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 0 }));
+            }
+        }, {passive: false});
+    }
+    initTouch();
 </script>
 </body>
 </html>
