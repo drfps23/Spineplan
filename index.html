@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V28 - Producción Oficial</title>
+    <title>SpinePlan Pro V29 - Interfaz Flotante</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -57,7 +57,7 @@
         
         <div class="flex items-center space-x-1.5 md:space-x-3">
             <button onclick="toggleGaze()" id="gaze-btn" class="bg-gray-800 hover:bg-gray-700 text-emerald-400 border border-emerald-600/50 px-2 py-1.5 md:px-3 rounded text-xs font-semibold transition-colors flex items-center shadow-sm">
-                <span class="hidden md:inline mr-1">Mirada:</span>➡️️
+                <span class="hidden md:inline mr-1">Mirada:</span>➡️
             </button>
             <label class="bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1.5 md:px-4 rounded text-xs md:text-sm font-medium cursor-pointer flex items-center transition-colors">
                 <svg class="w-4 h-4 md:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
@@ -150,12 +150,13 @@
             <span id="placeholder-text" class="absolute text-gray-600 font-medium text-lg pointer-events-none px-4 text-center">Selecciona "Cargar Radiografía" para comenzar</span>
             <canvas id="mainCanvas" class="absolute z-10"></canvas>
             
-            <div id="theoretical-table" class="hidden absolute top-4 left-4 bg-gray-900/95 border border-emerald-500 rounded-lg p-4 shadow-2xl z-30 backdrop-blur-md min-w-[280px]">
-                <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2">
+            <!-- PANEL FLOTANTE: TABLA TEÓRICA -->
+            <div id="theoretical-table" class="hidden absolute top-4 left-4 bg-gray-900/95 border border-emerald-500 rounded-lg p-4 shadow-2xl z-30 backdrop-blur-md min-w-[280px] cursor-move">
+                <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2 pointer-events-none">
                     <h3 class="text-emerald-400 font-bold text-sm">Perfil Teórico Ideal</h3>
-                    <button onclick="document.getElementById('theoretical-table').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs">&times; Cerrar</button>
+                    <button onclick="document.getElementById('theoretical-table').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto">&times; Cerrar</button>
                 </div>
-                <table class="text-xs text-left w-full text-gray-200">
+                <table class="text-xs text-left w-full text-gray-200 pointer-events-none">
                     <thead>
                         <tr class="text-gray-400 border-b border-gray-700">
                             <th class="pb-2 pr-3 font-semibold">Parámetro</th>
@@ -166,6 +167,12 @@
                     <tbody id="theo-tbody">
                     </tbody>
                 </table>
+            </div>
+
+            <!-- PANEL FLOTANTE: MISMATCH -->
+            <div id="mismatch-box" class="hidden absolute top-4 right-4 bg-gray-900/95 border border-emerald-500 rounded-lg px-3 py-2 shadow-2xl z-30 backdrop-blur-md cursor-move">
+                <span class="text-gray-400 text-xs font-semibold mr-2 pointer-events-none">Mismatch (T4PA-L1PA):</span>
+                <span id="mismatch-val" class="font-bold text-sm pointer-events-none"></span>
             </div>
 
             <div id="context-menu">
@@ -183,6 +190,42 @@
     </div>
 
 <script>
+    // --- LÓGICA DE ARRASTRE DE PANELES FLOTANTES ---
+    function makeDraggable(el) {
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        el.onmousedown = dragMouseDown;
+        el.ontouchstart = dragTouchStart;
+
+        function dragMouseDown(e) {
+            if(e.target.tagName === 'BUTTON') return;
+            e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY;
+            document.onmouseup = closeDragElement; document.onmousemove = elementDrag;
+        }
+        function dragTouchStart(e) {
+            if(e.target.tagName === 'BUTTON') return;
+            let touch = e.touches[0]; pos3 = touch.clientX; pos4 = touch.clientY;
+            document.ontouchend = closeDragElement; document.ontouchmove = elementTouchDrag;
+        }
+        function elementDrag(e) {
+            e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
+            pos3 = e.clientX; pos4 = e.clientY;
+            el.style.top = (el.offsetTop - pos2) + "px"; el.style.left = (el.offsetLeft - pos1) + "px"; el.style.right = "auto";
+        }
+        function elementTouchDrag(e) {
+            e.preventDefault(); let touch = e.touches[0];
+            pos1 = pos3 - touch.clientX; pos2 = pos4 - touch.clientY;
+            pos3 = touch.clientX; pos4 = touch.clientY;
+            el.style.top = (el.offsetTop - pos2) + "px"; el.style.left = (el.offsetLeft - pos1) + "px"; el.style.right = "auto";
+        }
+        function closeDragElement() {
+            document.onmouseup = null; document.onmousemove = null;
+            document.ontouchend = null; document.ontouchmove = null;
+        }
+    }
+    makeDraggable(document.getElementById('theoretical-table'));
+    makeDraggable(document.getElementById('mismatch-box'));
+
+
     // --- LÓGICA DE SEGURIDAD (SPLASH SCREEN) ---
     const splashScreen = document.getElementById('splash-screen');
     const introVideo = document.getElementById('intro-video');
@@ -247,7 +290,7 @@
 
     function toggleGaze() {
         gazeDirection *= -1;
-        document.getElementById('gaze-btn').innerHTML = `<span class="hidden md:inline mr-1">Mirada:</span>${gazeDirection === 1 ? '➡️' : '⬅️️'}`; draw();
+        document.getElementById('gaze-btn').innerHTML = `<span class="hidden md:inline mr-1">Mirada:</span>${gazeDirection === 1 ? '➡️' : '⬅️'}`; draw();
     }
 
     function getNextColor() { let c = COLORS[colorIndex]; colorIndex = (colorIndex + 1) % COLORS.length; return c; }
@@ -288,7 +331,9 @@
 
     function clearCanvas() {
         measurements = []; currentMeasurement = null; colorIndex = 0; bgImage = null; window.currentResults = {};
-        document.getElementById('theoretical-table').classList.add('hidden'); placeholder.style.display = 'block';
+        document.getElementById('theoretical-table').classList.add('hidden');
+        document.getElementById('mismatch-box').classList.add('hidden');
+        placeholder.style.display = 'block';
         ctx.clearRect(0,0, canvas.width, canvas.height); updateStatus("Sistema Listo");
     }
 
@@ -607,6 +652,7 @@
                             ctx.beginPath(); ctx.moveTo(midX, midY); ctx.lineTo(m.sternum.x, m.sternum.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
                             let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI);
                             let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI); let tia = t1s + nt;
+                            // ORDEN CORREGIDO A: T1S, TIA, NT
                             let text = `T1S: ${t1s.toFixed(1)}°\nTIA: ${tia.toFixed(1)}°\nNT: ${nt.toFixed(1)}°`;
                             drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize);
                         }
@@ -648,12 +694,18 @@
             });
             ctx.restore();
 
+            // ACTUALIZACIÓN DE PANELES FLOTANTES (DOM)
+            let mmBox = document.getElementById('mismatch-box');
+            let mmVal = document.getElementById('mismatch-val');
             if(val_L1PA !== null && val_T4PA !== null) {
                 let mismatch = val_T4PA - val_L1PA; let absMismatch = Math.abs(mismatch);
                 let mColor = absMismatch <= 4 ? '#10b981' : '#f43f5e';
-                ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 4; ctx.fillStyle = mColor;
-                ctx.font = `bold 14px sans-serif`; ctx.fillText(`Mismatch (T4PA-L1PA): ${mismatch.toFixed(1)}°`, canvas.width - 250, 40);
-                ctx.shadowBlur = 0;
+                mmVal.innerText = `${mismatch.toFixed(1)}°`;
+                mmVal.style.color = mColor;
+                mmBox.style.borderColor = mColor;
+                mmBox.classList.remove('hidden');
+            } else {
+                mmBox.classList.add('hidden');
             }
         }
     }
