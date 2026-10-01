@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V32 - Optimización Clínica & Móvil</title>
+    <title>SpinePlan Pro V33 - Exportación Nativa</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -86,7 +86,6 @@
                 <span class="hidden lg:inline">Cargar Rx</span>
                 <input type="file" id="imageLoader" class="hidden" accept="image/*">
             </label>
-            <!-- BOTÓN LIMPIAR TRAZOS (OPTIMIZADO) -->
             <button onclick="clearCanvas()" class="bg-gray-700 hover:bg-gray-600 text-white px-2 py-1.5 md:px-3 rounded text-xs md:text-sm font-medium transition-colors border border-gray-600" title="Limpiar Trazos">
                 <svg class="w-4 h-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 <span class="hidden md:inline">Limpiar</span>
@@ -237,29 +236,52 @@
         document.getElementById('patient-box').classList.remove('hidden'); closePatientModal();
     }
 
+    // --- NUEVA LÓGICA DE EXPORTACIÓN (MENÚ NATIVO PARA CELULARES) ---
     function exportImage() {
         if(!bgImage) { updateStatus("⚠️ Carga una radiografía primero.", true); return; }
-        updateStatus("📸 Generando imagen de alta resolución...");
+        updateStatus("📸 Generando imagen...");
         const container = document.getElementById('canvas-container');
         container.style.cursor = 'default';
         
         html2canvas(container, {
             backgroundColor: '#000000',
-            // OPTIMIZACIÓN MÓVIL: Si es pantalla de teléfono usa escala normal para evitar saturar memoria, en PC usa HD (2x)
             scale: window.innerWidth < 768 ? 1 : 2,
             useCORS: true,
             logging: false
         }).then(canvas => {
             let patName = document.getElementById('pat-name').value || 'Estudio';
             patName = patName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-            let link = document.createElement('a');
-            link.download = `SpinePlan_${patName}_${new Date().getTime()}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            container.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
-            updateStatus("✅ Imagen exportada con éxito.");
+            let fileName = `SpinePlan_${patName}_${new Date().getTime()}.png`;
+
+            canvas.toBlob(function(blob) {
+                const file = new File([blob], fileName, { type: 'image/png' });
+                
+                // Intenta abrir el menú nativo de Compartir/Guardar (iOS / Android)
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    navigator.share({
+                        files: [file],
+                        title: 'SpinePlan Pro',
+                        text: `Estudio - ${document.getElementById('pat-name').value || 'Paciente'}`
+                    }).then(() => {
+                        updateStatus("✅ Imagen guardada/compartida exitosamente.");
+                        container.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
+                    }).catch((error) => {
+                        updateStatus("Sistema Listo.");
+                        container.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
+                    });
+                } else {
+                    // Descarga tradicional para PC o navegadores antiguos
+                    let link = document.createElement('a');
+                    link.download = fileName;
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                    updateStatus("✅ Descargado en tu carpeta de Descargas.");
+                    container.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
+                }
+            }, 'image/png');
         }).catch(err => {
             updateStatus("❌ Error al exportar imagen.", true);
+            container.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
         });
     }
 
@@ -308,7 +330,6 @@
         document.getElementById('theoretical-table').classList.add('hidden');
         document.getElementById('mismatch-box').classList.add('hidden');
         document.getElementById('patient-box').classList.add('hidden'); 
-        // OPTIMIZACIÓN: Solo limpia los trazos, NO borra la imagen
         updateStatus("Trazos limpiados. Sistema Listo");
         draw();
     }
@@ -331,7 +352,6 @@
     function showTheoreticalProfile() {
         if (!window.currentResults['PI']) { updateStatus("⚠️ Debes medir los Parámetros Pélvicos (PI) primero.", true); document.getElementById('theoretical-table').classList.add('hidden'); return; }
         let pi = window.currentResults['PI']; let ideal_L1S1 = (pi * 0.6) + 30; let ideal_PA = (pi * 0.5) - 20;
-        // SIN EL SIGNO +
         let formatVal = (val) => val !== undefined ? val.toFixed(1) + '°' : '-';
         let base_PI = window.currentResults['PI'] ? window.currentResults['PI'].toFixed(1) + '°' : '-';
         let base_L1S1 = formatVal(window.currentResults['L1-S1']); let base_L4S1 = formatVal(window.currentResults['L4-S1']);
@@ -352,8 +372,6 @@
 
     canvas.addEventListener('mousedown', function(e) {
         if(e.button !== 0 || !bgImage) return; hideContextMenu(); const pos = getLogicalPos(e);
-        
-        // OPTIMIZACIÓN: Si tienes una herramienta activa, JAMÁS arrastrarás otra línea por error
         if (activeTool) {
             dragObj = null; 
             const color = getNextColor();
@@ -367,7 +385,6 @@
             else if (activeTool === 'thoracic') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'thoracic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], sternum: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.sternum = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 20}; deactivateTool(); } }
             draw();
         } else {
-            // Solo si NO tienes herramienta activa, puedes agarrar/mover líneas
             dragObj = checkHit(pos.x, pos.y);
             if (!dragObj) { if (zoomScale > 1.01) { isPanning = true; canvas.style.cursor = 'grabbing'; } }
             else { canvas.style.cursor = 'grabbing'; }
@@ -429,7 +446,7 @@
     document.getElementById('ctx-delete').addEventListener('click', () => { if(selectedForContext) { measurements = measurements.filter(m => m.id !== selectedForContext.id); hideContextMenu(); draw(); }});
 
     function checkHit(x, y) {
-        const HIT_RADIUS = 15 / (baseScale * zoomScale); // Sensibilidad aumentada
+        const HIT_RADIUS = 15 / (baseScale * zoomScale); 
         for (let i = measurements.length - 1; i >= 0; i--) {
             let m = measurements[i];
             if (m.textPos) if (x >= m.textPos.x - 20 && x <= m.textPos.x + 80 && y >= m.textPos.y - 10 && y <= m.textPos.y + 40) return { type: 'text', item: m };
@@ -461,7 +478,7 @@
                         let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x); let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
                         let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
                         
-                        let finalVal = diff;
+                        let finalVal = diff; let prefix = '';
                         let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
                         let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; let det = A1*B2 - A2*B1;
                         if (Math.abs(det) > 0.0001) {
@@ -469,7 +486,7 @@
                             let isKyphosis = (x_int > spine_x && gazeDirection === 1) || (x_int < spine_x && gazeDirection === -1); let isLordosis = !isKyphosis;
                             let title = m.title || ""; let isThoracic = title.includes('Tk') || title.includes('Cifosis'); let isCervical = title.includes('C2-C7') || title.includes('C0-C2'); let isLumbar = title.includes('L1-S1') || title.includes('L4-S1') || title.includes('L4-L5');
                             let sign = 1; if (isThoracic) { sign = isKyphosis ? 1 : -1; } else if (isCervical || isLumbar) { sign = isLordosis ? 1 : -1; }
-                            finalVal = diff * sign;
+                            finalVal = diff * sign; prefix = (sign < 0) ? '' : ''; // SIN SIGNO MÁS
                         }
                         if(isNaN(finalVal)) finalVal = 0;
                         window.currentResults[m.title] = finalVal; if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${finalVal.toFixed(1)}°`, m.color, m.fontSize);
@@ -510,10 +527,9 @@
                             selectedForContext = hit.item; contextMenu.style.display = 'block'; contextMenu.style.left = touch.clientX + 'px'; contextMenu.style.top = touch.clientY + 'px'; document.getElementById('ctx-title').value = selectedForContext.title || ''; document.getElementById('ctx-width').value = selectedForContext.width; document.getElementById('ctx-width-val').innerText = selectedForContext.width; document.getElementById('ctx-size').value = selectedForContext.fontSize; document.getElementById('ctx-size-val').innerText = selectedForContext.fontSize; document.getElementById('ctx-color').value = selectedForContext.color;
                         }
                     }
-                }, 500); // 500 milisegundos
+                }, 500);
 
                 if(!activeTool && contextMenu.style.display === 'block') hideContextMenu();
-
                 e.preventDefault(); 
                 canvas.dispatchEvent(new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 1 })); 
             } 
@@ -526,7 +542,7 @@
         canvas.addEventListener('touchmove', function(e) { 
             if(e.touches.length === 1) { 
                 let touch = e.touches[0]; 
-                if (Math.hypot(touch.clientX - touchStartX, touch.clientY - touchStartY) > 10) clearTimeout(longPressTimer); // Cancela long press si se mueve
+                if (Math.hypot(touch.clientX - touchStartX, touch.clientY - touchStartY) > 10) clearTimeout(longPressTimer);
                 e.preventDefault(); 
                 canvas.dispatchEvent(new MouseEvent('mousemove', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 1 })); 
             } 
