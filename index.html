@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V34 - Foto Móvil & Estabilidad</title>
+    <title>SpinePlan Pro V35 - Indicadores Bicoxofemorales</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         body { background-color: #0f172a; color: white; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; }
@@ -36,20 +35,6 @@
                 <button onclick="closePatientModal()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded text-xs transition-colors">Cancelar</button>
                 <button onclick="savePatientData()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded text-xs transition-colors shadow-lg">Generar Ficha</button>
             </div>
-        </div>
-    </div>
-
-    <!-- NUEVO: MODAL PARA EXPORTAR FOTO EN MÓVILES -->
-    <div id="export-modal" class="hidden fixed inset-0 z-[300] bg-black/95 flex flex-col items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-gray-900 p-4 rounded-xl border border-emerald-500/50 shadow-2xl w-full max-w-3xl flex flex-col items-center">
-            <h3 class="text-emerald-400 font-bold text-lg mb-1">¡Estudio Generado!</h3>
-            <p class="text-gray-300 text-sm mb-4 text-center font-medium bg-gray-800 px-4 py-2 rounded-lg">Mantén presionada la imagen unos segundos para <span class="text-white font-bold">"Guardar en Fotos"</span> o <span class="text-white font-bold">"Compartir"</span>.</p>
-            
-            <div class="w-full bg-black rounded-lg overflow-hidden border border-gray-700 relative flex justify-center items-center" style="max-height: 60vh;">
-                <img id="exported-img" class="max-w-full max-h-full object-contain pointer-events-auto" src="">
-            </div>
-            
-            <button onclick="closeExportModal()" class="mt-5 w-full max-w-xs px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-lg transition-colors shadow-lg border border-gray-600">Cerrar y Volver</button>
         </div>
     </div>
 
@@ -85,11 +70,6 @@
             <button onclick="openPatientModal()" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 px-2 py-1.5 md:px-3 rounded text-xs md:text-sm font-medium transition-colors border border-blue-500/50 flex items-center shadow-sm">
                 <svg class="w-4 h-4 md:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 <span class="hidden md:inline">Paciente</span>
-            </button>
-
-            <button onclick="exportImage()" class="bg-amber-600/20 hover:bg-amber-600/40 text-amber-400 px-2 py-1.5 md:px-3 rounded text-xs md:text-sm font-medium transition-colors border border-amber-500/50 flex items-center shadow-sm">
-                <svg class="w-4 h-4 md:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <span class="hidden md:inline">Exportar</span>
             </button>
 
             <button onclick="toggleGaze()" id="gaze-btn" class="bg-gray-800 hover:bg-gray-700 text-emerald-400 border border-emerald-600/50 px-2 py-1.5 md:px-3 rounded text-xs font-semibold transition-colors flex items-center shadow-sm ml-2">
@@ -242,50 +222,12 @@
 <script>
     function openPatientModal() { document.getElementById('patient-modal').classList.remove('hidden'); }
     function closePatientModal() { document.getElementById('patient-modal').classList.add('hidden'); }
-    function closeExportModal() { document.getElementById('export-modal').classList.add('hidden'); }
     function savePatientData() {
         let name = document.getElementById('pat-name').value || '-';
         let id = document.getElementById('pat-id').value || '-';
         let age = document.getElementById('pat-age').value ? document.getElementById('pat-age').value + ' años' : '-';
         document.getElementById('out-pat-name').innerText = name; document.getElementById('out-pat-id').innerText = id; document.getElementById('out-pat-age').innerText = age;
         document.getElementById('patient-box').classList.remove('hidden'); closePatientModal();
-    }
-
-    // --- SISTEMA DEFINITIVO DE EXPORTACIÓN (MODAL PREVIEW PARA MÓVILES) ---
-    function exportImage() {
-        if(!bgImage) { updateStatus("⚠️ Carga una radiografía primero.", true); return; }
-        updateStatus("📸 Generando imagen...");
-        const container = document.getElementById('canvas-container');
-        container.style.cursor = 'default';
-        
-        html2canvas(container, {
-            backgroundColor: '#000000',
-            scale: window.innerWidth < 768 ? 1.5 : 2, // Buena resolución equilibrada
-            useCORS: true,
-            logging: false
-        }).then(canvas => {
-            let imgData = canvas.toDataURL('image/png');
-            
-            // Si es un celular o tablet, mostramos el modal para el Long Press
-            if (window.innerWidth < 1024) {
-                document.getElementById('exported-img').src = imgData;
-                document.getElementById('export-modal').classList.remove('hidden');
-                updateStatus("Sistema Listo.");
-            } else {
-                // Si es computadora, descarga normal directa
-                let patName = document.getElementById('pat-name').value || 'Estudio';
-                patName = patName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-                let link = document.createElement('a');
-                link.download = `SpinePlan_${patName}_${new Date().getTime()}.png`;
-                link.href = imgData;
-                link.click();
-                updateStatus("✅ Descargado en tu computadora.");
-            }
-            container.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
-        }).catch(err => {
-            updateStatus("❌ Error al exportar imagen.", true);
-            container.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
-        });
     }
 
     function makeInteractivePanel(el) {
@@ -402,7 +344,7 @@
             if (dragObj.type === 'text') { item.textPos.x = pos.x; item.textPos.y = pos.y; }
             else if (dragObj.type === 'point') { item.points[dragObj.index].x = pos.x; item.points[dragObj.index].y = pos.y; }
             else if (dragObj.type === 'sternumPoint') { item.sternum.x = pos.x; item.sternum.y = pos.y; }
-            else if (dragObj.type === 'circleRadius') { let cx = item.circles[dragObj.index].x, cy = item.circles[dragObj.index].y; item.circles[dragObj.index].r = Math.hypot(pos.x - cx, pos.y - cy); }
+            else if (dragObj.type === 'circleRadius') { let cx = item.circles[dragObj.index].x, cy = item.circles[dragObj.index].y; item.circles[dragObj.index].r = Math.max(1, Math.hypot(pos.x - cx, pos.y - cy)); }
             else if (dragObj.type === 'circleCenter') { item.circles[dragObj.index].x = pos.x; item.circles[dragObj.index].y = pos.y; }
             else if (dragObj.type === 'lineSegment') { let dx = pos.x - dragObj.lastX; let dy = pos.y - dragObj.lastY; if (item.points && item.points.length >= 2) { item.points[dragObj.idx1].x += dx; item.points[dragObj.idx1].y += dy; item.points[dragObj.idx2].x += dx; item.points[dragObj.idx2].y += dy; } else if (item.line && item.line.length === 2) { item.line[dragObj.idx1].x += dx; item.line[dragObj.idx1].y += dy; item.line[dragObj.idx2].x += dx; item.line[dragObj.idx2].y += dy; } dragObj.lastX = pos.x; dragObj.lastY = pos.y; }
             else if (dragObj.type === 'svaLine') { item.points[0].x = pos.x; }
@@ -449,14 +391,28 @@
     document.getElementById('ctx-delete').addEventListener('click', () => { if(selectedForContext) { measurements = measurements.filter(m => m.id !== selectedForContext.id); hideContextMenu(); draw(); }});
 
     function checkHit(x, y) {
-        const HIT_RADIUS = 15 / (baseScale * zoomScale); 
+        const baseRadius = 15 / (baseScale * zoomScale); 
         for (let i = measurements.length - 1; i >= 0; i--) {
             let m = measurements[i];
             if (m.textPos) if (x >= m.textPos.x - 20 && x <= m.textPos.x + 80 && y >= m.textPos.y - 10 && y <= m.textPos.y + 40) return { type: 'text', item: m };
-            if (m.type === 'pelvic') { for(let c=0; c<m.circles.length; c++) { let d = Math.hypot(x - m.circles[c].x, y - m.circles[c].y); if (d < HIT_RADIUS) return { type: 'circleCenter', item: m, index: c }; if (Math.abs(d - m.circles[c].r) < HIT_RADIUS) return { type: 'circleRadius', item: m, index: c }; } if (m.line && m.line.length === 2) { for(let l=0; l<2; l++){ if (Math.hypot(x - m.line[l].x, y - m.line[l].y) < HIT_RADIUS) return { type: 'point', item: {points: m.line}, index: l }; } if(distToSegment(x, y, m.line[0], m.line[1]) < HIT_RADIUS) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; } }
-            else if (m.type === 'thoracic') { if (m.sternum && Math.hypot(x - m.sternum.x, y - m.sternum.y) < HIT_RADIUS) return { type: 'sternumPoint', item: m }; for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < HIT_RADIUS) return { type: 'point', item: m, index: p }; if(m.points.length >= 2) if(distToSegment(x, y, m.points[0], m.points[1]) < HIT_RADIUS) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; }
-            else if (m.points) { for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < HIT_RADIUS) return { type: 'point', item: m, index: p }; if(m.points.length >= 2) if(distToSegment(x, y, m.points[0], m.points[1]) < HIT_RADIUS) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; if(m.points.length === 4) if(distToSegment(x, y, m.points[2], m.points[3]) < HIT_RADIUS) return { type: 'lineSegment', item: m, idx1: 2, idx2: 3, lastX: x, lastY: y }; }
-            if (m.type === 'sva') if(Math.abs(x - m.points[0].x) < HIT_RADIUS) return { type: 'svaLine', item: m };
+            
+            if (m.type === 'pelvic') { 
+                for(let c=0; c<m.circles.length; c++) { 
+                    let d = Math.hypot(x - m.circles[c].x, y - m.circles[c].y); 
+                    // Prioridad extrema al centro: Si tocas el centro, se mueve.
+                    if (d < baseRadius) return { type: 'circleCenter', item: m, index: c }; 
+                    if (Math.abs(d - m.circles[c].r) < baseRadius) return { type: 'circleRadius', item: m, index: c }; 
+                } 
+                if (m.line && m.line.length === 2) { for(let l=0; l<2; l++){ if (Math.hypot(x - m.line[l].x, y - m.line[l].y) < baseRadius) return { type: 'point', item: {points: m.line}, index: l }; } if(distToSegment(x, y, m.line[0], m.line[1]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; } 
+            }
+            else if (m.type === 'circle') {
+                let d = Math.hypot(x - m.points[0].x, y - m.points[0].y);
+                if (d < baseRadius) return { type: 'circleCenter', item: m, index: 0 };
+                if (Math.abs(d - m.radius) < baseRadius) return { type: 'circleRadius', item: m, index: 0 };
+            }
+            else if (m.type === 'thoracic') { if (m.sternum && Math.hypot(x - m.sternum.x, y - m.sternum.y) < baseRadius) return { type: 'sternumPoint', item: m }; for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < baseRadius) return { type: 'point', item: m, index: p }; if(m.points.length >= 2) if(distToSegment(x, y, m.points[0], m.points[1]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; }
+            else if (m.points) { for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < baseRadius) return { type: 'point', item: m, index: p }; if(m.points.length >= 2) if(distToSegment(x, y, m.points[0], m.points[1]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; if(m.points.length === 4) if(distToSegment(x, y, m.points[2], m.points[3]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 2, idx2: 3, lastX: x, lastY: y }; }
+            if (m.type === 'sva') if(Math.abs(x - m.points[0].x) < baseRadius) return { type: 'svaLine', item: m };
         }
         return null;
     }
@@ -473,7 +429,19 @@
                 ctx.strokeStyle = m.color; ctx.fillStyle = m.color; ctx.lineWidth = m.width / (baseScale * zoomScale); ctx.lineCap = 'round';
                 
                 if (m.type === 'line' || m.type === 'angle') { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); let dist = Math.hypot(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y).toFixed(1); let text = m.type === 'line' ? `${dist} mm` : 'WIP'; drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize); }
-                else if (m.type === 'circle') { ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, m.radius, 0, 2*Math.PI); ctx.stroke(); drawText(m.textPos.x, m.textPos.y, m.title, `${m.radius.toFixed(1)}mm`, m.color, m.fontSize); }
+                else if (m.type === 'circle') { 
+                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, m.radius, 0, 2*Math.PI); ctx.stroke(); 
+                    // Indicadores visuales
+                    let dotR = 4 / (baseScale * zoomScale);
+                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, dotR * 1.2, 0, 2*Math.PI); ctx.fill();
+                    if(m.radius > 5) {
+                        ctx.beginPath(); ctx.arc(m.points[0].x + m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill();
+                        ctx.beginPath(); ctx.arc(m.points[0].x - m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill();
+                        ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y + m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill();
+                        ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y - m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill();
+                    }
+                    drawText(m.textPos.x, m.textPos.y, m.title, `${m.radius.toFixed(1)}mm`, m.color, m.fontSize); 
+                }
                 else if (m.type === 'cobb') {
                     if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
                     if(m.points.length === 4) {
@@ -495,7 +463,25 @@
                         window.currentResults[m.title] = finalVal; if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${finalVal.toFixed(1)}°`, m.color, m.fontSize);
                     }
                 }
-                else if (m.type === 'pelvic') { m.circles.forEach(c => { ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); }); if(m.line && m.line.length === 2) { ctx.beginPath(); ctx.moveTo(m.line[0].x, m.line[0].y); ctx.lineTo(m.line[1].x, m.line[1].y); ctx.stroke(); if(m.circles.length === 2 && m.textPos) { let ha_x = (m.circles[0].x + m.circles[1].x)/2; let ha_y = (m.circles[0].y + m.circles[1].y)/2; let s1_x = (m.line[0].x + m.line[1].x)/2; let s1_y = (m.line[0].y + m.line[1].y)/2; let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if(ss>90) ss=180-ss; let pt = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if(pt>90) pt=Math.abs(pt-180); let pi = ss + pt; window.currentResults['PI'] = pi; let text = `PI: ${pi.toFixed(1)}°\nPT: ${pt.toFixed(1)}°\nSS: ${ss.toFixed(1)}°`; drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); } } }
+                else if (m.type === 'pelvic') { 
+                    m.circles.forEach(c => { 
+                        ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); 
+                        
+                        // INDICADORES VISUALES BICOXOFEMORALES
+                        let dotR = 4 / (baseScale * zoomScale);
+                        // Punto Central (Mover)
+                        ctx.beginPath(); ctx.arc(c.x, c.y, dotR * 1.2, 0, 2*Math.PI); ctx.fill();
+                        
+                        // 4 Puntos Cardinales (Redimensionar)
+                        if(c.r > 5) {
+                            ctx.beginPath(); ctx.arc(c.x + c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill();
+                            ctx.beginPath(); ctx.arc(c.x - c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill();
+                            ctx.beginPath(); ctx.arc(c.x, c.y + c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill();
+                            ctx.beginPath(); ctx.arc(c.x, c.y - c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill();
+                        }
+                    }); 
+                    if(m.line && m.line.length === 2) { ctx.beginPath(); ctx.moveTo(m.line[0].x, m.line[0].y); ctx.lineTo(m.line[1].x, m.line[1].y); ctx.stroke(); if(m.circles.length === 2 && m.textPos) { let ha_x = (m.circles[0].x + m.circles[1].x)/2; let ha_y = (m.circles[0].y + m.circles[1].y)/2; let s1_x = (m.line[0].x + m.line[1].x)/2; let s1_y = (m.line[0].y + m.line[1].y)/2; let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if(ss>90) ss=180-ss; let pt = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if(pt>90) pt=Math.abs(pt-180); let pi = ss + pt; window.currentResults['PI'] = pi; let text = `PI: ${pi.toFixed(1)}°\nPT: ${pt.toFixed(1)}°\nSS: ${ss.toFixed(1)}°`; drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); } } 
+                }
                 else if (m.type === 'thoracic') { if (m.points.length === 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); if(m.sternum && m.textPos) { ctx.beginPath(); ctx.arc(m.sternum.x, m.sternum.y, 4, 0, 2*Math.PI); ctx.fill(); let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2; ctx.beginPath(); ctx.moveTo(midX, midY); ctx.lineTo(m.sternum.x, m.sternum.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI); let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI); let tia = t1s + nt; let text = `T1S: ${t1s.toFixed(1)}°\nTIA: ${tia.toFixed(1)}°\nNT: ${nt.toFixed(1)}°`; drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); } } }
                 else if (m.type === 'sva') { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y - 500); ctx.lineTo(m.points[0].x, m.points[0].y + 1000); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 3, 0, 2*Math.PI); ctx.fill(); drawText(m.textPos.x, m.textPos.y, m.title, `SVA Plomada`, m.color, m.fontSize); }
                 else if (m.type === 'cbva' && m.points.length === 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); let ang = Math.abs(Math.atan2(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y) * 180 / Math.PI); if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(1)}°`, m.color, m.fontSize); }
