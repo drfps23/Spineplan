@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V36 - Módulo Meyerding</title>
+    <title>SpinePlan Pro V37 - Textos Optimizados</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -70,7 +70,7 @@
             </button>
 
             <button onclick="toggleGaze()" id="gaze-btn" class="bg-gray-800 hover:bg-gray-700 text-emerald-400 border border-emerald-600/50 px-2 py-1.5 md:px-3 rounded text-xs font-semibold transition-colors flex items-center shadow-sm ml-2">
-                <span class="hidden md:inline mr-1">Mirada:</span>➡️️
+                <span class="hidden md:inline mr-1">Mirada:</span>➡️
             </button>
             <label class="bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1.5 md:px-3 rounded text-xs md:text-sm font-medium cursor-pointer flex items-center transition-colors">
                 <svg class="w-4 h-4 md:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
@@ -158,7 +158,6 @@
                     </div>
                 </div>
 
-                <!-- NUEVO MÓDULO 7: ESPONDILOLISTESIS -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
                     <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">7. Espondilolistesis</div>
                     <div class="p-3 bg-gray-900/50">
@@ -292,7 +291,6 @@
         else if (type === 'sva') updateStatus(`Haz clic en la esquina posterior de T1`);
         else if (type === 'cbva') updateStatus(`Haz clic en el Mentón`);
         else if (type === 'thoracic') updateStatus(`Traza el platillo de T1 (Clic y Arrastrar)`);
-        // NUEVA INSTRUCCIÓN MEYERDING
         else if (type === 'meyerding') updateStatus(`Traza el platillo de la vértebra inferior (Línea)`);
         else updateStatus(`Herramienta: ${title}. Traza la línea.`);
         if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
@@ -335,17 +333,7 @@
             else if (activeTool === 'sva') { currentMeasurement = { id: Date.now(), type: 'sva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: {x: pos.x + 10, y: pos.y + 30} }; measurements.push(currentMeasurement); deactivateTool(); }
             else if (activeTool === 'cbva') { if(!currentMeasurement) { currentMeasurement = { id: Date.now(), type: 'cbva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: null }; measurements.push(currentMeasurement); stepCount = 1; updateStatus(`Haz clic en la Ceja`); } else { currentMeasurement.points.push({x: pos.x, y: pos.y}); currentMeasurement.textPos = {x: pos.x + 20, y: pos.y + 20}; deactivateTool(); } }
             else if (activeTool === 'thoracic') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'thoracic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], sternum: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.sternum = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 20}; deactivateTool(); } }
-            // NUEVO MEYERDING MOUSE DOWN
-            else if (activeTool === 'meyerding') {
-                if(stepCount === 0) {
-                    currentMeasurement = { id: Date.now(), type: 'meyerding', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], slipPoint: null, textPos: null };
-                    measurements.push(currentMeasurement);
-                } else if (stepCount === 1) {
-                    currentMeasurement.slipPoint = {x: pos.x, y: pos.y};
-                    currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 40};
-                    deactivateTool();
-                }
-            }
+            else if (activeTool === 'meyerding') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'meyerding', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], slipPoint: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.slipPoint = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 40}; deactivateTool(); } }
             draw();
         } else {
             dragObj = checkHit(pos.x, pos.y);
@@ -362,7 +350,6 @@
             if (dragObj.type === 'text') { item.textPos.x = pos.x; item.textPos.y = pos.y; }
             else if (dragObj.type === 'point') { item.points[dragObj.index].x = pos.x; item.points[dragObj.index].y = pos.y; }
             else if (dragObj.type === 'sternumPoint') { item.sternum.x = pos.x; item.sternum.y = pos.y; }
-            // NUEVO MEYERDING SLIP POINT MOUSEMOVE
             else if (dragObj.type === 'slipPoint') { item.slipPoint.x = pos.x; item.slipPoint.y = pos.y; }
             else if (dragObj.type === 'circleRadius') { let cx = item.circles[dragObj.index].x, cy = item.circles[dragObj.index].y; item.circles[dragObj.index].r = Math.max(1, Math.hypot(pos.x - cx, pos.y - cy)); }
             else if (dragObj.type === 'circleCenter') { item.circles[dragObj.index].x = pos.x; item.circles[dragObj.index].y = pos.y; }
@@ -376,7 +363,6 @@
             else if (activeTool === 'circle') currentMeasurement.radius = Math.hypot(pos.x - currentMeasurement.points[0].x, pos.y - currentMeasurement.points[0].y);
             else if (activeTool === 'pelvic') { if (stepCount === 0) currentMeasurement.circles[0].r = Math.hypot(pos.x - currentMeasurement.circles[0].x, pos.y - currentMeasurement.circles[0].y); else if (stepCount === 1) currentMeasurement.circles[1].r = Math.hypot(pos.x - currentMeasurement.circles[1].x, pos.y - currentMeasurement.circles[1].y); else if (stepCount === 2) currentMeasurement.line[1] = {x: pos.x, y: pos.y}; }
             else if (activeTool === 'thoracic' && stepCount === 0) currentMeasurement.points[1] = {x: pos.x, y: pos.y};
-            // NUEVO MEYERDING MOUSEMOVE LINEA
             else if (activeTool === 'meyerding' && stepCount === 0) currentMeasurement.points[1] = {x: pos.x, y: pos.y};
             draw();
         } else {
@@ -394,7 +380,6 @@
             else if (activeTool === 'cobb') { if (currentMeasurement.points.length === 2) updateStatus(`Traza el Segundo Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
             else if (activeTool === 'pelvic') { if(stepCount === 0) { stepCount = 1; updateStatus(`Traza la Segunda Cabeza Femoral`); } else if(stepCount === 1) { stepCount = 2; updateStatus(`Traza el Platillo de S1`); } else if(stepCount === 2) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.line[0].x + 40, y: currentMeasurement.line[0].y - 20}; deactivateTool(); } } 
             else if (activeTool === 'thoracic') { if(stepCount === 0) { stepCount = 1; updateStatus(`Haz clic en el Manubrio del Esternón`); } }
-            // NUEVO MEYERDING MOUSE UP
             else if (activeTool === 'meyerding') { if(stepCount === 0) { stepCount = 1; updateStatus(`Haz clic en la esquina postero-inferior de la vértebra desplazada`); } }
         }
         draw();
@@ -418,7 +403,9 @@
         const baseRadius = 15 / (baseScale * zoomScale); 
         for (let i = measurements.length - 1; i >= 0; i--) {
             let m = measurements[i];
-            if (m.textPos) if (x >= m.textPos.x - 20 && x <= m.textPos.x + 80 && y >= m.textPos.y - 10 && y <= m.textPos.y + 40) return { type: 'text', item: m };
+            
+            // CORRECCIÓN MAGISTRAL: Ampliada la caja táctil de los textos (De 80px a 180px de ancho)
+            if (m.textPos) if (x >= m.textPos.x - 20 && x <= m.textPos.x + 180 && y >= m.textPos.y - 15 && y <= m.textPos.y + 70) return { type: 'text', item: m };
             
             if (m.type === 'pelvic') { 
                 for(let c=0; c<m.circles.length; c++) { 
@@ -428,7 +415,6 @@
                 } 
                 if (m.line && m.line.length === 2) { for(let l=0; l<2; l++){ if (Math.hypot(x - m.line[l].x, y - m.line[l].y) < baseRadius) return { type: 'point', item: {points: m.line}, index: l }; } if(distToSegment(x, y, m.line[0], m.line[1]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; } 
             }
-            // NUEVO HIT MEYERDING
             else if (m.type === 'meyerding') {
                 if (m.slipPoint && Math.hypot(x - m.slipPoint.x, y - m.slipPoint.y) < baseRadius) return { type: 'slipPoint', item: m };
                 for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < baseRadius) return { type: 'point', item: m, index: p };
@@ -480,7 +466,6 @@
                     m.circles.forEach(c => { ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(c.x, c.y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(c.r > 5) { ctx.beginPath(); ctx.arc(c.x + c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x - c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y + c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y - c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } }); 
                     if(m.line && m.line.length === 2) { ctx.beginPath(); ctx.moveTo(m.line[0].x, m.line[0].y); ctx.lineTo(m.line[1].x, m.line[1].y); ctx.stroke(); if(m.circles.length === 2 && m.textPos) { let ha_x = (m.circles[0].x + m.circles[1].x)/2; let ha_y = (m.circles[0].y + m.circles[1].y)/2; let s1_x = (m.line[0].x + m.line[1].x)/2; let s1_y = (m.line[0].y + m.line[1].y)/2; let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if(ss>90) ss=180-ss; let pt = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if(pt>90) pt=Math.abs(pt-180); let pi = ss + pt; window.currentResults['PI'] = pi; let text = `PI: ${pi.toFixed(1)}°\nPT: ${pt.toFixed(1)}°\nSS: ${ss.toFixed(1)}°`; drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); } } 
                 }
-                // NUEVA LÓGICA RENDERIZADO MEYERDING
                 else if (m.type === 'meyerding') {
                     if (m.points.length === 2) {
                         ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke();
@@ -488,16 +473,11 @@
                             let dotR = 4 / (baseScale * zoomScale);
                             ctx.beginPath(); ctx.arc(m.slipPoint.x, m.slipPoint.y, dotR * 1.5, 0, 2*Math.PI); ctx.fill();
 
-                            // Inteligencia de Mirada (Gaze) para saber cuál es el borde posterior
                             let pA = m.points[0]; let pB = m.points[1];
                             let pPost, pAnt;
-                            if (gazeDirection === 1) { // Mirando a la derecha (Anterior es +X, Posterior es -X)
-                                if (pA.x < pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; }
-                            } else { // Mirando a la izquierda (Anterior es -X, Posterior es +X)
-                                if (pA.x > pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; }
-                            }
+                            if (gazeDirection === 1) { if (pA.x < pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } } 
+                            else { if (pA.x > pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } }
 
-                            // Marcar el borde posterior con un puntito rojo para confirmar
                             ctx.fillStyle = '#ef4444';
                             ctx.beginPath(); ctx.arc(pPost.x, pPost.y, dotR, 0, 2*Math.PI); ctx.fill();
                             ctx.fillStyle = m.color;
@@ -506,18 +486,15 @@
                             let L = Math.hypot(dx, dy);
 
                             if (L > 0) {
-                                // Proyección del punto de la vértebra sobre la línea del platillo
                                 let dot = (m.slipPoint.x - pPost.x)*dx + (m.slipPoint.y - pPost.y)*dy;
                                 let projDist = dot / L;
                                 let projX = pPost.x + (projDist / L) * dx;
                                 let projY = pPost.y + (projDist / L) * dy;
 
-                                // Dibujar línea punteada de caída (plomada)
                                 ctx.beginPath(); ctx.moveTo(m.slipPoint.x, m.slipPoint.y); ctx.lineTo(projX, projY);
                                 ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
                                 ctx.beginPath(); ctx.arc(projX, projY, dotR * 0.8, 0, 2*Math.PI); ctx.fill();
 
-                                // Cálculo matemático
                                 let percent = (projDist / L) * 100;
                                 let absPercent = Math.abs(percent);
                                 
@@ -526,12 +503,13 @@
                                 else if (absPercent <= 50) grade = "II";
                                 else if (absPercent <= 75) grade = "III";
                                 else if (absPercent <= 100) grade = "IV";
-                                else grade = "V (Espondiloptosis)";
+                                else grade = "V";
 
                                 let tipo = percent > 0 ? "Anterolistesis" : "Retrolistesis";
-                                if (Math.abs(percent) < 2) tipo = "Sin desplazamiento patológico";
+                                if (Math.abs(percent) < 2) tipo = "Sin patología de listesis";
 
-                                let text = `${tipo}\nDesplazamiento: ${absPercent.toFixed(1)}%\nMeyerding: Grado ${grade}`;
+                                // CORRECCIÓN FORMATO: Igual que el resto de los textos
+                                let text = `${tipo}\nDeslizamiento: ${absPercent.toFixed(1)}%\nMeyerding: Grado ${grade}`;
                                 drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize);
                             }
                         }
