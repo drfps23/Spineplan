@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V38 - Mapeo Vertebral</title>
+    <title>SpinePlan Pro V39 - Contornos y Etiquetas</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -167,14 +167,30 @@
                     </div>
                 </div>
 
-                <!-- NUEVO MÓDULO 8: MAPEO VERTEBRAL -->
+                <!-- MÓDULO 8: MAPEO VERTEBRAL OPTIMIZADO -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
                     <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">8. Mapeo Vertebral</div>
-                    <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
-                        <button onclick="activateTool('vertebra', 'Cervical', 'C')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-sky-400 hover:bg-sky-900/30 flex justify-center items-center font-bold">C1 - C7</button>
-                        <button onclick="activateTool('vertebra', 'Torácica', 'T')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-amber-400 hover:bg-amber-900/30 flex justify-center items-center font-bold">T1 - T12</button>
-                        <button onclick="activateTool('vertebra', 'Lumbar', 'L')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-purple-400 hover:bg-purple-900/30 flex justify-center items-center font-bold">L1 - L5</button>
-                        <button onclick="activateTool('vertebra', 'Sacro', 'S')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-emerald-400 hover:bg-emerald-900/30 flex justify-center items-center font-bold">Sacro (S)</button>
+                    <div class="p-3 bg-gray-900/50 space-y-3">
+                        <!-- Etiquetas (Solo Letras) -->
+                        <div>
+                            <span class="text-[10px] text-gray-400 uppercase tracking-wider mb-1 block">Etiquetas (Letra y Número)</span>
+                            <div class="grid grid-cols-4 gap-1">
+                                <button onclick="activateTool('vertebra', 'Cervical', 'C')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-sky-400 hover:bg-sky-900/30 font-bold">C</button>
+                                <button onclick="activateTool('vertebra', 'Torácica', 'T')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-amber-400 hover:bg-amber-900/30 font-bold">T</button>
+                                <button onclick="activateTool('vertebra', 'Lumbar', 'L')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-purple-400 hover:bg-purple-900/30 font-bold">L</button>
+                                <button onclick="activateTool('vertebra', 'Sacro', 'S')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-emerald-400 hover:bg-emerald-900/30 font-bold">S</button>
+                            </div>
+                        </div>
+                        <!-- Contornos (Colorear Borde) -->
+                        <div>
+                            <span class="text-[10px] text-gray-400 uppercase tracking-wider mb-1 block">Contornos (Bordes)</span>
+                            <div class="grid grid-cols-4 gap-1">
+                                <button onclick="activateTool('vertebraContour', 'Contorno C', 'C')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-sky-400 hover:bg-sky-900/30 flex items-center justify-center">🎨 C</button>
+                                <button onclick="activateTool('vertebraContour', 'Contorno T', 'T')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-amber-400 hover:bg-amber-900/30 flex items-center justify-center">🎨 T</button>
+                                <button onclick="activateTool('vertebraContour', 'Contorno L', 'L')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-purple-400 hover:bg-purple-900/30 flex items-center justify-center">🎨 L</button>
+                                <button onclick="activateTool('vertebraContour', 'Contorno S', 'S')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-emerald-400 hover:bg-emerald-900/30 flex items-center justify-center">🎨 S</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -226,7 +242,7 @@
                 <label class="menu-label">Grosor de línea (<span id="ctx-width-val">1</span>px)</label>
                 <input type="range" id="ctx-width" class="menu-slider" min="1" max="5" value="1">
                 <label class="menu-label">Tamaño de letra (<span id="ctx-size-val">11</span>px)</label>
-                <input type="range" id="ctx-size" class="menu-slider" min="10" max="30" value="11">
+                <input type="range" id="ctx-size" class="menu-slider" min="10" max="40" value="11">
                 <label class="menu-label">Color</label>
                 <input type="color" id="ctx-color" class="w-full h-8 mb-3 rounded bg-transparent border-none cursor-pointer">
                 <button id="ctx-delete" class="w-full bg-red-600 hover:bg-red-700 text-white py-1.5 rounded text-xs font-semibold">Eliminar Medición</button>
@@ -273,9 +289,8 @@
     let isMobileMenuOpen = false;
     function toggleMobileMenu() { const sidebar = document.getElementById('sidebar'); const overlay = document.getElementById('mobile-overlay'); isMobileMenuOpen = !isMobileMenuOpen; if (isMobileMenuOpen) { sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); } else { sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); } }
 
-    let bgImage = null; let baseScale = 1; let zoomScale = 1; let panX = 0, panY = 0; const DEFAULT_LINE_WIDTH = 1; const DEFAULT_FONT_SIZE = 12; const COLORS = ['#10b981', '#06b6d4', '#d946ef', '#f59e0b', '#f43f5e', '#3b82f6']; let colorIndex = 0;
+    let bgImage = null; let baseScale = 1; let zoomScale = 1; let panX = 0, panY = 0; const DEFAULT_LINE_WIDTH = 1; const DEFAULT_FONT_SIZE = 14; const COLORS = ['#10b981', '#06b6d4', '#d946ef', '#f59e0b', '#f43f5e', '#3b82f6']; let colorIndex = 0;
     
-    // LÓGICA DE MAPEO VERTEBRAL AÑADIDA
     let measurements = []; let currentMeasurement = null; let activeTool = null; let activeTitle = ''; let activeSubType = null; let stepCount = 0; let dragObj = null; let isPanning = false; let gazeDirection = 1; window.currentResults = {};
     let activeVertebraRegion = ''; let currentVIndex = 1;
 
@@ -308,9 +323,13 @@
         else if (type === 'thoracic') updateStatus(`Traza el platillo de T1 (Clic y Arrastrar)`);
         else if (type === 'meyerding') updateStatus(`Traza el platillo de la vértebra inferior (Línea)`);
         else if (type === 'vertebra') {
-            activeVertebraRegion = subType; // 'C', 'T', 'L', 'S'
+            activeVertebraRegion = subType; 
             currentVIndex = 1;
-            updateStatus(`Haz clic para marcar la vértebra ${activeVertebraRegion}${currentVIndex}`);
+            updateStatus(`Haz clic para poner etiqueta ${activeVertebraRegion}${currentVIndex}`);
+        }
+        else if (type === 'vertebraContour') {
+            activeVertebraRegion = subType;
+            updateStatus(`Toca los bordes de la vértebra. Toca el punto rojo para cerrar el contorno.`);
         }
         else updateStatus(`Herramienta: ${title}. Traza la línea.`);
         
@@ -355,19 +374,36 @@
             else if (activeTool === 'cbva') { if(!currentMeasurement) { currentMeasurement = { id: Date.now(), type: 'cbva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: null }; measurements.push(currentMeasurement); stepCount = 1; updateStatus(`Haz clic en la Ceja`); } else { currentMeasurement.points.push({x: pos.x, y: pos.y}); currentMeasurement.textPos = {x: pos.x + 20, y: pos.y + 20}; deactivateTool(); } }
             else if (activeTool === 'thoracic') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'thoracic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], sternum: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.sternum = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 20}; deactivateTool(); } }
             else if (activeTool === 'meyerding') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'meyerding', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], slipPoint: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.slipPoint = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 40}; deactivateTool(); } }
-            // LÓGICA DE ETIQUETADO DE VÉRTEBRAS
             else if (activeTool === 'vertebra') {
                 let vColor = activeVertebraRegion === 'C' ? '#0ea5e9' : activeVertebraRegion === 'T' ? '#f59e0b' : activeVertebraRegion === 'L' ? '#a855f7' : '#10b981';
                 currentMeasurement = { 
                     id: Date.now(), type: 'vertebraLabel', 
                     title: `${activeVertebraRegion}${currentVIndex}`, 
-                    color: vColor, width: DEFAULT_LINE_WIDTH, fontSize: 13, 
+                    color: vColor, width: DEFAULT_LINE_WIDTH, fontSize: 16, // Más grande
                     x: pos.x, y: pos.y 
                 };
                 measurements.push(currentMeasurement);
-                currentVIndex++; // Incrementa automáticamente
-                currentMeasurement = null; // Cierra la medición al instante para permitir clics rápidos
-                updateStatus(`Haz clic para marcar la vértebra ${activeVertebraRegion}${currentVIndex}`);
+                currentVIndex++; 
+                currentMeasurement = null; 
+                updateStatus(`Haz clic para marcar etiqueta ${activeVertebraRegion}${currentVIndex}`);
+            }
+            // LÓGICA DE CONTORNO (POLÍGONO VERTEBRAL)
+            else if (activeTool === 'vertebraContour') {
+                if (!currentMeasurement) {
+                    let vColor = activeVertebraRegion === 'C' ? '#0ea5e9' : activeVertebraRegion === 'T' ? '#f59e0b' : activeVertebraRegion === 'L' ? '#a855f7' : '#10b981';
+                    currentMeasurement = { id: Date.now(), type: 'vertebraContour', title: activeTitle, color: vColor, width: DEFAULT_LINE_WIDTH * 1.5, points: [{x: pos.x, y: pos.y}], closed: false };
+                    measurements.push(currentMeasurement);
+                } else {
+                    let d = Math.hypot(pos.x - currentMeasurement.points[0].x, pos.y - currentMeasurement.points[0].y);
+                    // Si haces clic cerca del punto inicial, se cierra el contorno
+                    if (currentMeasurement.points.length > 2 && d < (25 / (baseScale * zoomScale))) {
+                        currentMeasurement.closed = true;
+                        deactivateTool();
+                        updateStatus("Contorno cerrado con éxito.");
+                    } else {
+                        currentMeasurement.points.push({x: pos.x, y: pos.y});
+                    }
+                }
             }
             draw();
         } else {
@@ -386,14 +422,18 @@
             else if (dragObj.type === 'point') { item.points[dragObj.index].x = pos.x; item.points[dragObj.index].y = pos.y; }
             else if (dragObj.type === 'sternumPoint') { item.sternum.x = pos.x; item.sternum.y = pos.y; }
             else if (dragObj.type === 'slipPoint') { item.slipPoint.x = pos.x; item.slipPoint.y = pos.y; }
-            else if (dragObj.type === 'vertebraLabel') { item.x = pos.x; item.y = pos.y; } // Permite mover las etiquetas vertebrales
+            else if (dragObj.type === 'vertebraLabel') { item.x = pos.x; item.y = pos.y; } // Permite arrastrar la etiqueta
             else if (dragObj.type === 'circleRadius') { let cx = item.circles[dragObj.index].x, cy = item.circles[dragObj.index].y; item.circles[dragObj.index].r = Math.max(1, Math.hypot(pos.x - cx, pos.y - cy)); }
             else if (dragObj.type === 'circleCenter') { item.circles[dragObj.index].x = pos.x; item.circles[dragObj.index].y = pos.y; }
             else if (dragObj.type === 'lineSegment') { let dx = pos.x - dragObj.lastX; let dy = pos.y - dragObj.lastY; if (item.points && item.points.length >= 2) { item.points[dragObj.idx1].x += dx; item.points[dragObj.idx1].y += dy; item.points[dragObj.idx2].x += dx; item.points[dragObj.idx2].y += dy; } else if (item.line && item.line.length === 2) { item.line[dragObj.idx1].x += dx; item.line[dragObj.idx1].y += dy; item.line[dragObj.idx2].x += dx; item.line[dragObj.idx2].y += dy; } dragObj.lastX = pos.x; dragObj.lastY = pos.y; }
             else if (dragObj.type === 'svaLine') { item.points[0].x = pos.x; }
             draw(); if(!document.getElementById('theoretical-table').classList.contains('hidden')){ showTheoreticalProfile(); } return;
         }
-        if (currentMeasurement && e.buttons === 1) {
+        if (currentMeasurement && activeTool === 'vertebraContour') {
+            currentMeasurement.tempPoint = {x: pos.x, y: pos.y}; // Para ver la línea siguiéndote
+            draw();
+        }
+        else if (currentMeasurement && e.buttons === 1) {
             if (activeTool === 'line' || activeTool === 'angle') currentMeasurement.points[1] = {x: pos.x, y: pos.y};
             else if (activeTool === 'cobb') { if (currentMeasurement.points.length === 2) currentMeasurement.points[1] = {x: pos.x, y: pos.y}; else if (currentMeasurement.points.length === 4) currentMeasurement.points[3] = {x: pos.x, y: pos.y}; }
             else if (activeTool === 'circle') currentMeasurement.radius = Math.hypot(pos.x - currentMeasurement.points[0].x, pos.y - currentMeasurement.points[0].y);
@@ -440,12 +480,12 @@
         for (let i = measurements.length - 1; i >= 0; i--) {
             let m = measurements[i];
             
-            // Textos normales
+            // Textos grandes
             if (m.textPos) if (x >= m.textPos.x - 20 && x <= m.textPos.x + 180 && y >= m.textPos.y - 15 && y <= m.textPos.y + 70) return { type: 'text', item: m };
             
-            // Etiquetas vertebrales (Cajitas de Mapeo)
+            // Hitbox de las Letras (Para moverlas a tu antojo)
             if (m.type === 'vertebraLabel') {
-                if (Math.abs(x - m.x) < 25 / (baseScale * zoomScale) && Math.abs(y - m.y) < 15 / (baseScale * zoomScale)) return { type: 'vertebraLabel', item: m };
+                if (Math.abs(x - m.x) < 30 / (baseScale * zoomScale) && Math.abs(y - m.y) < 20 / (baseScale * zoomScale)) return { type: 'vertebraLabel', item: m };
             }
 
             if (m.type === 'pelvic') { 
@@ -456,6 +496,12 @@
                 if (m.slipPoint && Math.hypot(x - m.slipPoint.x, y - m.slipPoint.y) < baseRadius) return { type: 'slipPoint', item: m };
                 for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < baseRadius) return { type: 'point', item: m, index: p };
                 if(m.points.length >= 2 && distToSegment(x, y, m.points[0], m.points[1]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y };
+            }
+            else if (m.type === 'vertebraContour') {
+                for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < baseRadius) return { type: 'point', item: m, index: p };
+                // Para borrarlo si tocas una linea del contorno
+                for(let p=0; p<m.points.length - 1; p++) { if (distToSegment(x, y, m.points[p], m.points[p+1]) < baseRadius) return { type: 'text', item: m }; }
+                if (m.closed && distToSegment(x, y, m.points[m.points.length-1], m.points[0]) < baseRadius) return { type: 'text', item: m };
             }
             else if (m.type === 'thoracic') { if (m.sternum && Math.hypot(x - m.sternum.x, y - m.sternum.y) < baseRadius) return { type: 'sternumPoint', item: m }; for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < baseRadius) return { type: 'point', item: m, index: p }; if(m.points.length >= 2) if(distToSegment(x, y, m.points[0], m.points[1]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; }
             else if (m.type === 'circle') { let d = Math.hypot(x - m.points[0].x, y - m.points[0].y); if (d < baseRadius) return { type: 'circleCenter', item: m, index: 0 }; if (Math.abs(d - m.radius) < baseRadius) return { type: 'circleRadius', item: m, index: 0 }; }
@@ -525,25 +571,52 @@
                         }
                     }
                 }
+                // DIBUJAR ETIQUETAS DE TEXTO (LETRAS LIMPIAS)
+                else if (m.type === 'vertebraLabel') {
+                    let sc = baseScale * zoomScale;
+                    ctx.font = `bold ${(m.fontSize + 6)/sc}px sans-serif`; // Tamaño un poco mayor
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    
+                    // Sombra gruesa negra para que se lea perfecto sobre blanco y negro
+                    ctx.fillStyle = m.color; 
+                    ctx.shadowColor = 'rgba(0,0,0,1)'; 
+                    ctx.shadowBlur = 8/sc;
+                    
+                    // Lo dibujamos dos veces para reforzar la sombra en pantallas HD
+                    ctx.fillText(m.title, m.x, m.y); 
+                    ctx.fillText(m.title, m.x, m.y);
+                    ctx.shadowBlur = 0;
+                }
+                // DIBUJAR CONTORNO (POLÍGONO VERTEBRAL)
+                else if (m.type === 'vertebraContour') {
+                    if (m.points.length > 0) {
+                        ctx.beginPath();
+                        ctx.moveTo(m.points[0].x, m.points[0].y);
+                        for (let i = 1; i < m.points.length; i++) {
+                            ctx.lineTo(m.points[i].x, m.points[i].y);
+                        }
+                        if (m.closed) {
+                            ctx.closePath();
+                            ctx.fillStyle = m.color + '4D'; // Transparencia del 30% para colorear por dentro
+                            ctx.fill();
+                        } else if (m.tempPoint) {
+                            ctx.lineTo(m.tempPoint.x, m.tempPoint.y); // Línea que sigue al ratón/dedo
+                        }
+                        ctx.stroke();
+                        
+                        // Punto rojo en el inicio para saber dónde cerrar
+                        if (!m.closed) {
+                            ctx.beginPath();
+                            ctx.arc(m.points[0].x, m.points[0].y, 6/(baseScale*zoomScale), 0, 2*Math.PI);
+                            ctx.fillStyle = '#ef4444';
+                            ctx.fill();
+                        }
+                    }
+                }
                 else if (m.type === 'thoracic') { if (m.points.length === 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); if(m.sternum && m.textPos) { ctx.beginPath(); ctx.arc(m.sternum.x, m.sternum.y, 4, 0, 2*Math.PI); ctx.fill(); let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2; ctx.beginPath(); ctx.moveTo(midX, midY); ctx.lineTo(m.sternum.x, m.sternum.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI); let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI); let tia = t1s + nt; let text = `T1S: ${t1s.toFixed(1)}°\nTIA: ${tia.toFixed(1)}°\nNT: ${nt.toFixed(1)}°`; drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); } } }
                 else if (m.type === 'sva') { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y - 500); ctx.lineTo(m.points[0].x, m.points[0].y + 1000); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 3, 0, 2*Math.PI); ctx.fill(); drawText(m.textPos.x, m.textPos.y, m.title, `SVA Plomada`, m.color, m.fontSize); }
                 else if (m.type === 'cbva' && m.points.length === 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); let ang = Math.abs(Math.atan2(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y) * 180 / Math.PI); if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(1)}°`, m.color, m.fontSize); }
                 else if (m.type === 'sagittal') { let pelvic = measurements.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2); if (pelvic) { let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2; let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2; ctx.beginPath(); ctx.arc(ha_x, ha_y, 2, 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill(); ctx.fillStyle = m.color; ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke(); let angle = 0; let signedAngle = 0; let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 = Math.hypot(v1.x, v1.y); if (m.subType === 'pa') { let s1_x = (pelvic.line[0].x + pelvic.line[1].x)/2; let s1_y = (pelvic.line[0].y + pelvic.line[1].y)/2; let v2 = {x: s1_x - ha_x, y: s1_y - ha_y}; let mag2 = Math.hypot(v2.x, v2.y); let dot = v1.x*v2.x + v1.y*v2.y; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let cross = v2.x * v1.y - v2.y * v1.x; let side = cross * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; if (m.title === 'L1-PA') val_L1PA = signedAngle; if (m.title === 'T4-PA') val_T4PA = signedAngle; } else if (m.subType === 'tilt') { let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y; let mag2 = 1; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let side = v1.x * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; } drawText(m.textPos.x, m.textPos.y, m.title, `${signedAngle.toFixed(1)}°`, m.color, m.fontSize); } else drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize); }
-                // DIBUJADO DE LAS CAJITAS DE MAPEO VERTEBRAL
-                else if (m.type === 'vertebraLabel') {
-                    let sc = baseScale * zoomScale;
-                    ctx.font = `bold ${m.fontSize/sc}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    let textW = ctx.measureText(m.title).width; let padX = 8/sc, padY = 4/sc; let w = textW + padX*2; let h = (m.fontSize + 8)/sc;
-                    
-                    // Fondo semi-transparente
-                    ctx.fillStyle = m.color + 'B3'; // 70% opacidad
-                    ctx.strokeStyle = m.color; ctx.lineWidth = 2/sc;
-                    ctx.beginPath(); ctx.roundRect(m.x - w/2, m.y - h/2, w, h, 4/sc); ctx.fill(); ctx.stroke();
-                    
-                    // Texto centrado
-                    ctx.fillStyle = '#ffffff'; ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 3/sc;
-                    ctx.fillText(m.title, m.x, m.y); ctx.shadowBlur = 0;
-                }
             });
             ctx.restore();
 
