@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V37 - Textos Optimizados</title>
+    <title>SpinePlan Pro V38 - Mapeo Vertebral</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -159,11 +159,22 @@
                 </div>
 
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">7. Espondilolistesis</div>
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">7. Espondilolistesis</div>
                     <div class="p-3 bg-gray-900/50">
-                        <button onclick="activateTool('meyerding', 'Espondilolistesis')" class="tool-btn w-full border border-emerald-700/50 rounded px-2 py-2 text-xs text-emerald-100 hover:bg-emerald-900/30 flex justify-center items-center transition-colors">
+                        <button onclick="activateTool('meyerding', 'Espondilolistesis')" class="tool-btn w-full border border-gray-700 rounded px-2 py-2 text-xs text-gray-300 hover:bg-gray-800 flex justify-center items-center">
                             Clasificación de Meyerding
                         </button>
+                    </div>
+                </div>
+
+                <!-- NUEVO MÓDULO 8: MAPEO VERTEBRAL -->
+                <div class="border border-gray-700 rounded-lg overflow-hidden">
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">8. Mapeo Vertebral</div>
+                    <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
+                        <button onclick="activateTool('vertebra', 'Cervical', 'C')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-sky-400 hover:bg-sky-900/30 flex justify-center items-center font-bold">C1 - C7</button>
+                        <button onclick="activateTool('vertebra', 'Torácica', 'T')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-amber-400 hover:bg-amber-900/30 flex justify-center items-center font-bold">T1 - T12</button>
+                        <button onclick="activateTool('vertebra', 'Lumbar', 'L')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-purple-400 hover:bg-purple-900/30 flex justify-center items-center font-bold">L1 - L5</button>
+                        <button onclick="activateTool('vertebra', 'Sacro', 'S')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-emerald-400 hover:bg-emerald-900/30 flex justify-center items-center font-bold">Sacro (S)</button>
                     </div>
                 </div>
 
@@ -210,7 +221,7 @@
             </div>
 
             <div id="context-menu">
-                <label class="menu-label">Título de la medición</label>
+                <label class="menu-label">Título/Nombre</label>
                 <input type="text" id="ctx-title" class="menu-input">
                 <label class="menu-label">Grosor de línea (<span id="ctx-width-val">1</span>px)</label>
                 <input type="range" id="ctx-width" class="menu-slider" min="1" max="5" value="1">
@@ -263,7 +274,10 @@
     function toggleMobileMenu() { const sidebar = document.getElementById('sidebar'); const overlay = document.getElementById('mobile-overlay'); isMobileMenuOpen = !isMobileMenuOpen; if (isMobileMenuOpen) { sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); } else { sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); } }
 
     let bgImage = null; let baseScale = 1; let zoomScale = 1; let panX = 0, panY = 0; const DEFAULT_LINE_WIDTH = 1; const DEFAULT_FONT_SIZE = 12; const COLORS = ['#10b981', '#06b6d4', '#d946ef', '#f59e0b', '#f43f5e', '#3b82f6']; let colorIndex = 0;
+    
+    // LÓGICA DE MAPEO VERTEBRAL AÑADIDA
     let measurements = []; let currentMeasurement = null; let activeTool = null; let activeTitle = ''; let activeSubType = null; let stepCount = 0; let dragObj = null; let isPanning = false; let gazeDirection = 1; window.currentResults = {};
+    let activeVertebraRegion = ''; let currentVIndex = 1;
 
     function toggleGaze() { gazeDirection *= -1; document.getElementById('gaze-btn').innerHTML = `<span class="hidden md:inline mr-1">Mirada:</span>${gazeDirection === 1 ? '➡️' : '⬅️'}`; draw(); }
     function getNextColor() { let c = COLORS[colorIndex]; colorIndex = (colorIndex + 1) % COLORS.length; return c; }
@@ -286,13 +300,20 @@
     function activateTool(type, title, subType = null) {
         document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); event.currentTarget.classList.add('active');
         activeTool = type; activeTitle = title; activeSubType = subType; currentMeasurement = null; stepCount = 0;
+        
         if(type === 'pelvic') updateStatus(`Traza la Primera Cabeza Femoral`);
         else if (type === 'sagittal') updateStatus(`Haz clic sobre la vértebra ${title}`);
         else if (type === 'sva') updateStatus(`Haz clic en la esquina posterior de T1`);
         else if (type === 'cbva') updateStatus(`Haz clic en el Mentón`);
         else if (type === 'thoracic') updateStatus(`Traza el platillo de T1 (Clic y Arrastrar)`);
         else if (type === 'meyerding') updateStatus(`Traza el platillo de la vértebra inferior (Línea)`);
+        else if (type === 'vertebra') {
+            activeVertebraRegion = subType; // 'C', 'T', 'L', 'S'
+            currentVIndex = 1;
+            updateStatus(`Haz clic para marcar la vértebra ${activeVertebraRegion}${currentVIndex}`);
+        }
         else updateStatus(`Herramienta: ${title}. Traza la línea.`);
+        
         if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
     }
 
@@ -334,6 +355,20 @@
             else if (activeTool === 'cbva') { if(!currentMeasurement) { currentMeasurement = { id: Date.now(), type: 'cbva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: null }; measurements.push(currentMeasurement); stepCount = 1; updateStatus(`Haz clic en la Ceja`); } else { currentMeasurement.points.push({x: pos.x, y: pos.y}); currentMeasurement.textPos = {x: pos.x + 20, y: pos.y + 20}; deactivateTool(); } }
             else if (activeTool === 'thoracic') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'thoracic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], sternum: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.sternum = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 20}; deactivateTool(); } }
             else if (activeTool === 'meyerding') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'meyerding', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], slipPoint: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.slipPoint = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 40}; deactivateTool(); } }
+            // LÓGICA DE ETIQUETADO DE VÉRTEBRAS
+            else if (activeTool === 'vertebra') {
+                let vColor = activeVertebraRegion === 'C' ? '#0ea5e9' : activeVertebraRegion === 'T' ? '#f59e0b' : activeVertebraRegion === 'L' ? '#a855f7' : '#10b981';
+                currentMeasurement = { 
+                    id: Date.now(), type: 'vertebraLabel', 
+                    title: `${activeVertebraRegion}${currentVIndex}`, 
+                    color: vColor, width: DEFAULT_LINE_WIDTH, fontSize: 13, 
+                    x: pos.x, y: pos.y 
+                };
+                measurements.push(currentMeasurement);
+                currentVIndex++; // Incrementa automáticamente
+                currentMeasurement = null; // Cierra la medición al instante para permitir clics rápidos
+                updateStatus(`Haz clic para marcar la vértebra ${activeVertebraRegion}${currentVIndex}`);
+            }
             draw();
         } else {
             dragObj = checkHit(pos.x, pos.y);
@@ -351,6 +386,7 @@
             else if (dragObj.type === 'point') { item.points[dragObj.index].x = pos.x; item.points[dragObj.index].y = pos.y; }
             else if (dragObj.type === 'sternumPoint') { item.sternum.x = pos.x; item.sternum.y = pos.y; }
             else if (dragObj.type === 'slipPoint') { item.slipPoint.x = pos.x; item.slipPoint.y = pos.y; }
+            else if (dragObj.type === 'vertebraLabel') { item.x = pos.x; item.y = pos.y; } // Permite mover las etiquetas vertebrales
             else if (dragObj.type === 'circleRadius') { let cx = item.circles[dragObj.index].x, cy = item.circles[dragObj.index].y; item.circles[dragObj.index].r = Math.max(1, Math.hypot(pos.x - cx, pos.y - cy)); }
             else if (dragObj.type === 'circleCenter') { item.circles[dragObj.index].x = pos.x; item.circles[dragObj.index].y = pos.y; }
             else if (dragObj.type === 'lineSegment') { let dx = pos.x - dragObj.lastX; let dy = pos.y - dragObj.lastY; if (item.points && item.points.length >= 2) { item.points[dragObj.idx1].x += dx; item.points[dragObj.idx1].y += dy; item.points[dragObj.idx2].x += dx; item.points[dragObj.idx2].y += dy; } else if (item.line && item.line.length === 2) { item.line[dragObj.idx1].x += dx; item.line[dragObj.idx1].y += dy; item.line[dragObj.idx2].x += dx; item.line[dragObj.idx2].y += dy; } dragObj.lastX = pos.x; dragObj.lastY = pos.y; }
@@ -367,7 +403,7 @@
             draw();
         } else {
             let hover = checkHit(pos.x, pos.y);
-            if(hover) canvas.style.cursor = (hover.type==='text'||hover.type==='lineSegment'||hover.type==='circleCenter'||hover.type==='sternumPoint'||hover.type==='slipPoint') ? 'move' : 'pointer';
+            if(hover) canvas.style.cursor = (hover.type==='text'||hover.type==='lineSegment'||hover.type==='circleCenter'||hover.type==='sternumPoint'||hover.type==='slipPoint'||hover.type==='vertebraLabel') ? 'move' : 'pointer';
             else canvas.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
         }
     });
@@ -387,7 +423,7 @@
 
     canvas.addEventListener('contextmenu', function(e) {
         e.preventDefault(); if(!bgImage) return; const pos = getLogicalPos(e); let hit = checkHit(pos.x, pos.y);
-        if(hit) { selectedForContext = hit.item; contextMenu.style.display = 'block'; contextMenu.style.left = e.clientX + 'px'; contextMenu.style.top = e.clientY + 'px'; document.getElementById('ctx-title').value = selectedForContext.title || ''; document.getElementById('ctx-width').value = selectedForContext.width; document.getElementById('ctx-width-val').innerText = selectedForContext.width; document.getElementById('ctx-size').value = selectedForContext.fontSize; document.getElementById('ctx-size-val').innerText = selectedForContext.fontSize; document.getElementById('ctx-color').value = selectedForContext.color; } else hideContextMenu();
+        if(hit) { selectedForContext = hit.item; contextMenu.style.display = 'block'; contextMenu.style.left = e.clientX + 'px'; contextMenu.style.top = e.clientY + 'px'; document.getElementById('ctx-title').value = selectedForContext.title || ''; document.getElementById('ctx-width').value = selectedForContext.width || 1; document.getElementById('ctx-width-val').innerText = selectedForContext.width || 1; document.getElementById('ctx-size').value = selectedForContext.fontSize || 12; document.getElementById('ctx-size-val').innerText = selectedForContext.fontSize || 12; document.getElementById('ctx-color').value = selectedForContext.color || '#ffffff'; } else hideContextMenu();
     });
 
     function hideContextMenu() { contextMenu.style.display = 'none'; selectedForContext = null; }
@@ -404,15 +440,16 @@
         for (let i = measurements.length - 1; i >= 0; i--) {
             let m = measurements[i];
             
-            // CORRECCIÓN MAGISTRAL: Ampliada la caja táctil de los textos (De 80px a 180px de ancho)
+            // Textos normales
             if (m.textPos) if (x >= m.textPos.x - 20 && x <= m.textPos.x + 180 && y >= m.textPos.y - 15 && y <= m.textPos.y + 70) return { type: 'text', item: m };
             
+            // Etiquetas vertebrales (Cajitas de Mapeo)
+            if (m.type === 'vertebraLabel') {
+                if (Math.abs(x - m.x) < 25 / (baseScale * zoomScale) && Math.abs(y - m.y) < 15 / (baseScale * zoomScale)) return { type: 'vertebraLabel', item: m };
+            }
+
             if (m.type === 'pelvic') { 
-                for(let c=0; c<m.circles.length; c++) { 
-                    let d = Math.hypot(x - m.circles[c].x, y - m.circles[c].y); 
-                    if (d < baseRadius) return { type: 'circleCenter', item: m, index: c }; 
-                    if (Math.abs(d - m.circles[c].r) < baseRadius) return { type: 'circleRadius', item: m, index: c }; 
-                } 
+                for(let c=0; c<m.circles.length; c++) { let d = Math.hypot(x - m.circles[c].x, y - m.circles[c].y); if (d < baseRadius) return { type: 'circleCenter', item: m, index: c }; if (Math.abs(d - m.circles[c].r) < baseRadius) return { type: 'circleRadius', item: m, index: c }; } 
                 if (m.line && m.line.length === 2) { for(let l=0; l<2; l++){ if (Math.hypot(x - m.line[l].x, y - m.line[l].y) < baseRadius) return { type: 'point', item: {points: m.line}, index: l }; } if(distToSegment(x, y, m.line[0], m.line[1]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; } 
             }
             else if (m.type === 'meyerding') {
@@ -472,43 +509,16 @@
                         if (m.slipPoint && m.textPos) {
                             let dotR = 4 / (baseScale * zoomScale);
                             ctx.beginPath(); ctx.arc(m.slipPoint.x, m.slipPoint.y, dotR * 1.5, 0, 2*Math.PI); ctx.fill();
-
-                            let pA = m.points[0]; let pB = m.points[1];
-                            let pPost, pAnt;
-                            if (gazeDirection === 1) { if (pA.x < pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } } 
-                            else { if (pA.x > pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } }
-
-                            ctx.fillStyle = '#ef4444';
-                            ctx.beginPath(); ctx.arc(pPost.x, pPost.y, dotR, 0, 2*Math.PI); ctx.fill();
-                            ctx.fillStyle = m.color;
-
-                            let dx = pAnt.x - pPost.x; let dy = pAnt.y - pPost.y;
-                            let L = Math.hypot(dx, dy);
-
+                            let pA = m.points[0]; let pB = m.points[1]; let pPost, pAnt;
+                            if (gazeDirection === 1) { if (pA.x < pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } } else { if (pA.x > pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } }
+                            ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(pPost.x, pPost.y, dotR, 0, 2*Math.PI); ctx.fill(); ctx.fillStyle = m.color;
+                            let dx = pAnt.x - pPost.x; let dy = pAnt.y - pPost.y; let L = Math.hypot(dx, dy);
                             if (L > 0) {
-                                let dot = (m.slipPoint.x - pPost.x)*dx + (m.slipPoint.y - pPost.y)*dy;
-                                let projDist = dot / L;
-                                let projX = pPost.x + (projDist / L) * dx;
-                                let projY = pPost.y + (projDist / L) * dy;
-
-                                ctx.beginPath(); ctx.moveTo(m.slipPoint.x, m.slipPoint.y); ctx.lineTo(projX, projY);
-                                ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
-                                ctx.beginPath(); ctx.arc(projX, projY, dotR * 0.8, 0, 2*Math.PI); ctx.fill();
-
-                                let percent = (projDist / L) * 100;
-                                let absPercent = Math.abs(percent);
-                                
-                                let grade = "";
-                                if (absPercent <= 25) grade = "I";
-                                else if (absPercent <= 50) grade = "II";
-                                else if (absPercent <= 75) grade = "III";
-                                else if (absPercent <= 100) grade = "IV";
-                                else grade = "V";
-
-                                let tipo = percent > 0 ? "Anterolistesis" : "Retrolistesis";
-                                if (Math.abs(percent) < 2) tipo = "Sin patología de listesis";
-
-                                // CORRECCIÓN FORMATO: Igual que el resto de los textos
+                                let dot = (m.slipPoint.x - pPost.x)*dx + (m.slipPoint.y - pPost.y)*dy; let projDist = dot / L; let projX = pPost.x + (projDist / L) * dx; let projY = pPost.y + (projDist / L) * dy;
+                                ctx.beginPath(); ctx.moveTo(m.slipPoint.x, m.slipPoint.y); ctx.lineTo(projX, projY); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(projX, projY, dotR * 0.8, 0, 2*Math.PI); ctx.fill();
+                                let percent = (projDist / L) * 100; let absPercent = Math.abs(percent); let grade = "";
+                                if (absPercent <= 25) grade = "I"; else if (absPercent <= 50) grade = "II"; else if (absPercent <= 75) grade = "III"; else if (absPercent <= 100) grade = "IV"; else grade = "V";
+                                let tipo = percent > 0 ? "Anterolistesis" : "Retrolistesis"; if (Math.abs(percent) < 2) tipo = "Sin patología de listesis";
                                 let text = `${tipo}\nDeslizamiento: ${absPercent.toFixed(1)}%\nMeyerding: Grado ${grade}`;
                                 drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize);
                             }
@@ -519,6 +529,21 @@
                 else if (m.type === 'sva') { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y - 500); ctx.lineTo(m.points[0].x, m.points[0].y + 1000); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 3, 0, 2*Math.PI); ctx.fill(); drawText(m.textPos.x, m.textPos.y, m.title, `SVA Plomada`, m.color, m.fontSize); }
                 else if (m.type === 'cbva' && m.points.length === 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); let ang = Math.abs(Math.atan2(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y) * 180 / Math.PI); if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(1)}°`, m.color, m.fontSize); }
                 else if (m.type === 'sagittal') { let pelvic = measurements.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2); if (pelvic) { let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2; let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2; ctx.beginPath(); ctx.arc(ha_x, ha_y, 2, 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill(); ctx.fillStyle = m.color; ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke(); let angle = 0; let signedAngle = 0; let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 = Math.hypot(v1.x, v1.y); if (m.subType === 'pa') { let s1_x = (pelvic.line[0].x + pelvic.line[1].x)/2; let s1_y = (pelvic.line[0].y + pelvic.line[1].y)/2; let v2 = {x: s1_x - ha_x, y: s1_y - ha_y}; let mag2 = Math.hypot(v2.x, v2.y); let dot = v1.x*v2.x + v1.y*v2.y; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let cross = v2.x * v1.y - v2.y * v1.x; let side = cross * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; if (m.title === 'L1-PA') val_L1PA = signedAngle; if (m.title === 'T4-PA') val_T4PA = signedAngle; } else if (m.subType === 'tilt') { let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y; let mag2 = 1; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let side = v1.x * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; } drawText(m.textPos.x, m.textPos.y, m.title, `${signedAngle.toFixed(1)}°`, m.color, m.fontSize); } else drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize); }
+                // DIBUJADO DE LAS CAJITAS DE MAPEO VERTEBRAL
+                else if (m.type === 'vertebraLabel') {
+                    let sc = baseScale * zoomScale;
+                    ctx.font = `bold ${m.fontSize/sc}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    let textW = ctx.measureText(m.title).width; let padX = 8/sc, padY = 4/sc; let w = textW + padX*2; let h = (m.fontSize + 8)/sc;
+                    
+                    // Fondo semi-transparente
+                    ctx.fillStyle = m.color + 'B3'; // 70% opacidad
+                    ctx.strokeStyle = m.color; ctx.lineWidth = 2/sc;
+                    ctx.beginPath(); ctx.roundRect(m.x - w/2, m.y - h/2, w, h, 4/sc); ctx.fill(); ctx.stroke();
+                    
+                    // Texto centrado
+                    ctx.fillStyle = '#ffffff'; ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 3/sc;
+                    ctx.fillText(m.title, m.x, m.y); ctx.shadowBlur = 0;
+                }
             });
             ctx.restore();
 
@@ -531,7 +556,7 @@
 
     function initTouch() {
         let lastPinchDistance = null; let lastPinchCenter = null; let longPressTimer = null; let touchStartX = 0; let touchStartY = 0;
-        canvas.addEventListener('touchstart', function(e) { if(e.touches.length === 1) { let touch = e.touches[0]; touchStartX = touch.clientX; touchStartY = touch.clientY; longPressTimer = setTimeout(() => { if(!activeTool) { const rect = canvas.getBoundingClientRect(); let logicalPos = { x: (touch.clientX - rect.left - panX) / (baseScale * zoomScale), y: (touch.clientY - rect.top - panY) / (baseScale * zoomScale) }; let hit = checkHit(logicalPos.x, logicalPos.y); if(hit) { e.preventDefault(); selectedForContext = hit.item; contextMenu.style.display = 'block'; contextMenu.style.left = touch.clientX + 'px'; contextMenu.style.top = touch.clientY + 'px'; document.getElementById('ctx-title').value = selectedForContext.title || ''; document.getElementById('ctx-width').value = selectedForContext.width; document.getElementById('ctx-width-val').innerText = selectedForContext.width; document.getElementById('ctx-size').value = selectedForContext.fontSize; document.getElementById('ctx-size-val').innerText = selectedForContext.fontSize; document.getElementById('ctx-color').value = selectedForContext.color; } } }, 500); if(!activeTool && contextMenu.style.display === 'block') hideContextMenu(); e.preventDefault(); canvas.dispatchEvent(new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 1 })); } else if(e.touches.length === 2) { clearTimeout(longPressTimer); e.preventDefault(); let dx = e.touches[0].clientX - e.touches[1].clientX; let dy = e.touches[0].clientY - e.touches[1].clientY; lastPinchDistance = Math.hypot(dx, dy); lastPinchCenter = { x: (e.touches[0].clientX + e.touches[1].clientX) / 2, y: (e.touches[0].clientY + e.touches[1].clientY) / 2 }; } }, {passive: false});
+        canvas.addEventListener('touchstart', function(e) { if(e.touches.length === 1) { let touch = e.touches[0]; touchStartX = touch.clientX; touchStartY = touch.clientY; longPressTimer = setTimeout(() => { if(!activeTool) { const rect = canvas.getBoundingClientRect(); let logicalPos = { x: (touch.clientX - rect.left - panX) / (baseScale * zoomScale), y: (touch.clientY - rect.top - panY) / (baseScale * zoomScale) }; let hit = checkHit(logicalPos.x, logicalPos.y); if(hit) { e.preventDefault(); selectedForContext = hit.item; contextMenu.style.display = 'block'; contextMenu.style.left = touch.clientX + 'px'; contextMenu.style.top = touch.clientY + 'px'; document.getElementById('ctx-title').value = selectedForContext.title || ''; document.getElementById('ctx-width').value = selectedForContext.width || 1; document.getElementById('ctx-width-val').innerText = selectedForContext.width || 1; document.getElementById('ctx-size').value = selectedForContext.fontSize || 12; document.getElementById('ctx-size-val').innerText = selectedForContext.fontSize || 12; document.getElementById('ctx-color').value = selectedForContext.color || '#ffffff'; } } }, 500); if(!activeTool && contextMenu.style.display === 'block') hideContextMenu(); e.preventDefault(); canvas.dispatchEvent(new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 1 })); } else if(e.touches.length === 2) { clearTimeout(longPressTimer); e.preventDefault(); let dx = e.touches[0].clientX - e.touches[1].clientX; let dy = e.touches[0].clientY - e.touches[1].clientY; lastPinchDistance = Math.hypot(dx, dy); lastPinchCenter = { x: (e.touches[0].clientX + e.touches[1].clientX) / 2, y: (e.touches[0].clientY + e.touches[1].clientY) / 2 }; } }, {passive: false});
         canvas.addEventListener('touchmove', function(e) { if(e.touches.length === 1) { let touch = e.touches[0]; if (Math.hypot(touch.clientX - touchStartX, touch.clientY - touchStartY) > 10) clearTimeout(longPressTimer); e.preventDefault(); canvas.dispatchEvent(new MouseEvent('mousemove', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 1 })); } else if (e.touches.length === 2) { clearTimeout(longPressTimer); e.preventDefault(); let dx = e.touches[0].clientX - e.touches[1].clientX; let dy = e.touches[0].clientY - e.touches[1].clientY; let currentPinchDistance = Math.hypot(dx, dy); let currentPinchCenter = { x: (e.touches[0].clientX + e.touches[1].clientX) / 2, y: (e.touches[0].clientY + e.touches[1].clientY) / 2 }; if (lastPinchDistance && lastPinchCenter) { let pinchRatio = currentPinchDistance / lastPinchDistance; let newZoomScale = zoomScale * pinchRatio; if (newZoomScale >= 0.5 && newZoomScale <= 10) { const rect = canvas.getBoundingClientRect(); const mouseX = currentPinchCenter.x - rect.left; const mouseY = currentPinchCenter.y - rect.top; panX = mouseX - (mouseX - panX) * (newZoomScale / zoomScale); panY = mouseY - (mouseY - panY) * (newZoomScale / zoomScale); zoomScale = newZoomScale; } panX += (currentPinchCenter.x - lastPinchCenter.x); panY += (currentPinchCenter.y - lastPinchCenter.y); lastPinchDistance = currentPinchDistance; lastPinchCenter = currentPinchCenter; draw(); } } }, {passive: false});
         canvas.addEventListener('touchend', function(e) { clearTimeout(longPressTimer); if(e.changedTouches.length === 1 && e.touches.length === 0) { e.preventDefault(); let touch = e.changedTouches[0]; canvas.dispatchEvent(new MouseEvent('mouseup', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 0 })); } if (e.touches.length < 2) { lastPinchDistance = null; lastPinchCenter = null; } }, {passive: false});
     }
