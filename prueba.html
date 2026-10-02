@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V33 - Exportación Nativa</title>
+    <title>SpinePlan Pro V34 - Foto Móvil & Estabilidad</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -36,6 +36,20 @@
                 <button onclick="closePatientModal()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded text-xs transition-colors">Cancelar</button>
                 <button onclick="savePatientData()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded text-xs transition-colors shadow-lg">Generar Ficha</button>
             </div>
+        </div>
+    </div>
+
+    <!-- NUEVO: MODAL PARA EXPORTAR FOTO EN MÓVILES -->
+    <div id="export-modal" class="hidden fixed inset-0 z-[300] bg-black/95 flex flex-col items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-gray-900 p-4 rounded-xl border border-emerald-500/50 shadow-2xl w-full max-w-3xl flex flex-col items-center">
+            <h3 class="text-emerald-400 font-bold text-lg mb-1">¡Estudio Generado!</h3>
+            <p class="text-gray-300 text-sm mb-4 text-center font-medium bg-gray-800 px-4 py-2 rounded-lg">Mantén presionada la imagen unos segundos para <span class="text-white font-bold">"Guardar en Fotos"</span> o <span class="text-white font-bold">"Compartir"</span>.</p>
+            
+            <div class="w-full bg-black rounded-lg overflow-hidden border border-gray-700 relative flex justify-center items-center" style="max-height: 60vh;">
+                <img id="exported-img" class="max-w-full max-h-full object-contain pointer-events-auto" src="">
+            </div>
+            
+            <button onclick="closeExportModal()" class="mt-5 w-full max-w-xs px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-lg transition-colors shadow-lg border border-gray-600">Cerrar y Volver</button>
         </div>
     </div>
 
@@ -228,6 +242,7 @@
 <script>
     function openPatientModal() { document.getElementById('patient-modal').classList.remove('hidden'); }
     function closePatientModal() { document.getElementById('patient-modal').classList.add('hidden'); }
+    function closeExportModal() { document.getElementById('export-modal').classList.add('hidden'); }
     function savePatientData() {
         let name = document.getElementById('pat-name').value || '-';
         let id = document.getElementById('pat-id').value || '-';
@@ -236,7 +251,7 @@
         document.getElementById('patient-box').classList.remove('hidden'); closePatientModal();
     }
 
-    // --- NUEVA LÓGICA DE EXPORTACIÓN (MENÚ NATIVO PARA CELULARES) ---
+    // --- SISTEMA DEFINITIVO DE EXPORTACIÓN (MODAL PREVIEW PARA MÓVILES) ---
     function exportImage() {
         if(!bgImage) { updateStatus("⚠️ Carga una radiografía primero.", true); return; }
         updateStatus("📸 Generando imagen...");
@@ -245,40 +260,28 @@
         
         html2canvas(container, {
             backgroundColor: '#000000',
-            scale: window.innerWidth < 768 ? 1 : 2,
+            scale: window.innerWidth < 768 ? 1.5 : 2, // Buena resolución equilibrada
             useCORS: true,
             logging: false
         }).then(canvas => {
-            let patName = document.getElementById('pat-name').value || 'Estudio';
-            patName = patName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-            let fileName = `SpinePlan_${patName}_${new Date().getTime()}.png`;
-
-            canvas.toBlob(function(blob) {
-                const file = new File([blob], fileName, { type: 'image/png' });
-                
-                // Intenta abrir el menú nativo de Compartir/Guardar (iOS / Android)
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    navigator.share({
-                        files: [file],
-                        title: 'SpinePlan Pro',
-                        text: `Estudio - ${document.getElementById('pat-name').value || 'Paciente'}`
-                    }).then(() => {
-                        updateStatus("✅ Imagen guardada/compartida exitosamente.");
-                        container.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
-                    }).catch((error) => {
-                        updateStatus("Sistema Listo.");
-                        container.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
-                    });
-                } else {
-                    // Descarga tradicional para PC o navegadores antiguos
-                    let link = document.createElement('a');
-                    link.download = fileName;
-                    link.href = URL.createObjectURL(blob);
-                    link.click();
-                    updateStatus("✅ Descargado en tu carpeta de Descargas.");
-                    container.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
-                }
-            }, 'image/png');
+            let imgData = canvas.toDataURL('image/png');
+            
+            // Si es un celular o tablet, mostramos el modal para el Long Press
+            if (window.innerWidth < 1024) {
+                document.getElementById('exported-img').src = imgData;
+                document.getElementById('export-modal').classList.remove('hidden');
+                updateStatus("Sistema Listo.");
+            } else {
+                // Si es computadora, descarga normal directa
+                let patName = document.getElementById('pat-name').value || 'Estudio';
+                patName = patName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                let link = document.createElement('a');
+                link.download = `SpinePlan_${patName}_${new Date().getTime()}.png`;
+                link.href = imgData;
+                link.click();
+                updateStatus("✅ Descargado en tu computadora.");
+            }
+            container.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
         }).catch(err => {
             updateStatus("❌ Error al exportar imagen.", true);
             container.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
@@ -486,7 +489,7 @@
                             let isKyphosis = (x_int > spine_x && gazeDirection === 1) || (x_int < spine_x && gazeDirection === -1); let isLordosis = !isKyphosis;
                             let title = m.title || ""; let isThoracic = title.includes('Tk') || title.includes('Cifosis'); let isCervical = title.includes('C2-C7') || title.includes('C0-C2'); let isLumbar = title.includes('L1-S1') || title.includes('L4-S1') || title.includes('L4-L5');
                             let sign = 1; if (isThoracic) { sign = isKyphosis ? 1 : -1; } else if (isCervical || isLumbar) { sign = isLordosis ? 1 : -1; }
-                            finalVal = diff * sign; prefix = (sign < 0) ? '' : ''; // SIN SIGNO MÁS
+                            finalVal = diff * sign; prefix = (sign < 0) ? '' : '';
                         }
                         if(isNaN(finalVal)) finalVal = 0;
                         window.currentResults[m.title] = finalVal; if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${finalVal.toFixed(1)}°`, m.color, m.fontSize);
@@ -516,7 +519,6 @@
                 let touch = e.touches[0]; 
                 touchStartX = touch.clientX; touchStartY = touch.clientY;
                 
-                // LONG PRESS PARA MENÚ MÓVIL
                 longPressTimer = setTimeout(() => {
                     if(!activeTool) {
                         const rect = canvas.getBoundingClientRect();
