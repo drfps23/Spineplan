@@ -278,7 +278,7 @@
     const splashScreen = document.getElementById('splash-screen'); const introVideo = document.getElementById('intro-video'); const loginContainer = document.getElementById('login-container'); const passInput = document.getElementById('pass-input'); const loginError = document.getElementById('login-error'); const skipBtn = document.getElementById('skip-btn');
     function showLogin() { introVideo.style.opacity = '0'; skipBtn.style.display = 'none'; setTimeout(() => { introVideo.style.display = 'none'; loginContainer.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4'); loginContainer.classList.add('opacity-100', 'translate-y-0'); }, 800); }
     introVideo.addEventListener('ended', showLogin); introVideo.addEventListener('error', showLogin);
-    function checkPassword() { if (passInput.value === 'Spine2026') { splashScreen.style.opacity = '0'; setTimeout(() => { splashScreen.style.display = 'none'; }, 700); } else { loginError.classList.remove('hidden'); passInput.value = ''; passInput.focus(); } }
+    function checkPassword() { if (passInput.value === 'Drfps2914') { splashScreen.style.opacity = '0'; setTimeout(() => { splashScreen.style.display = 'none'; }, 700); } else { loginError.classList.remove('hidden'); passInput.value = ''; passInput.focus(); } }
     passInput.addEventListener('keypress', function (e) { if (e.key === 'Enter') checkPassword(); });
 
     const canvas = document.getElementById('mainCanvas'); const ctx = canvas.getContext('2d'); const container = document.getElementById('canvas-container'); const placeholder = document.getElementById('placeholder-text'); const statusBar = document.getElementById('status-bar'); const contextMenu = document.getElementById('context-menu');
