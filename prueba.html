@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V45 - Clasificación AO Spine</title>
+    <title>SpinePlan Pro V46 - Clasificación AO Textual</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -168,7 +168,6 @@
                     </div>
                 </div>
 
-                <!-- MÓDULO 8 ACTUALIZADO: ESPONDILOLISTESIS Y AO -->
                 <div class="border border-indigo-700 rounded-lg overflow-hidden">
                     <div class="bg-indigo-900/40 px-3 py-2 text-sm font-semibold text-indigo-400">8. Espondilolistesis y AO</div>
                     <div class="p-3 grid grid-cols-1 gap-2 bg-gray-900/50">
@@ -226,7 +225,7 @@
                 </table>
             </div>
 
-            <!-- NUEVO MODAL FLOTANTE: CLASIFICACIÓN AO -->
+            <!-- MODAL FLOTANTE: CLASIFICACIÓN AO OPTIMIZADO SIN IMAGEN -->
             <div id="ao-box" class="hidden absolute top-20 right-4 bg-gray-900/95 border border-indigo-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md cursor-move select-none w-[280px]">
                 <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2 pointer-events-none">
                     <h3 class="text-indigo-400 font-bold text-sm">Clasificación AO Spine</h3>
@@ -238,8 +237,7 @@
                     
                     <div id="ao-result-container" class="text-center mt-2">
                         <div id="ao-type-badge" class="bg-indigo-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md">Tipo 1</div>
-                        <p id="ao-desc" class="text-[11px] text-gray-300 mb-3 leading-tight font-medium"></p>
-                        <img id="ao-img" src="" class="w-full h-auto rounded border border-gray-600 bg-white" alt="AO Classification">
+                        <p id="ao-desc" class="text-[11px] text-gray-300 mb-1 leading-tight font-medium"></p>
                     </div>
 
                     <div id="ao-high-grade-options" class="hidden mt-3 pt-3 border-t border-gray-700">
@@ -311,7 +309,7 @@
     makeInteractivePanel(document.getElementById('theoretical-table'));
     makeInteractivePanel(document.getElementById('mismatch-box'));
     makeInteractivePanel(document.getElementById('patient-box'));
-    makeInteractivePanel(document.getElementById('ao-box')); // AO Panel es arrastrable
+    makeInteractivePanel(document.getElementById('ao-box')); 
 
     const splashScreen = document.getElementById('splash-screen'); const introVideo = document.getElementById('intro-video'); const loginContainer = document.getElementById('login-container'); const passInput = document.getElementById('pass-input'); const loginError = document.getElementById('login-error'); const skipBtn = document.getElementById('skip-btn');
     function showLogin() { introVideo.style.opacity = '0'; skipBtn.style.display = 'none'; setTimeout(() => { introVideo.style.display = 'none'; loginContainer.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4'); loginContainer.classList.add('opacity-100', 'translate-y-0'); }, 800); }
@@ -332,7 +330,7 @@
     let activeVertebraRegion = ''; let currentVIndex = 1;
     let clickIntent = null; 
 
-    function toggleGaze() { gazeDirection *= -1; document.getElementById('gaze-btn').innerHTML = `<span class="hidden md:inline mr-1">Mirada:</span>${gazeDirection === 1 ? '➡️' : '⬅️'}`; draw(); }
+    function toggleGaze() { gazeDirection *= -1; document.getElementById('gaze-btn').innerHTML = `<span class="hidden md:inline mr-1">Mirada:</span>${gazeDirection === 1 ? '➡️️' : '⬅️'}`; draw(); }
     function getNextColor() { let c = COLORS[colorIndex]; colorIndex = (colorIndex + 1) % COLORS.length; return c; }
 
     document.getElementById('imageLoader').addEventListener('change', function(e) { const reader = new FileReader(); reader.onload = function(event) { bgImage = new Image(); bgImage.onload = function() { placeholder.style.display = 'none'; resetView(); }; bgImage.src = event.target.result; }; reader.readAsDataURL(e.target.files[0]); });
@@ -386,7 +384,6 @@
     function deactivateTool() { document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); activeTool = null; activeSubType = null; currentMeasurement = null; stepCount = 0; clickIntent = null; updateStatus("Sistema Listo."); }
     function updateStatus(text, isError = false) { let colorClass = isError ? 'bg-red-500' : 'bg-emerald-500'; let textClass = isError ? 'text-red-400' : 'text-emerald-400'; statusBar.className = `text-xs font-semibold flex items-center ${textClass}`; statusBar.innerHTML = `<span class="w-2 h-2 rounded-full ${colorClass} mr-2 ${!isError ? 'animate-pulse' : ''}"></span> ${text}`; }
 
-    // FUNCIONES DE AO CLASSIFICATION
     function showAO() {
         let pi = window.currentResults['PI'];
         let slip = window.currentResults['Slip'];
@@ -401,17 +398,16 @@
 
         let typeBox = document.getElementById('ao-type-badge');
         let descBox = document.getElementById('ao-desc');
-        let imgBox = document.getElementById('ao-img');
         let hgOptions = document.getElementById('ao-high-grade-options');
 
         if (slip < 50) {
             hgOptions.classList.add('hidden');
             if (pi < 45) { 
-                typeBox.innerText = 'Tipo 1'; descBox.innerText = "PI baja (<45°), pelvis y columna equilibradas, sin cifosis."; imgBox.src = 'image_a53986.jpg'; 
+                typeBox.innerText = 'Tipo 1'; descBox.innerText = "PI baja (<45°), pelvis y columna equilibradas, sin cifosis lumbosacra."; 
             } else if (pi < 60) { 
-                typeBox.innerText = 'Tipo 2'; descBox.innerText = "PI normal (45°-60°), columna equilibrada y sin cifosis."; imgBox.src = 'image_a539e2.jpg'; 
+                typeBox.innerText = 'Tipo 2'; descBox.innerText = "PI normal (45°-60°), columna equilibrada y sin cifosis lumbosacra."; 
             } else { 
-                typeBox.innerText = 'Tipo 3'; descBox.innerText = "PI alta (≥60°), columna equilibrada y sin cifosis."; imgBox.src = 'image_a53a1d.jpg'; 
+                typeBox.innerText = 'Tipo 3'; descBox.innerText = "PI alta (≥60°), columna equilibrada y sin cifosis lumbosacra."; 
             }
         } else {
             hgOptions.classList.remove('hidden');
@@ -427,14 +423,13 @@
     function updateAOHighGrade(val) {
         let typeBox = document.getElementById('ao-type-badge');
         let descBox = document.getElementById('ao-desc');
-        let imgBox = document.getElementById('ao-img');
         
         if (val === "4") {
-            typeBox.innerText = 'Tipo 4'; descBox.innerText = "PI alta (≥60°), columna equilibrada y sin cifosis."; imgBox.src = 'image_a53ce5.jpg';
+            typeBox.innerText = 'Tipo 4'; descBox.innerText = "PI alta (≥60°), columna equilibrada y sin cifosis lumbosacra."; 
         } else if (val === "5") {
-            typeBox.innerText = 'Tipo 5'; descBox.innerText = "PI alta (≥60°), pelvis retrovertida, columna equilibrada, posible cifosis."; imgBox.src = 'image_a53d06.jpg';
+            typeBox.innerText = 'Tipo 5'; descBox.innerText = "PI alta (≥60°), pelvis retrovertida, columna equilibrada, posible cifosis lumbosacra."; 
         } else if (val === "6") {
-            typeBox.innerText = 'Tipo 6'; descBox.innerText = "PI alta (≥60°), pelvis retrovertida, columna desequilibrada, con cifosis."; imgBox.src = 'image_a53d27.jpg';
+            typeBox.innerText = 'Tipo 6'; descBox.innerText = "PI alta (≥60°), pelvis retrovertida, columna desequilibrada, cifosis lumbosacra que requiere reducción."; 
         }
     }
 
