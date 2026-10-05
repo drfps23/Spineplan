@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V43 - Plano Coronal</title>
+    <title>SpinePlan Pro V44 - Geometría Coronal</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -158,11 +158,10 @@
                     </div>
                 </div>
 
-                <!-- MÓDULO 7: PLANO CORONAL -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
                     <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">7. Plano Coronal</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
-                        <button onclick="activateTool('cobb_coronal', 'Ángulo de Cobb')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">Ángulo de Cobb</button>
+                        <button onclick="activateTool('cobb_coronal', 'Cobb')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">Ángulo de Cobb</button>
                         <button onclick="activateTool('horiz_angle', 'C.A')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C.A</button>
                         <button onclick="activateTool('horiz_angle', 'IP')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">IP</button>
                         <button onclick="activateTool('coronal_cf', 'CF')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">CF (Cefálicas Femorales)</button>
@@ -359,7 +358,7 @@
     function updateStatus(text, isError = false) { let colorClass = isError ? 'bg-red-500' : 'bg-emerald-500'; let textClass = isError ? 'text-red-400' : 'text-emerald-400'; statusBar.className = `text-xs font-semibold flex items-center ${textClass}`; statusBar.innerHTML = `<span class="w-2 h-2 rounded-full ${colorClass} mr-2 ${!isError ? 'animate-pulse' : ''}"></span> ${text}`; }
 
     function showTheoreticalProfile() {
-        if (!window.currentResults['PI']) { updateStatus("⚠️️ Debes medir los Parámetros Pélvicos (PI) primero.", true); document.getElementById('theoretical-table').classList.add('hidden'); return; }
+        if (!window.currentResults['PI']) { updateStatus("⚠️ Debes medir los Parámetros Pélvicos (PI) primero.", true); document.getElementById('theoretical-table').classList.add('hidden'); return; }
         let pi = window.currentResults['PI']; let ideal_L1S1 = (pi * 0.6) + 30; let ideal_PA = (pi * 0.5) - 20;
         let formatVal = (val) => val !== undefined ? val.toFixed(1) + '°' : '-';
         let base_PI = window.currentResults['PI'] ? window.currentResults['PI'].toFixed(1) + '°' : '-';
@@ -626,11 +625,13 @@
                 else if (m.type === 'horiz_angle') {
                     if (m.points.length === 2) {
                         ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); 
-                        let dx = m.points[1].x - m.points[0].x; let dy = m.points[1].y - m.points[0].y; 
-                        let ang = Math.abs(Math.atan2(dy, dx) * 180 / Math.PI); 
-                        if(ang > 90) ang = 180 - ang; 
-                        let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2; 
-                        ctx.beginPath(); ctx.moveTo(midX - 50/zoomScale, midY); ctx.lineTo(midX + 50/zoomScale, midY); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
+                        let hp = m.points[0].y < m.points[1].y ? m.points[0] : m.points[1];
+                        let lp = m.points[0].y < m.points[1].y ? m.points[1] : m.points[0];
+                        let dx = Math.abs(lp.x - hp.x); let dy = lp.y - hp.y; 
+                        let ang = Math.atan2(dy, dx) * 180 / Math.PI; 
+                        let dirX = lp.x >= hp.x ? 1 : -1;
+                        let lineLen = Math.max(80 / (baseScale*zoomScale), dx + 30 / (baseScale*zoomScale));
+                        ctx.beginPath(); ctx.moveTo(hp.x, hp.y); ctx.lineTo(hp.x + lineLen * dirX, hp.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
                         if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(1)}°`, m.color, m.fontSize); 
                     }
                 }
@@ -647,7 +648,7 @@
                         } 
                     }); 
                     if (m.circles.length === 2 && m.textPos) {
-                        drawText(m.textPos.x, m.textPos.y, m.title, "Marcadas", m.color, m.fontSize);
+                        drawText(m.textPos.x, m.textPos.y, null, m.title, m.color, m.fontSize);
                     }
                 }
                 else if (m.type === 'pelvic') { 
