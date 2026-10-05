@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V44 - Geometría Coronal</title>
+    <title>SpinePlan Pro V45 - Clasificación AO Spine</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -159,7 +159,7 @@
                 </div>
 
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">7. Plano Coronal</div>
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">7. Plano Coronal</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
                         <button onclick="activateTool('cobb_coronal', 'Cobb')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">Ángulo de Cobb</button>
                         <button onclick="activateTool('horiz_angle', 'C.A')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C.A</button>
@@ -168,16 +168,16 @@
                     </div>
                 </div>
 
-                <div class="border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">8. Espondilolistesis</div>
-                    <div class="p-3 bg-gray-900/50">
-                        <button onclick="activateTool('meyerding', 'Espondilolistesis')" class="tool-btn w-full border border-gray-700 rounded px-2 py-2 text-xs text-gray-300 hover:bg-gray-800 flex justify-center items-center">
-                            Clasificación de Meyerding
-                        </button>
+                <!-- MÓDULO 8 ACTUALIZADO: ESPONDILOLISTESIS Y AO -->
+                <div class="border border-indigo-700 rounded-lg overflow-hidden">
+                    <div class="bg-indigo-900/40 px-3 py-2 text-sm font-semibold text-indigo-400">8. Espondilolistesis y AO</div>
+                    <div class="p-3 grid grid-cols-1 gap-2 bg-gray-900/50">
+                        <button onclick="activateTool('meyerding', 'Espondilolistesis')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">1. Medir Meyerding</button>
+                        <button onclick="showAO()" class="tool-btn border border-indigo-600 bg-indigo-600/20 rounded px-2 py-2 text-xs font-bold text-indigo-300 hover:bg-indigo-600 hover:text-white transition-colors flex justify-center items-center shadow-lg">2. Clasificación AO Spine</button>
                     </div>
                 </div>
 
-                <div class="border border-gray-700 rounded-lg overflow-hidden">
+                <div class="border border-gray-700 rounded-lg overflow-hidden mt-3">
                     <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">9. Mapeo Vertebral</div>
                     <div class="p-3 bg-gray-900/50 space-y-3">
                         <div>
@@ -224,6 +224,33 @@
                     <tbody id="theo-tbody">
                     </tbody>
                 </table>
+            </div>
+
+            <!-- NUEVO MODAL FLOTANTE: CLASIFICACIÓN AO -->
+            <div id="ao-box" class="hidden absolute top-20 right-4 bg-gray-900/95 border border-indigo-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md cursor-move select-none w-[280px]">
+                <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2 pointer-events-none">
+                    <h3 class="text-indigo-400 font-bold text-sm">Clasificación AO Spine</h3>
+                    <button onclick="document.getElementById('ao-box').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto">&times; Cerrar</button>
+                </div>
+                <div class="pointer-events-auto text-xs text-gray-300">
+                    <div class="flex justify-between mb-1"><span>Incidencia Pélvica (PI):</span> <span id="ao-pi" class="font-bold text-emerald-400"></span></div>
+                    <div class="flex justify-between mb-3 border-b border-gray-700 pb-2"><span>Desplazamiento:</span> <span id="ao-slip" class="font-bold text-emerald-400"></span></div>
+                    
+                    <div id="ao-result-container" class="text-center mt-2">
+                        <div id="ao-type-badge" class="bg-indigo-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md">Tipo 1</div>
+                        <p id="ao-desc" class="text-[11px] text-gray-300 mb-3 leading-tight font-medium"></p>
+                        <img id="ao-img" src="" class="w-full h-auto rounded border border-gray-600 bg-white" alt="AO Classification">
+                    </div>
+
+                    <div id="ao-high-grade-options" class="hidden mt-3 pt-3 border-t border-gray-700">
+                        <p class="text-[10px] text-indigo-300 mb-2 font-semibold">AJUSTE CLÍNICO (Grado Alto ≥50%):</p>
+                        <select id="ao-selector" class="w-full bg-gray-800 border border-gray-600 rounded text-xs text-white p-1.5 focus:outline-none focus:border-indigo-500" onchange="updateAOHighGrade(this.value)">
+                            <option value="4">Tipo 4: Columna equilibrada, sin cifosis</option>
+                            <option value="5">Tipo 5: Pelvis retrovertida, col. equilibrada</option>
+                            <option value="6">Tipo 6: Pelvis retrovertida, col. desequilibrada</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <div id="mismatch-box" class="hidden absolute top-4 right-4 bg-gray-900/95 border border-emerald-500 rounded-lg px-3 py-2 shadow-2xl z-30 backdrop-blur-md cursor-move select-none">
@@ -274,7 +301,7 @@
         let lastPinchDist = null;
         el.addEventListener('touchstart', (e) => { if(e.target.tagName === 'BUTTON') return; e.stopPropagation(); if(e.touches.length === 1) { pos3 = e.touches[0].clientX; pos4 = e.touches[0].clientY; document.addEventListener('touchend', closeTouchDrag); document.addEventListener('touchmove', elementTouchDrag, {passive: false}); } else if (e.touches.length === 2) { let dx = e.touches[0].clientX - e.touches[1].clientX; let dy = e.touches[0].clientY - e.touches[1].clientY; lastPinchDist = Math.hypot(dx, dy); } }, {passive: false});
         el.addEventListener('touchmove', (e) => { if (e.touches.length === 2) { e.preventDefault(); e.stopPropagation(); let dx = e.touches[0].clientX - e.touches[1].clientX; let dy = e.touches[0].clientY - e.touches[1].clientY; let dist = Math.hypot(dx, dy); if (lastPinchDist) { currentScale *= (dist / lastPinchDist); currentScale = Math.max(0.5, Math.min(currentScale, 3)); el.style.transform = `scale(${currentScale})`; } lastPinchDist = dist; } }, {passive: false});
-        el.addEventListener('mousedown', (e) => { if(e.target.tagName === 'BUTTON') return; e.preventDefault(); e.stopPropagation(); pos3 = e.clientX; pos4 = e.clientY; document.addEventListener('mouseup', closeMouseDrag); document.addEventListener('mousemove', elementMouseDrag); });
+        el.addEventListener('mousedown', (e) => { if(e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION') return; e.preventDefault(); e.stopPropagation(); pos3 = e.clientX; pos4 = e.clientY; document.addEventListener('mouseup', closeMouseDrag); document.addEventListener('mousemove', elementMouseDrag); });
         function elementMouseDrag(e) { e.preventDefault(); pos1 = (pos3 - e.clientX) / currentScale; pos2 = (pos4 - e.clientY) / currentScale; pos3 = e.clientX; pos4 = e.clientY; el.style.top = (el.offsetTop - pos2) + "px"; el.style.left = (el.offsetLeft - pos1) + "px"; el.style.right = "auto"; }
         function elementTouchDrag(e) { if(e.touches.length > 1) return; let touch = e.touches[0]; pos1 = (pos3 - touch.clientX) / currentScale; pos2 = (pos4 - touch.clientY) / currentScale; pos3 = touch.clientX; pos4 = touch.clientY; el.style.top = (el.offsetTop - pos2) + "px"; el.style.left = (el.offsetLeft - pos1) + "px"; el.style.right = "auto"; }
         function closeMouseDrag() { document.removeEventListener('mouseup', closeMouseDrag); document.removeEventListener('mousemove', elementMouseDrag); }
@@ -284,6 +311,7 @@
     makeInteractivePanel(document.getElementById('theoretical-table'));
     makeInteractivePanel(document.getElementById('mismatch-box'));
     makeInteractivePanel(document.getElementById('patient-box'));
+    makeInteractivePanel(document.getElementById('ao-box')); // AO Panel es arrastrable
 
     const splashScreen = document.getElementById('splash-screen'); const introVideo = document.getElementById('intro-video'); const loginContainer = document.getElementById('login-container'); const passInput = document.getElementById('pass-input'); const loginError = document.getElementById('login-error'); const skipBtn = document.getElementById('skip-btn');
     function showLogin() { introVideo.style.opacity = '0'; skipBtn.style.display = 'none'; setTimeout(() => { introVideo.style.display = 'none'; loginContainer.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4'); loginContainer.classList.add('opacity-100', 'translate-y-0'); }, 800); }
@@ -318,6 +346,7 @@
         document.getElementById('theoretical-table').classList.add('hidden');
         document.getElementById('mismatch-box').classList.add('hidden');
         document.getElementById('patient-box').classList.add('hidden'); 
+        document.getElementById('ao-box').classList.add('hidden'); 
         updateStatus("Trazos limpiados. Sistema Listo");
         draw();
     }
@@ -356,6 +385,58 @@
 
     function deactivateTool() { document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); activeTool = null; activeSubType = null; currentMeasurement = null; stepCount = 0; clickIntent = null; updateStatus("Sistema Listo."); }
     function updateStatus(text, isError = false) { let colorClass = isError ? 'bg-red-500' : 'bg-emerald-500'; let textClass = isError ? 'text-red-400' : 'text-emerald-400'; statusBar.className = `text-xs font-semibold flex items-center ${textClass}`; statusBar.innerHTML = `<span class="w-2 h-2 rounded-full ${colorClass} mr-2 ${!isError ? 'animate-pulse' : ''}"></span> ${text}`; }
+
+    // FUNCIONES DE AO CLASSIFICATION
+    function showAO() {
+        let pi = window.currentResults['PI'];
+        let slip = window.currentResults['Slip'];
+        
+        if (pi === undefined || slip === undefined) {
+            updateStatus("⚠️ Debes medir PI (Pélvicos) y Meyerding primero.", true);
+            return;
+        }
+
+        document.getElementById('ao-pi').innerText = pi.toFixed(1) + '°';
+        document.getElementById('ao-slip').innerText = slip.toFixed(1) + '%';
+
+        let typeBox = document.getElementById('ao-type-badge');
+        let descBox = document.getElementById('ao-desc');
+        let imgBox = document.getElementById('ao-img');
+        let hgOptions = document.getElementById('ao-high-grade-options');
+
+        if (slip < 50) {
+            hgOptions.classList.add('hidden');
+            if (pi < 45) { 
+                typeBox.innerText = 'Tipo 1'; descBox.innerText = "PI baja (<45°), pelvis y columna equilibradas, sin cifosis."; imgBox.src = 'image_a53986.jpg'; 
+            } else if (pi < 60) { 
+                typeBox.innerText = 'Tipo 2'; descBox.innerText = "PI normal (45°-60°), columna equilibrada y sin cifosis."; imgBox.src = 'image_a539e2.jpg'; 
+            } else { 
+                typeBox.innerText = 'Tipo 3'; descBox.innerText = "PI alta (≥60°), columna equilibrada y sin cifosis."; imgBox.src = 'image_a53a1d.jpg'; 
+            }
+        } else {
+            hgOptions.classList.remove('hidden');
+            document.getElementById('ao-selector').value = "4"; 
+            updateAOHighGrade("4");
+        }
+        
+        document.getElementById('ao-box').classList.remove('hidden');
+        updateStatus("Clasificación AO Spine calculada.");
+        if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
+    }
+
+    function updateAOHighGrade(val) {
+        let typeBox = document.getElementById('ao-type-badge');
+        let descBox = document.getElementById('ao-desc');
+        let imgBox = document.getElementById('ao-img');
+        
+        if (val === "4") {
+            typeBox.innerText = 'Tipo 4'; descBox.innerText = "PI alta (≥60°), columna equilibrada y sin cifosis."; imgBox.src = 'image_a53ce5.jpg';
+        } else if (val === "5") {
+            typeBox.innerText = 'Tipo 5'; descBox.innerText = "PI alta (≥60°), pelvis retrovertida, columna equilibrada, posible cifosis."; imgBox.src = 'image_a53d06.jpg';
+        } else if (val === "6") {
+            typeBox.innerText = 'Tipo 6'; descBox.innerText = "PI alta (≥60°), pelvis retrovertida, columna desequilibrada, con cifosis."; imgBox.src = 'image_a53d27.jpg';
+        }
+    }
 
     function showTheoreticalProfile() {
         if (!window.currentResults['PI']) { updateStatus("⚠️ Debes medir los Parámetros Pélvicos (PI) primero.", true); document.getElementById('theoretical-table').classList.add('hidden'); return; }
@@ -671,6 +752,7 @@
                                 let percent = (projDist / L) * 100; let absPercent = Math.abs(percent); let grade = "";
                                 if (absPercent <= 25) grade = "I"; else if (absPercent <= 50) grade = "II"; else if (absPercent <= 75) grade = "III"; else if (absPercent <= 100) grade = "IV"; else grade = "V";
                                 let tipo = percent > 0 ? "Anterolistesis" : "Retrolistesis"; if (Math.abs(percent) < 2) tipo = "Sin patología de listesis";
+                                window.currentResults['Slip'] = absPercent; // AÑADIDO PARA LA CLASIFICACIÓN AO
                                 let text = `${tipo}\nDeslizamiento: ${absPercent.toFixed(1)}%\nMeyerding: Grado ${grade}`;
                                 drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize);
                             }
