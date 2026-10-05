@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V40 - Navegación Inteligente</title>
+    <title>SpinePlan Pro V42 - Paleta de Colores Expandida</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -286,11 +286,13 @@
     let isMobileMenuOpen = false;
     function toggleMobileMenu() { const sidebar = document.getElementById('sidebar'); const overlay = document.getElementById('mobile-overlay'); isMobileMenuOpen = !isMobileMenuOpen; if (isMobileMenuOpen) { sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); } else { sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); } }
 
-    let bgImage = null; let baseScale = 1; let zoomScale = 1; let panX = 0, panY = 0; const DEFAULT_LINE_WIDTH = 1; const DEFAULT_FONT_SIZE = 14; const COLORS = ['#10b981', '#06b6d4', '#d946ef', '#f59e0b', '#f43f5e', '#3b82f6']; let colorIndex = 0;
+    let bgImage = null; let baseScale = 1; let zoomScale = 1; let panX = 0, panY = 0; const DEFAULT_LINE_WIDTH = 1; const DEFAULT_FONT_SIZE = 14; 
+    const COLORS = ['#10b981', '#06b6d4', '#d946ef', '#f59e0b', '#f43f5e', '#3b82f6', '#84cc16', '#a855f7', '#f97316', '#14b8a6', '#ec4899', '#6366f1', '#eab308', '#ef4444', '#0ea5e9', '#8b5cf6', '#fbbf24', '#f87171', '#2dd4bf', '#c084fc', '#a3e635', '#fb923c', '#818cf8', '#f472b6', '#38bdf8']; 
+    let colorIndex = 0;
     
     let measurements = []; let currentMeasurement = null; let activeTool = null; let activeTitle = ''; let activeSubType = null; let stepCount = 0; let dragObj = null; let isPanning = false; let gazeDirection = 1; window.currentResults = {};
     let activeVertebraRegion = ''; let currentVIndex = 1;
-    let clickIntent = null; // NUEVO: Para diferenciar Toque vs Arrastre
+    let clickIntent = null; 
 
     function toggleGaze() { gazeDirection *= -1; document.getElementById('gaze-btn').innerHTML = `<span class="hidden md:inline mr-1">Mirada:</span>${gazeDirection === 1 ? '➡️' : '⬅️'}`; draw(); }
     function getNextColor() { let c = COLORS[colorIndex]; colorIndex = (colorIndex + 1) % COLORS.length; return c; }
@@ -311,7 +313,6 @@
     }
 
     function activateTool(type, title, subType = null) {
-        // CORRECCIÓN: Si tocas el botón de la herramienta activa, se apaga (Toggle off)
         if (activeTool === type && activeSubType === subType) {
             deactivateTool();
             return;
@@ -370,7 +371,6 @@
             dragObj = null; 
             const color = getNextColor();
 
-            // INTELIGENCIA TÁCTIL: Registrar intención para herramientas de "Mapeo" continuas
             if (activeTool === 'vertebra' || activeTool === 'vertebraContour') {
                 clickIntent = { tool: activeTool, startX: e.clientX, startY: e.clientY, logX: pos.x, logY: pos.y, color: color };
                 if (zoomScale > 1.01) { isPanning = true; canvas.style.cursor = 'grabbing'; }
@@ -397,7 +397,6 @@
     canvas.addEventListener('mousemove', function(e) {
         if (!bgImage) return; 
         
-        // El paneo ahora funciona aunque tengas la herramienta Vértebra activada, si arrastraste.
         if (isPanning && e.buttons === 1) { panX += e.movementX; panY += e.movementY; draw(); return; }
         
         const pos = getLogicalPos(e);
@@ -439,10 +438,9 @@
             canvas.style.cursor = zoomScale > 1.01 ? 'grab' : 'default'; 
         }
         
-        // EVALUACIÓN DE INTENCIÓN (Tap vs Drag)
         if (clickIntent) {
             let dist = Math.hypot(e.clientX - clickIntent.startX, e.clientY - clickIntent.startY);
-            if (dist < 10) { // Fue un toque rápido (Tap)
+            if (dist < 10) { 
                 if (clickIntent.tool === 'vertebra') {
                     let vColor = activeVertebraRegion === 'C' ? '#0ea5e9' : activeVertebraRegion === 'T' ? '#f59e0b' : activeVertebraRegion === 'L' ? '#a855f7' : '#10b981';
                     measurements.push({ 
@@ -488,7 +486,6 @@
         draw();
     });
 
-    // LÓGICA DE MENÚ CON CONCIENCIA DE BORDES DE PANTALLA
     function showContextMenuAt(x, y, hitItem) {
         selectedForContext = hitItem; 
         contextMenu.style.display = 'block'; 
@@ -643,7 +640,12 @@
                 }
                 else if (m.type === 'thoracic') { if (m.points.length === 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); if(m.sternum && m.textPos) { ctx.beginPath(); ctx.arc(m.sternum.x, m.sternum.y, 4, 0, 2*Math.PI); ctx.fill(); let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2; ctx.beginPath(); ctx.moveTo(midX, midY); ctx.lineTo(m.sternum.x, m.sternum.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI); let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI); let tia = t1s + nt; let text = `T1S: ${t1s.toFixed(1)}°\nTIA: ${tia.toFixed(1)}°\nNT: ${nt.toFixed(1)}°`; drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); } } }
                 else if (m.type === 'sva') { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y - 500); ctx.lineTo(m.points[0].x, m.points[0].y + 1000); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 3, 0, 2*Math.PI); ctx.fill(); drawText(m.textPos.x, m.textPos.y, m.title, `SVA Plomada`, m.color, m.fontSize); }
-                else if (m.type === 'cbva' && m.points.length === 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); let ang = Math.abs(Math.atan2(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y) * 180 / Math.PI); if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(1)}°`, m.color, m.fontSize); }
+                else if (m.type === 'cbva' && m.points.length === 2) { 
+                    ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); 
+                    let dx = m.points[1].x - m.points[0].x; let dy = m.points[1].y - m.points[0].y; 
+                    let ang = -(Math.atan2(dx, dy) * 180 / Math.PI) * gazeDirection; 
+                    if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(1)}°`, m.color, m.fontSize); 
+                }
                 else if (m.type === 'sagittal') { let pelvic = measurements.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2); if (pelvic) { let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2; let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2; ctx.beginPath(); ctx.arc(ha_x, ha_y, 2, 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill(); ctx.fillStyle = m.color; ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke(); let angle = 0; let signedAngle = 0; let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 = Math.hypot(v1.x, v1.y); if (m.subType === 'pa') { let s1_x = (pelvic.line[0].x + pelvic.line[1].x)/2; let s1_y = (pelvic.line[0].y + pelvic.line[1].y)/2; let v2 = {x: s1_x - ha_x, y: s1_y - ha_y}; let mag2 = Math.hypot(v2.x, v2.y); let dot = v1.x*v2.x + v1.y*v2.y; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let cross = v2.x * v1.y - v2.y * v1.x; let side = cross * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; if (m.title === 'L1-PA') val_L1PA = signedAngle; if (m.title === 'T4-PA') val_T4PA = signedAngle; } else if (m.subType === 'tilt') { let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y; let mag2 = 1; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let side = v1.x * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; } drawText(m.textPos.x, m.textPos.y, m.title, `${signedAngle.toFixed(1)}°`, m.color, m.fontSize); } else drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize); }
             });
             ctx.restore();
