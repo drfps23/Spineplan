@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V47 - Rigor Clínico AO</title>
+    <title>SpinePlan Pro V48 - Corrección Pelvic Tilt (PT)</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -168,7 +168,6 @@
                     </div>
                 </div>
 
-                <!-- MÓDULO 8: ESPONDILOLISTESIS Y AO -->
                 <div class="border border-indigo-700 rounded-lg overflow-hidden">
                     <div class="bg-indigo-900/40 px-3 py-2 text-sm font-semibold text-indigo-400">8. Espondilolistesis y AO</div>
                     <div class="p-3 grid grid-cols-1 gap-2 bg-gray-900/50">
@@ -735,7 +734,24 @@
                 }
                 else if (m.type === 'pelvic') { 
                     m.circles.forEach(c => { ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(c.x, c.y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(c.r > 5) { ctx.beginPath(); ctx.arc(c.x + c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x - c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y + c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y - c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } }); 
-                    if(m.line && m.line.length === 2) { ctx.beginPath(); ctx.moveTo(m.line[0].x, m.line[0].y); ctx.lineTo(m.line[1].x, m.line[1].y); ctx.stroke(); if(m.circles.length === 2 && m.textPos) { let ha_x = (m.circles[0].x + m.circles[1].x)/2; let ha_y = (m.circles[0].y + m.circles[1].y)/2; let s1_x = (m.line[0].x + m.line[1].x)/2; let s1_y = (m.line[0].y + m.line[1].y)/2; let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if(ss>90) ss=180-ss; let pt = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if(pt>90) pt=Math.abs(pt-180); let pi = ss + pt; window.currentResults['PI'] = pi; let text = `PI: ${pi.toFixed(1)}°\nPT: ${pt.toFixed(1)}°\nSS: ${ss.toFixed(1)}°`; drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); } } 
+                    if(m.line && m.line.length === 2) { 
+                        ctx.beginPath(); ctx.moveTo(m.line[0].x, m.line[0].y); ctx.lineTo(m.line[1].x, m.line[1].y); ctx.stroke(); 
+                        if(m.circles.length === 2 && m.textPos) { 
+                            let ha_x = (m.circles[0].x + m.circles[1].x)/2; let ha_y = (m.circles[0].y + m.circles[1].y)/2; 
+                            let s1_x = (m.line[0].x + m.line[1].x)/2; let s1_y = (m.line[0].y + m.line[1].y)/2; 
+                            let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if(ss>90) ss=180-ss; 
+                            let pt_mag = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if(pt_mag>90) pt_mag=Math.abs(pt_mag-180); 
+                            
+                            // AÑADIDO: CORRECCIÓN DEL SIGNO DEL PELVIC TILT
+                            let isAnterior = ((s1_x - ha_x) * gazeDirection) > 0;
+                            let pt = isAnterior ? -pt_mag : pt_mag;
+                            
+                            let pi = ss + pt; 
+                            window.currentResults['PI'] = pi; 
+                            let text = `PI: ${pi.toFixed(1)}°\nPT: ${pt.toFixed(1)}°\nSS: ${ss.toFixed(1)}°`; 
+                            drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); 
+                        } 
+                    } 
                 }
                 else if (m.type === 'meyerding') {
                     if (m.points.length === 2) {
