@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V48 - Corrección Pelvic Tilt (PT)</title>
+    <title>SpinePlan Pro V50 - Roussouly & Índices Sagitales</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -176,8 +176,19 @@
                     </div>
                 </div>
 
+                <!-- MÓDULO 9: ROUSSOULY -->
+                <div class="border border-sky-700 rounded-lg overflow-hidden mt-3">
+                    <div class="bg-sky-900/40 px-3 py-2 text-sm font-semibold text-sky-400">9. Roussouly (2018)</div>
+                    <div class="p-3 bg-gray-900/50 space-y-2">
+                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block">1. Mide PI, SS (Pelvis), L1-S1 y L4-S1</span>
+                        <button onclick="activateTool('point_marker', 'Ápex de Lordosis', 'apex')" class="tool-btn w-full border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">📍 Marcar Ápex Lumbar</button>
+                        <button onclick="activateTool('point_marker', 'Punto de Inflexión', 'inflection')" class="tool-btn w-full border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">📍 Marcar P. Inflexión</button>
+                        <button onclick="showRoussouly()" class="tool-btn w-full border border-sky-600 bg-sky-600/20 rounded px-2 py-2 text-xs font-bold text-sky-300 hover:bg-sky-600 hover:text-white transition-colors flex justify-center items-center shadow-lg mt-2">Calcular Morfotipo & Índices</button>
+                    </div>
+                </div>
+
                 <div class="border border-gray-700 rounded-lg overflow-hidden mt-3">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">9. Mapeo Vertebral</div>
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">10. Mapeo Vertebral</div>
                     <div class="p-3 bg-gray-900/50 space-y-3">
                         <div>
                             <span class="text-[10px] text-gray-400 uppercase tracking-wider mb-1 block">Etiquetas (Letra y Número)</span>
@@ -225,7 +236,38 @@
                 </table>
             </div>
 
-            <!-- MODAL FLOTANTE: CLASIFICACIÓN AO OPTIMIZADO -->
+            <!-- MODAL FLOTANTE: ROUSSOULY -->
+            <div id="roussouly-box" class="hidden absolute top-20 right-4 bg-gray-900/95 border border-sky-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md cursor-move select-none w-[320px]">
+                <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2 pointer-events-none">
+                    <h3 class="text-sky-400 font-bold text-sm">Clasificación Roussouly (2018)</h3>
+                    <button onclick="document.getElementById('roussouly-box').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto">&times; Cerrar</button>
+                </div>
+                <div class="pointer-events-auto text-xs text-gray-300">
+                    <div class="grid grid-cols-2 gap-2 mb-3 border-b border-gray-700 pb-3">
+                        <div><span class="text-gray-400">PI:</span> <span id="rs-pi" class="font-bold text-emerald-400"></span></div>
+                        <div><span class="text-gray-400">SS:</span> <span id="rs-ss" class="font-bold text-emerald-400"></span></div>
+                        <div><span class="text-gray-400">LL (L1-S1):</span> <span id="rs-ll" class="font-bold text-white"></span></div>
+                        <div><span class="text-gray-400">L4-S1:</span> <span id="rs-l4s1" class="font-bold text-white"></span></div>
+                    </div>
+                    
+                    <div class="mb-3 space-y-2 border-b border-gray-700 pb-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Mismatch (PI-LL):</span> 
+                            <span id="rs-mismatch" class="font-bold px-2 py-0.5 rounded bg-gray-800"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Proporción L4-S1:</span> 
+                            <span id="rs-prop" class="font-bold px-2 py-0.5 rounded bg-gray-800"></span>
+                        </div>
+                    </div>
+
+                    <div id="rs-result-container" class="text-center mt-2">
+                        <div id="rs-type-badge" class="bg-sky-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md">Tipo 1</div>
+                        <p id="rs-desc" class="text-[11px] text-gray-300 mb-1 leading-tight font-medium"></p>
+                    </div>
+                </div>
+            </div>
+
             <div id="ao-box" class="hidden absolute top-20 right-4 bg-gray-900/95 border border-indigo-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md cursor-move select-none w-[280px]">
                 <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2 pointer-events-none">
                     <h3 class="text-indigo-400 font-bold text-sm">Clasificación AO Spine</h3>
@@ -311,6 +353,7 @@
     makeInteractivePanel(document.getElementById('mismatch-box'));
     makeInteractivePanel(document.getElementById('patient-box'));
     makeInteractivePanel(document.getElementById('ao-box')); 
+    makeInteractivePanel(document.getElementById('roussouly-box')); 
 
     const splashScreen = document.getElementById('splash-screen'); const introVideo = document.getElementById('intro-video'); const loginContainer = document.getElementById('login-container'); const passInput = document.getElementById('pass-input'); const loginError = document.getElementById('login-error'); const skipBtn = document.getElementById('skip-btn');
     function showLogin() { introVideo.style.opacity = '0'; skipBtn.style.display = 'none'; setTimeout(() => { introVideo.style.display = 'none'; loginContainer.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4'); loginContainer.classList.add('opacity-100', 'translate-y-0'); }, 800); }
@@ -346,6 +389,7 @@
         document.getElementById('mismatch-box').classList.add('hidden');
         document.getElementById('patient-box').classList.add('hidden'); 
         document.getElementById('ao-box').classList.add('hidden'); 
+        document.getElementById('roussouly-box').classList.add('hidden'); 
         updateStatus("Trazos limpiados. Sistema Listo");
         draw();
     }
@@ -368,6 +412,7 @@
         else if (type === 'cobb_coronal') updateStatus(`Haz clic y arrastra para el primer platillo de la curva`);
         else if (type === 'horiz_angle') updateStatus(`Traza la línea de un extremo al otro`);
         else if (type === 'coronal_cf') updateStatus(`Traza la Primera Cefálica Femoral (Clic y arrastrar)`);
+        else if (type === 'point_marker') updateStatus(`Haz clic sobre la radiografía para marcar el ${title}`);
         else if (type === 'vertebra') {
             activeVertebraRegion = subType; 
             currentVIndex = 1;
@@ -385,7 +430,64 @@
     function deactivateTool() { document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); activeTool = null; activeSubType = null; currentMeasurement = null; stepCount = 0; clickIntent = null; updateStatus("Sistema Listo."); }
     function updateStatus(text, isError = false) { let colorClass = isError ? 'bg-red-500' : 'bg-emerald-500'; let textClass = isError ? 'text-red-400' : 'text-emerald-400'; statusBar.className = `text-xs font-semibold flex items-center ${textClass}`; statusBar.innerHTML = `<span class="w-2 h-2 rounded-full ${colorClass} mr-2 ${!isError ? 'animate-pulse' : ''}"></span> ${text}`; }
 
-    // FUNCIONES DE AO CLASSIFICATION ACTUALIZADAS (CON L1-S1)
+    // FUNCIONES ROUSSOULY
+    function showRoussouly() {
+        let pi = window.currentResults['PI'];
+        let ss = window.currentResults['SS'];
+        let ll = window.currentResults['L1-S1'];
+        let l4s1 = window.currentResults['L4-S1'];
+        
+        if (pi === undefined || ss === undefined || ll === undefined) {
+            updateStatus("⚠️ Faltan pasos: Mide primero Parámetros Pélvicos (PI, SS) y Lordosis Global (L1-S1).", true);
+            return;
+        }
+
+        document.getElementById('rs-pi').innerText = pi.toFixed(1) + '°';
+        document.getElementById('rs-ss').innerText = ss.toFixed(1) + '°';
+        document.getElementById('rs-ll').innerText = Math.abs(ll).toFixed(1) + '°';
+        
+        // Mismatch PI - LL
+        let mismatch = pi - Math.abs(ll);
+        let mmBox = document.getElementById('rs-mismatch');
+        mmBox.innerText = mismatch.toFixed(1) + '°';
+        mmBox.style.color = Math.abs(mismatch) <= 10 ? '#10b981' : '#f43f5e'; 
+
+        // Proporcion L4-S1
+        let pBox = document.getElementById('rs-prop');
+        if (l4s1 !== undefined && ll !== 0) {
+            document.getElementById('rs-l4s1').innerText = Math.abs(l4s1).toFixed(1) + '°';
+            let prop = (Math.abs(l4s1) / Math.abs(ll)) * 100;
+            pBox.innerText = prop.toFixed(1) + '%';
+            pBox.style.color = (prop >= 60 && prop <= 75) ? '#10b981' : '#f59e0b'; 
+        } else {
+            document.getElementById('rs-l4s1').innerText = "-";
+            pBox.innerText = "Falta L4-S1";
+            pBox.style.color = "#94a3b8";
+        }
+
+        let typeBox = document.getElementById('rs-type-badge');
+        let descBox = document.getElementById('rs-desc');
+
+        if (pi < 50 && ss > 35) {
+            typeBox.innerText = 'Tipo 3 AP (Anteverted Pelvis)'; 
+            descBox.innerText = "PI baja (< 50°) pero SS alta (> 35°). Pelvis muy antevertida. Precaución: Propensos a complicaciones si se sobrecorrige.";
+        } else if (pi < 45) {
+            typeBox.innerText = 'Tipos 1 y 2 Teóricos'; 
+            descBox.innerText = "PI baja (< 45°). Toleran mal la hipolordosis iatrogénica.";
+        } else if (pi >= 45 && pi <= 60) {
+            typeBox.innerText = 'Tipo 3 Teórico'; 
+            descBox.innerText = "PI media (45° - 60°). Perfil estándar armónico.";
+        } else {
+            typeBox.innerText = 'Tipo 4 Teórico'; 
+            descBox.innerText = "PI alta (> 60°). Requieren lordosis inmensa, compensada con gran cifosis torácica.";
+        }
+        
+        document.getElementById('roussouly-box').classList.remove('hidden');
+        updateStatus("Clasificación de Roussouly calculada exitosamente.");
+        if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
+    }
+
+    // FUNCIONES DE AO CLASSIFICATION
     function showAO() {
         let pi = window.currentResults['PI'];
         let slip = window.currentResults['Slip'];
@@ -483,6 +585,15 @@
             else if (activeTool === 'cbva') { if(!currentMeasurement) { currentMeasurement = { id: Date.now(), type: 'cbva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: null }; measurements.push(currentMeasurement); stepCount = 1; updateStatus(`Haz clic en la Ceja`); } else { currentMeasurement.points.push({x: pos.x, y: pos.y}); currentMeasurement.textPos = {x: pos.x + 20, y: pos.y + 20}; deactivateTool(); } }
             else if (activeTool === 'thoracic') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'thoracic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], sternum: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.sternum = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 20}; deactivateTool(); } }
             else if (activeTool === 'meyerding') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'meyerding', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], slipPoint: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.slipPoint = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 40}; deactivateTool(); } }
+            else if (activeTool === 'point_marker') { 
+                currentMeasurement = { 
+                    id: Date.now(), type: 'point_marker', title: activeTitle, subType: activeSubType, 
+                    color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, 
+                    points: [{x: pos.x, y: pos.y}], textPos: {x: pos.x + 15, y: pos.y - 15} 
+                }; 
+                measurements.push(currentMeasurement); 
+                deactivateTool(); 
+            }
             draw();
         } else {
             dragObj = checkHit(pos.x, pos.y);
@@ -703,6 +814,11 @@
                         if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${diff.toFixed(1)}°`, m.color, m.fontSize);
                     }
                 }
+                else if (m.type === 'point_marker') {
+                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.fill();
+                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 8 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.stroke();
+                    if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, "", m.color, m.fontSize);
+                }
                 else if (m.type === 'horiz_angle') {
                     if (m.points.length === 2) {
                         ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); 
@@ -742,12 +858,12 @@
                             let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if(ss>90) ss=180-ss; 
                             let pt_mag = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if(pt_mag>90) pt_mag=Math.abs(pt_mag-180); 
                             
-                            // AÑADIDO: CORRECCIÓN DEL SIGNO DEL PELVIC TILT
                             let isAnterior = ((s1_x - ha_x) * gazeDirection) > 0;
                             let pt = isAnterior ? -pt_mag : pt_mag;
                             
                             let pi = ss + pt; 
                             window.currentResults['PI'] = pi; 
+                            window.currentResults['SS'] = ss;
                             let text = `PI: ${pi.toFixed(1)}°\nPT: ${pt.toFixed(1)}°\nSS: ${ss.toFixed(1)}°`; 
                             drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); 
                         } 
