@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V50 - Roussouly & Índices Sagitales</title>
+    <title>SpinePlan Pro V51 - Etiquetas Optimizadas</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -176,13 +176,13 @@
                     </div>
                 </div>
 
-                <!-- MÓDULO 9: ROUSSOULY -->
+                <!-- MÓDULO 9: ROUSSOULY CON NOMBRES OPTIMIZADOS -->
                 <div class="border border-sky-700 rounded-lg overflow-hidden mt-3">
                     <div class="bg-sky-900/40 px-3 py-2 text-sm font-semibold text-sky-400">9. Roussouly (2018)</div>
                     <div class="p-3 bg-gray-900/50 space-y-2">
                         <span class="text-[10px] text-gray-400 uppercase tracking-wider block">1. Mide PI, SS (Pelvis), L1-S1 y L4-S1</span>
-                        <button onclick="activateTool('point_marker', 'Ápex de Lordosis', 'apex')" class="tool-btn w-full border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">📍 Marcar Ápex Lumbar</button>
-                        <button onclick="activateTool('point_marker', 'Punto de Inflexión', 'inflection')" class="tool-btn w-full border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">📍 Marcar P. Inflexión</button>
+                        <button onclick="activateTool('point_marker', 'Apex L', 'apex')" class="tool-btn w-full border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">📍 Marcar Apex L</button>
+                        <button onclick="activateTool('point_marker', 'Inflexión', 'inflection')" class="tool-btn w-full border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">📍 Marcar Inflexión</button>
                         <button onclick="showRoussouly()" class="tool-btn w-full border border-sky-600 bg-sky-600/20 rounded px-2 py-2 text-xs font-bold text-sky-300 hover:bg-sky-600 hover:text-white transition-colors flex justify-center items-center shadow-lg mt-2">Calcular Morfotipo & Índices</button>
                     </div>
                 </div>
@@ -412,7 +412,7 @@
         else if (type === 'cobb_coronal') updateStatus(`Haz clic y arrastra para el primer platillo de la curva`);
         else if (type === 'horiz_angle') updateStatus(`Traza la línea de un extremo al otro`);
         else if (type === 'coronal_cf') updateStatus(`Traza la Primera Cefálica Femoral (Clic y arrastrar)`);
-        else if (type === 'point_marker') updateStatus(`Haz clic sobre la radiografía para marcar el ${title}`);
+        else if (type === 'point_marker') updateStatus(`Haz clic sobre la radiografía para marcar ${title}`);
         else if (type === 'vertebra') {
             activeVertebraRegion = subType; 
             currentVIndex = 1;
@@ -763,6 +763,7 @@
             }
             else if (m.type === 'thoracic') { if (m.sternum && Math.hypot(x - m.sternum.x, y - m.sternum.y) < baseRadius) return { type: 'sternumPoint', item: m }; for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < baseRadius) return { type: 'point', item: m, index: p }; if(m.points.length >= 2) if(distToSegment(x, y, m.points[0], m.points[1]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; }
             else if (m.type === 'circle') { let d = Math.hypot(x - m.points[0].x, y - m.points[0].y); if (d < baseRadius) return { type: 'circleCenter', item: m, index: 0 }; if (Math.abs(d - m.radius) < baseRadius) return { type: 'circleRadius', item: m, index: 0 }; }
+            else if (m.type === 'point_marker') { let d = Math.hypot(x - m.points[0].x, y - m.points[0].y); if (d < baseRadius) return { type: 'point', item: m, index: 0 }; }
             else if (m.points) { for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < baseRadius) return { type: 'point', item: m, index: p }; if(m.points.length >= 2) if(distToSegment(x, y, m.points[0], m.points[1]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; if(m.points.length === 4) if(distToSegment(x, y, m.points[2], m.points[3]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 2, idx2: 3, lastX: x, lastY: y }; }
             if (m.type === 'sva') if(Math.abs(x - m.points[0].x) < baseRadius) return { type: 'svaLine', item: m };
         }
