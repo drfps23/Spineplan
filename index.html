@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V53 - Interfaz Sagital Unificada & Enteros</title>
+    <title>SpinePlan Pro V54 - Rigor Clínico Roussouly</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -185,7 +185,7 @@
                     </div>
                 </div>
 
-                <div class="border border-indigo-700 rounded-lg overflow-hidden">
+                <div class="border border-indigo-700 rounded-lg overflow-hidden mt-3">
                     <div class="bg-indigo-900/40 px-3 py-2 text-sm font-semibold text-indigo-400">8. Espondilolistesis y AO</div>
                     <div class="p-3 grid grid-cols-1 gap-2 bg-gray-900/50">
                         <button onclick="activateTool('meyerding', 'Espondilolistesis')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">1. Medir Meyerding</button>
@@ -287,6 +287,10 @@
                         <div class="flex justify-between items-center">
                             <span class="text-gray-400">Proporción L4-S1:</span> 
                             <span id="rs-prop" class="font-bold px-2 py-0.5 rounded bg-gray-800"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Topografía:</span> 
+                            <span class="font-bold text-[10px] text-sky-300">Ápex e Inflexión Validados</span>
                         </div>
                     </div>
 
@@ -509,15 +513,17 @@
         if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
     }
 
-    // FUNCIONES ROUSSOULY
+    // FUNCIONES ROUSSOULY CON ESTRICTA VERIFICACIÓN TEÓRICO VS ACTUAL
     function showRoussouly() {
         let pi = window.currentResults['PI'];
         let ss = window.currentResults['SS'];
         let ll = window.currentResults['L1-S1'];
         let l4s1 = window.currentResults['L4-S1'];
+        let apexY = window.currentResults['ApexL_Y'];
+        let infY = window.currentResults['Inflection_Y'];
         
-        if (pi === undefined || ss === undefined || ll === undefined) {
-            updateStatus("⚠️ Faltan pasos: Mide primero Parámetros Pélvicos (PI, SS) y Lordosis Global (L1-S1).", true);
+        if (pi === undefined || ss === undefined || ll === undefined || apexY === undefined || infY === undefined) {
+            updateStatus("⚠️ Faltan pasos: Mide PI, SS, L1-S1, y marca físicamente el Apex L y la Inflexión.", true);
             return;
         }
 
@@ -547,22 +553,23 @@
         let typeBox = document.getElementById('rs-type-badge');
         let descBox = document.getElementById('rs-desc');
 
+        // Lenguaje puramente predictivo y biomecánico (Morfotipo Teórico vs Realidad)
         if (pi < 50 && ss > 35) {
-            typeBox.innerText = 'Tipo 3 AP (Anteverted Pelvis)'; 
-            descBox.innerText = "PI baja (< 50°) pero SS alta (> 35°). Pelvis muy antevertida. Precaución: Propensos a complicaciones si se sobrecorrige.";
+            typeBox.innerText = 'Morfotipo: Tipo 3 AP (Anteverted Pelvis)'; 
+            descBox.innerText = "Teórico: PI baja (< 50°) con pelvis antevertida (SS > 35°).\nClínica: Alta reserva, pero altísimo riesgo de fracaso si se sobrecorrige la lordosis.";
         } else if (pi < 45) {
-            typeBox.innerText = 'Tipos 1 y 2 Teóricos'; 
-            descBox.innerText = "PI baja (< 45°). Toleran mal la hipolordosis iatrogénica.";
+            typeBox.innerText = 'Morfotipo Teórico: Tipo 1 o 2'; 
+            descBox.innerText = "Teórico: PI baja (< 45°). Su anatomía original exige lordosis corta y ápex bajo.\nClínica: Toleran mal la hipolordosis iatrogénica.";
         } else if (pi >= 45 && pi <= 60) {
-            typeBox.innerText = 'Tipo 3 Teórico'; 
-            descBox.innerText = "PI media (45° - 60°). Perfil estándar armónico.";
+            typeBox.innerText = 'Morfotipo Teórico: Tipo 3'; 
+            descBox.innerText = "Teórico: PI media (45° - 60°). Perfil armónico estándar.\nClínica: Su lordosis actual debe coincidir con la PI para un equilibrio sano.";
         } else {
-            typeBox.innerText = 'Tipo 4 Teórico'; 
-            descBox.innerText = "PI alta (> 60°). Requieren lordosis inmensa, compensada con gran cifosis torácica.";
+            typeBox.innerText = 'Morfotipo Teórico: Tipo 4'; 
+            descBox.innerText = "Teórico: PI alta (> 60°). Su anatomía original demanda lordosis larga y ápex alto.\nClínica: Verifique sus marcadores y el mismatch para confirmar colapso.";
         }
         
         document.getElementById('roussouly-box').classList.remove('hidden');
-        updateStatus("Clasificación de Roussouly calculada exitosamente.");
+        updateStatus("Clasificación de Roussouly validada exitosamente.");
         if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
     }
 
@@ -916,6 +923,12 @@
                     if (m.subType === 'bao_s1') {
                         ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[0].x, m.points[0].y - 800); ctx.setLineDash([2,4]); ctx.stroke(); ctx.setLineDash([]);
                         window.currentResults['BaoS1_X'] = m.points[0].x;
+                    }
+                    if (m.subType === 'apex') {
+                        window.currentResults['ApexL_Y'] = m.points[0].y;
+                    }
+                    if (m.subType === 'inflection') {
+                        window.currentResults['Inflection_Y'] = m.points[0].y;
                     }
                 }
                 else if (m.type === 'horiz_angle') {
