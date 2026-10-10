@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V51 - Etiquetas Optimizadas</title>
+    <title>SpinePlan Pro V52 - Clasificación Bao (2016)</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -158,17 +158,26 @@
                     </div>
                 </div>
 
-                <div class="border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">7. Plano Coronal</div>
-                    <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
+                <!-- MÓDULO 7 ACTUALIZADO: PLANO CORONAL Y BAO -->
+                <div class="border border-purple-800 rounded-lg overflow-hidden">
+                    <div class="bg-purple-900/40 px-3 py-2 text-sm font-semibold text-purple-400">7. Plano Coronal y Bao</div>
+                    <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50 border-b border-gray-700">
                         <button onclick="activateTool('cobb_coronal', 'Cobb')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">Ángulo de Cobb</button>
                         <button onclick="activateTool('horiz_angle', 'C.A')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C.A</button>
                         <button onclick="activateTool('horiz_angle', 'IP')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">IP</button>
                         <button onclick="activateTool('coronal_cf', 'CF')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">CF (Cefálicas Femorales)</button>
                     </div>
+                    <div class="p-3 bg-gray-900/50 space-y-2">
+                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block">Clasificación de Bao (2016)</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="activateTool('point_marker', 'C7', 'bao_c7')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📍 C7</button>
+                            <button onclick="activateTool('point_marker', 'S1', 'bao_s1')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📍 CSVL</button>
+                        </div>
+                        <button onclick="showBao()" class="tool-btn w-full border border-purple-600 bg-purple-600/20 rounded px-2 py-2 text-xs font-bold text-purple-300 hover:bg-purple-600 hover:text-white transition-colors flex justify-center items-center shadow-lg mt-2">Evaluar Bao (Coronal)</button>
+                    </div>
                 </div>
 
-                <div class="border border-indigo-700 rounded-lg overflow-hidden">
+                <div class="border border-indigo-700 rounded-lg overflow-hidden mt-3">
                     <div class="bg-indigo-900/40 px-3 py-2 text-sm font-semibold text-indigo-400">8. Espondilolistesis y AO</div>
                     <div class="p-3 grid grid-cols-1 gap-2 bg-gray-900/50">
                         <button onclick="activateTool('meyerding', 'Espondilolistesis')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">1. Medir Meyerding</button>
@@ -176,7 +185,6 @@
                     </div>
                 </div>
 
-                <!-- MÓDULO 9: ROUSSOULY CON NOMBRES OPTIMIZADOS -->
                 <div class="border border-sky-700 rounded-lg overflow-hidden mt-3">
                     <div class="bg-sky-900/40 px-3 py-2 text-sm font-semibold text-sky-400">9. Roussouly (2018)</div>
                     <div class="p-3 bg-gray-900/50 space-y-2">
@@ -234,6 +242,29 @@
                     <tbody id="theo-tbody">
                     </tbody>
                 </table>
+            </div>
+
+            <!-- MODAL FLOTANTE: CLASIFICACIÓN BAO (2016) -->
+            <div id="bao-box" class="hidden absolute top-20 left-1/2 transform -translate-x-1/2 bg-gray-900/95 border border-purple-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md cursor-move select-none w-[320px]">
+                <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2 pointer-events-none">
+                    <h3 class="text-purple-400 font-bold text-sm">Clasificación de Bao (2016)</h3>
+                    <button onclick="document.getElementById('bao-box').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto">&times; Cerrar</button>
+                </div>
+                <div class="pointer-events-auto text-xs text-gray-300">
+                    <div class="grid grid-cols-2 gap-2 mb-3 border-b border-gray-700 pb-3">
+                        <div><span class="text-gray-400">Desvío C7-CSVL:</span> <br><span id="bao-shift" class="font-bold text-white"></span></div>
+                        <div><span class="text-gray-400">Curva Lumbar:</span> <br><span id="bao-curve" class="font-bold text-white"></span></div>
+                    </div>
+                    
+                    <div id="bao-result-container" class="text-center mt-2">
+                        <div id="bao-type-badge" class="bg-purple-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md">Tipo A</div>
+                        <p id="bao-desc" class="text-[11px] text-gray-300 mb-2 leading-tight font-medium"></p>
+                        
+                        <div id="bao-alert" class="hidden bg-red-900/50 border border-red-500 text-red-300 p-2 rounded text-[10px] text-left">
+                            ⚠️ <span class="font-bold">Alerta Biomecánica:</span> Riesgo de empeorar el desbalance si solo se corrige la curva principal. Requiere nivelación de curva fraccional lumbosacra o osteotomía asimétrica en la base.
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- MODAL FLOTANTE: ROUSSOULY -->
@@ -354,6 +385,7 @@
     makeInteractivePanel(document.getElementById('patient-box'));
     makeInteractivePanel(document.getElementById('ao-box')); 
     makeInteractivePanel(document.getElementById('roussouly-box')); 
+    makeInteractivePanel(document.getElementById('bao-box'));
 
     const splashScreen = document.getElementById('splash-screen'); const introVideo = document.getElementById('intro-video'); const loginContainer = document.getElementById('login-container'); const passInput = document.getElementById('pass-input'); const loginError = document.getElementById('login-error'); const skipBtn = document.getElementById('skip-btn');
     function showLogin() { introVideo.style.opacity = '0'; skipBtn.style.display = 'none'; setTimeout(() => { introVideo.style.display = 'none'; loginContainer.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4'); loginContainer.classList.add('opacity-100', 'translate-y-0'); }, 800); }
@@ -390,6 +422,7 @@
         document.getElementById('patient-box').classList.add('hidden'); 
         document.getElementById('ao-box').classList.add('hidden'); 
         document.getElementById('roussouly-box').classList.add('hidden'); 
+        document.getElementById('bao-box').classList.add('hidden'); 
         updateStatus("Trazos limpiados. Sistema Listo");
         draw();
     }
@@ -429,6 +462,54 @@
 
     function deactivateTool() { document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); activeTool = null; activeSubType = null; currentMeasurement = null; stepCount = 0; clickIntent = null; updateStatus("Sistema Listo."); }
     function updateStatus(text, isError = false) { let colorClass = isError ? 'bg-red-500' : 'bg-emerald-500'; let textClass = isError ? 'text-red-400' : 'text-emerald-400'; statusBar.className = `text-xs font-semibold flex items-center ${textClass}`; statusBar.innerHTML = `<span class="w-2 h-2 rounded-full ${colorClass} mr-2 ${!isError ? 'animate-pulse' : ''}"></span> ${text}`; }
+
+    // FUNCIONES BAO
+    function showBao() {
+        let c7x = window.currentResults['BaoC7_X'];
+        let s1x = window.currentResults['BaoS1_X'];
+        let convexity = window.currentResults['CoronalConvexity'];
+        
+        if (c7x === undefined || s1x === undefined || convexity === undefined) {
+            updateStatus("⚠️ Debes medir Cobb Coronal, Centro C7 y Centro S1 primero.", true);
+            return;
+        }
+
+        let shift_px = c7x - s1x;
+        let shift_mm = shift_px; 
+        let abs_shift = Math.abs(shift_mm);
+        let shiftDir = shift_mm > 0 ? "Derecha" : "Izquierda";
+        
+        document.getElementById('bao-shift').innerText = abs_shift.toFixed(1) + ' mm (' + shiftDir + ')';
+        document.getElementById('bao-curve').innerText = "Convexidad " + convexity;
+
+        let typeBox = document.getElementById('bao-type-badge');
+        let descBox = document.getElementById('bao-desc');
+        let alertBox = document.getElementById('bao-alert');
+        
+        alertBox.classList.add('hidden');
+
+        if (abs_shift < 30) {
+            typeBox.innerText = 'Tipo A';
+            typeBox.className = "bg-green-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md";
+            descBox.innerText = "Desvío C7-CSVL < 3 cm. Tronco equilibrado en el plano coronal. Bajo riesgo de desbalance postoperatorio.";
+        } else {
+            let concavityDir = convexity === "Derecha" ? "Izquierda" : "Derecha";
+            if (shiftDir === concavityDir) {
+                typeBox.innerText = 'Tipo B';
+                typeBox.className = "bg-blue-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md";
+                descBox.innerText = "Desvío > 3 cm hacia la CONCAVIDAD. El tronco se compensa hacia el hueco de la curva. Al corregir la curva principal, el tronco suele centrarse.";
+            } else {
+                typeBox.innerText = 'Tipo C';
+                typeBox.className = "bg-red-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md";
+                descBox.innerText = "Desvío > 3 cm hacia la CONVEXIDAD. El tronco se aleja de la curva (Desbalance maligno).";
+                alertBox.classList.remove('hidden');
+            }
+        }
+        
+        document.getElementById('bao-box').classList.remove('hidden');
+        updateStatus("Clasificación de Bao calculada exitosamente.");
+        if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
+    }
 
     // FUNCIONES ROUSSOULY
     function showRoussouly() {
@@ -813,12 +894,31 @@
                         let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
                         if(isNaN(diff)) diff = 0;
                         if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${diff.toFixed(1)}°`, m.color, m.fontSize);
+                        
+                        let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
+                        let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; 
+                        let det = A1*B2 - A2*B1;
+                        if (Math.abs(det) > 0.0001) {
+                            let x_int = (B2*C1 - B1*C2) / det; 
+                            let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
+                            let convexity = x_int > spine_x ? "Izquierda" : "Derecha";
+                            window.currentResults['CoronalConvexity'] = convexity;
+                        }
                     }
                 }
                 else if (m.type === 'point_marker') {
                     ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.fill();
                     ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 8 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.stroke();
                     if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, "", m.color, m.fontSize);
+
+                    if (m.subType === 'bao_c7') {
+                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[0].x, m.points[0].y + 800); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
+                        window.currentResults['BaoC7_X'] = m.points[0].x;
+                    }
+                    if (m.subType === 'bao_s1') {
+                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[0].x, m.points[0].y - 800); ctx.setLineDash([2,4]); ctx.stroke(); ctx.setLineDash([]);
+                        window.currentResults['BaoS1_X'] = m.points[0].x;
+                    }
                 }
                 else if (m.type === 'horiz_angle') {
                     if (m.points.length === 2) {
