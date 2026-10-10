@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V57 - SVA 2 Clics & Precisión</title>
+    <title>SpinePlan Pro V58 - SVA de 2 Clics Exactos</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -117,7 +117,7 @@
                     </div>
                 </div>
 
-                <!-- MÓDULO 3: BALANCE SAGITAL SEPARADO -->
+                <!-- MÓDULO 3: BALANCE SAGITAL -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
                     <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">3. Balance Sagital</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
@@ -129,11 +129,11 @@
                         <button onclick="activateTool('sagittal', 'C7 Tilt', 'tilt')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C7 Tilt</button>
                         <button onclick="activateTool('sagittal', 'C2-PA', 'pa')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C2-PA</button>
                         <button onclick="activateTool('sagittal', 'C2 Tilt', 'tilt')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C2 Tilt</button>
-                        <button onclick="activateTool('sva', 'SVA')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 flex justify-center items-center font-semibold text-emerald-300">📍 SVA (Plomada C7 a S1)</button>
+                        <button onclick="activateTool('sva', 'SVA')" class="tool-btn col-span-2 border border-emerald-700/50 bg-emerald-900/20 rounded px-2 py-1.5 text-xs text-emerald-300 hover:bg-emerald-800/40 flex justify-center items-center font-bold">📍 SVA (Plomada C7 a S1)</button>
                     </div>
                 </div>
 
-                <!-- MÓDULO 4: ROUSSOULY SEPARADO -->
+                <!-- MÓDULO 4: ROUSSOULY -->
                 <div class="border border-sky-700 rounded-lg overflow-hidden">
                     <div class="bg-sky-900/40 px-3 py-2 text-sm font-semibold text-sky-400">4. Roussouly (2018)</div>
                     <div class="p-3 bg-gray-900/50 space-y-2">
@@ -146,7 +146,7 @@
                     </div>
                 </div>
 
-                <!-- MÓDULO 5: ABELIN-GENEVOIS (EIA) -->
+                <!-- MÓDULO 5: ABELIN-GENEVOIS -->
                 <div class="border border-orange-700 rounded-lg overflow-hidden">
                     <div class="bg-orange-900/40 px-3 py-2 text-sm font-semibold text-orange-400">5. Abelin-Genevois (EIA)</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50 border-b border-gray-700">
@@ -183,7 +183,7 @@
                         <button onclick="activateTool('cbva', 'CBVA')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">CBVA</button>
                         <button onclick="activateTool('cobb', 'C2-C7')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C2-C7</button>
                         <button onclick="activateTool('cobb', 'C0-C2')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C0-C2</button>
-                        <button onclick="activateTool('sva', 'SVA')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 font-semibold text-emerald-300 flex justify-center">📍 SVA (Plomada C7 a S1)</button>
+                        <button onclick="activateTool('sva', 'SVA')" class="tool-btn col-span-2 border border-emerald-700/50 bg-emerald-900/20 rounded px-2 py-1.5 text-xs text-emerald-300 hover:bg-emerald-800/40 font-bold flex justify-center">📍 SVA (Plomada C7 a S1)</button>
                     </div>
                 </div>
 
@@ -482,7 +482,7 @@
         
         if(type === 'pelvic') updateStatus(`Traza la Primera Cabeza Femoral`);
         else if (type === 'sagittal') updateStatus(`Haz clic sobre la vértebra ${title}`);
-        else if (type === 'sva') updateStatus(`Haz clic en el centro de C7 para trazar la plomada`);
+        else if (type === 'sva') updateStatus(`Haz 1 CLIC en el centro de C7 para soltar la plomada`);
         else if (type === 'cbva') updateStatus(`Haz clic en el Mentón`);
         else if (type === 'thoracic') updateStatus(`Traza el platillo de T1 (Clic y Arrastrar)`);
         else if (type === 'meyerding') updateStatus(`Traza el platillo de la vértebra inferior (Línea)`);
@@ -598,7 +598,7 @@
         if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
     }
 
-    // FUNCIONES ROUSSOULY CON ESTRICTA VERIFICACIÓN TEÓRICO VS ACTUAL
+    // FUNCIONES ROUSSOULY
     function showRoussouly() {
         let pi = window.currentResults['PI'];
         let ss = window.currentResults['SS'];
@@ -638,7 +638,7 @@
         let typeBox = document.getElementById('rs-type-badge');
         let descBox = document.getElementById('rs-desc');
 
-        // Lenguaje puramente predictivo y biomecánico (Morfotipo Teórico vs Realidad)
+        // Lenguaje puramente predictivo y biomecánico
         if (pi < 50 && ss > 35) {
             typeBox.innerText = 'Morfotipo: Tipo 3 AP (Anteverted Pelvis)'; 
             descBox.innerText = "Teórico: PI baja (< 50°) con pelvis antevertida (SS > 35°).\nClínica: Alta reserva, pero altísimo riesgo de fracaso si se sobrecorrige la lordosis.";
@@ -752,20 +752,25 @@
             else if (activeTool === 'circle') { currentMeasurement = { id: Date.now(), type: 'circle', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], radius: 0, textPos: {x: pos.x + 20, y: pos.y + 20} }; measurements.push(currentMeasurement); }
             else if (activeTool === 'pelvic') { if (stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'pelvic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, circles: [ {x: pos.x, y: pos.y, r: 0} ], line: [], textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) currentMeasurement.circles.push({x: pos.x, y: pos.y, r: 0}); else if (stepCount === 2) currentMeasurement.line = [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}]; }
             else if (activeTool === 'sagittal') { currentMeasurement = { id: Date.now(), type: 'sagittal', title: activeTitle, subType: activeSubType, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: {x: pos.x + 20, y: pos.y - 20} }; measurements.push(currentMeasurement); deactivateTool(); }
+            
+            // SVA ACTUALIZADO A 2 CLICS
             else if (activeTool === 'sva') { 
                 if (stepCount === 0) {
                     currentMeasurement = { 
                         id: Date.now(), type: 'sva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, 
-                        points: [{x: pos.x, y: pos.y}], tempPoint: null, textPos: null 
+                        points: [{x: pos.x, y: pos.y}], tempPoint: {x: pos.x, y: pos.y}, textPos: null 
                     }; 
-                    measurements.push(currentMeasurement); 
+                    measurements.push(currentMeasurement);
+                    stepCount = 1; 
+                    updateStatus(`Plomada trazada. Ahora haz 1 CLIC en el borde posterior de S1`);
                 } else if (stepCount === 1) {
                     currentMeasurement.points.push({x: pos.x, y: pos.y});
-                    currentMeasurement.textPos = {x: currentMeasurement.points[0].x + 20, y: pos.y + 20};
+                    currentMeasurement.textPos = {x: currentMeasurement.points[0].x + 20, y: pos.y - 20};
                     delete currentMeasurement.tempPoint;
                     deactivateTool();
                 }
             }
+
             else if (activeTool === 'cbva') { if(!currentMeasurement) { currentMeasurement = { id: Date.now(), type: 'cbva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: null }; measurements.push(currentMeasurement); stepCount = 1; updateStatus(`Haz clic en la Ceja`); } else { currentMeasurement.points.push({x: pos.x, y: pos.y}); currentMeasurement.textPos = {x: pos.x + 20, y: pos.y + 20}; deactivateTool(); } }
             else if (activeTool === 'thoracic') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'thoracic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], sternum: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.sternum = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 20}; deactivateTool(); } }
             else if (activeTool === 'meyerding') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'meyerding', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], slipPoint: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.slipPoint = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 40}; deactivateTool(); } }
@@ -802,10 +807,13 @@
             else if (dragObj.type === 'circleRadius') { let cx = item.circles[dragObj.index].x, cy = item.circles[dragObj.index].y; item.circles[dragObj.index].r = Math.max(1, Math.hypot(pos.x - cx, pos.y - cy)); }
             else if (dragObj.type === 'circleCenter') { item.circles[dragObj.index].x = pos.x; item.circles[dragObj.index].y = pos.y; }
             else if (dragObj.type === 'lineSegment') { let dx = pos.x - dragObj.lastX; let dy = pos.y - dragObj.lastY; if (item.points && item.points.length >= 2) { item.points[dragObj.idx1].x += dx; item.points[dragObj.idx1].y += dy; item.points[dragObj.idx2].x += dx; item.points[dragObj.idx2].y += dy; } else if (item.line && item.line.length === 2) { item.line[dragObj.idx1].x += dx; item.line[dragObj.idx1].y += dy; item.line[dragObj.idx2].x += dx; item.line[dragObj.idx2].y += dy; } dragObj.lastX = pos.x; dragObj.lastY = pos.y; }
-            else if (dragObj.type === 'svaLine') { item.points[0].x = pos.x; }
             draw(); if(!document.getElementById('theoretical-table').classList.contains('hidden')){ showTheoreticalProfile(); } return;
         }
         if (currentMeasurement && activeTool === 'vertebraContour') {
+            currentMeasurement.tempPoint = {x: pos.x, y: pos.y}; 
+            draw();
+        }
+        else if (activeTool === 'sva' && stepCount === 1 && currentMeasurement) {
             currentMeasurement.tempPoint = {x: pos.x, y: pos.y}; 
             draw();
         }
@@ -820,12 +828,7 @@
             else if (activeTool === 'thoracic' && stepCount === 0) currentMeasurement.points[1] = {x: pos.x, y: pos.y};
             else if (activeTool === 'meyerding' && stepCount === 0) currentMeasurement.points[1] = {x: pos.x, y: pos.y};
             draw();
-        } 
-        else if (activeTool === 'sva' && stepCount === 1 && currentMeasurement) {
-            currentMeasurement.tempPoint = {x: pos.x, y: pos.y};
-            draw();
-        }
-        else {
+        } else {
             let hover = checkHit(pos.x, pos.y);
             if(hover) canvas.style.cursor = (hover.type==='text'||hover.type==='lineSegment'||hover.type==='circleCenter'||hover.type==='sternumPoint'||hover.type==='slipPoint'||hover.type==='vertebraLabel') ? 'move' : 'pointer';
             else canvas.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
@@ -877,13 +880,8 @@
         if (dragObj) { dragObj = null; canvas.style.cursor = 'default'; draw(); return; }
         
         if (currentMeasurement) {
+            // SVA EXCLUIDA de desactivación inmediata
             if (activeTool === 'line' || activeTool === 'circle' || activeTool === 'angle') deactivateTool();
-            else if (activeTool === 'sva') {
-                if (stepCount === 0) {
-                    stepCount = 1;
-                    updateStatus(`Plomada trazada. Ahora haz clic en el borde posterior de S1`);
-                }
-            }
             else if (activeTool === 'cobb') { if (currentMeasurement.points.length === 2) updateStatus(`Traza el Segundo Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
             else if (activeTool === 'cobb_coronal') { if (currentMeasurement.points.length === 2) updateStatus(`Traza el Segundo Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
             else if (activeTool === 'horiz_angle') { deactivateTool(); }
@@ -962,7 +960,6 @@
             else if (m.type === 'sva') {
                 if (Math.hypot(x - m.points[0].x, y - m.points[0].y) < baseRadius) return { type: 'point', item: m, index: 0 };
                 if (m.points.length > 1 && Math.hypot(x - m.points[1].x, y - m.points[1].y) < baseRadius) return { type: 'point', item: m, index: 1 };
-                if (Math.abs(x - m.points[0].x) < baseRadius) return { type: 'svaLine', item: m };
             }
             else if (m.points) { for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < baseRadius) return { type: 'point', item: m, index: p }; if(m.points.length >= 2) if(distToSegment(x, y, m.points[0], m.points[1]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; if(m.points.length === 4) if(distToSegment(x, y, m.points[2], m.points[3]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 2, idx2: 3, lastX: x, lastY: y }; }
         }
@@ -1151,11 +1148,14 @@
                 else if (m.type === 'sva') { 
                     ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y - 800); ctx.lineTo(m.points[0].x, m.points[0].y + 1200); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
                     ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill(); 
+                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 8/(baseScale*zoomScale), 0, 2*Math.PI); ctx.stroke();
                     
                     let targetPoint = m.points.length > 1 ? m.points[1] : m.tempPoint;
 
                     if (targetPoint) {
                         ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill();
+                        ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, 8/(baseScale*zoomScale), 0, 2*Math.PI); ctx.stroke();
+                        
                         ctx.beginPath(); ctx.moveTo(targetPoint.x, targetPoint.y); ctx.lineTo(m.points[0].x, targetPoint.y); ctx.setLineDash([2,2]); ctx.stroke(); ctx.setLineDash([]);
                         
                         let dist = (m.points[0].x - targetPoint.x) * gazeDirection; 
