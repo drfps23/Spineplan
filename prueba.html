@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V56 - Arquitectura Sagital Definitiva y SVA Exacta</title>
+    <title>SpinePlan Pro V57 - SVA 2 Clics & Precisión</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -482,7 +482,7 @@
         
         if(type === 'pelvic') updateStatus(`Traza la Primera Cabeza Femoral`);
         else if (type === 'sagittal') updateStatus(`Haz clic sobre la vértebra ${title}`);
-        else if (type === 'sva') updateStatus(`Traza desde el centro de C7 hasta el borde postero-superior de S1 (Clic y arrastrar)`);
+        else if (type === 'sva') updateStatus(`Haz clic en el centro de C7 para trazar la plomada`);
         else if (type === 'cbva') updateStatus(`Haz clic en el Mentón`);
         else if (type === 'thoracic') updateStatus(`Traza el platillo de T1 (Clic y Arrastrar)`);
         else if (type === 'meyerding') updateStatus(`Traza el platillo de la vértebra inferior (Línea)`);
@@ -753,11 +753,18 @@
             else if (activeTool === 'pelvic') { if (stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'pelvic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, circles: [ {x: pos.x, y: pos.y, r: 0} ], line: [], textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) currentMeasurement.circles.push({x: pos.x, y: pos.y, r: 0}); else if (stepCount === 2) currentMeasurement.line = [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}]; }
             else if (activeTool === 'sagittal') { currentMeasurement = { id: Date.now(), type: 'sagittal', title: activeTitle, subType: activeSubType, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: {x: pos.x + 20, y: pos.y - 20} }; measurements.push(currentMeasurement); deactivateTool(); }
             else if (activeTool === 'sva') { 
-                currentMeasurement = { 
-                    id: Date.now(), type: 'sva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, 
-                    points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], textPos: {x: pos.x + 10, y: pos.y + 30} 
-                }; 
-                measurements.push(currentMeasurement); 
+                if (stepCount === 0) {
+                    currentMeasurement = { 
+                        id: Date.now(), type: 'sva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, 
+                        points: [{x: pos.x, y: pos.y}], tempPoint: null, textPos: null 
+                    }; 
+                    measurements.push(currentMeasurement); 
+                } else if (stepCount === 1) {
+                    currentMeasurement.points.push({x: pos.x, y: pos.y});
+                    currentMeasurement.textPos = {x: currentMeasurement.points[0].x + 20, y: pos.y + 20};
+                    delete currentMeasurement.tempPoint;
+                    deactivateTool();
+                }
             }
             else if (activeTool === 'cbva') { if(!currentMeasurement) { currentMeasurement = { id: Date.now(), type: 'cbva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: null }; measurements.push(currentMeasurement); stepCount = 1; updateStatus(`Haz clic en la Ceja`); } else { currentMeasurement.points.push({x: pos.x, y: pos.y}); currentMeasurement.textPos = {x: pos.x + 20, y: pos.y + 20}; deactivateTool(); } }
             else if (activeTool === 'thoracic') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'thoracic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], sternum: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.sternum = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 20}; deactivateTool(); } }
@@ -795,6 +802,7 @@
             else if (dragObj.type === 'circleRadius') { let cx = item.circles[dragObj.index].x, cy = item.circles[dragObj.index].y; item.circles[dragObj.index].r = Math.max(1, Math.hypot(pos.x - cx, pos.y - cy)); }
             else if (dragObj.type === 'circleCenter') { item.circles[dragObj.index].x = pos.x; item.circles[dragObj.index].y = pos.y; }
             else if (dragObj.type === 'lineSegment') { let dx = pos.x - dragObj.lastX; let dy = pos.y - dragObj.lastY; if (item.points && item.points.length >= 2) { item.points[dragObj.idx1].x += dx; item.points[dragObj.idx1].y += dy; item.points[dragObj.idx2].x += dx; item.points[dragObj.idx2].y += dy; } else if (item.line && item.line.length === 2) { item.line[dragObj.idx1].x += dx; item.line[dragObj.idx1].y += dy; item.line[dragObj.idx2].x += dx; item.line[dragObj.idx2].y += dy; } dragObj.lastX = pos.x; dragObj.lastY = pos.y; }
+            else if (dragObj.type === 'svaLine') { item.points[0].x = pos.x; }
             draw(); if(!document.getElementById('theoretical-table').classList.contains('hidden')){ showTheoreticalProfile(); } return;
         }
         if (currentMeasurement && activeTool === 'vertebraContour') {
@@ -811,9 +819,13 @@
             else if (activeTool === 'coronal_cf') { if (stepCount === 0) currentMeasurement.circles[0].r = Math.hypot(pos.x - currentMeasurement.circles[0].x, pos.y - currentMeasurement.circles[0].y); else if (stepCount === 1) currentMeasurement.circles[1].r = Math.hypot(pos.x - currentMeasurement.circles[1].x, pos.y - currentMeasurement.circles[1].y); }
             else if (activeTool === 'thoracic' && stepCount === 0) currentMeasurement.points[1] = {x: pos.x, y: pos.y};
             else if (activeTool === 'meyerding' && stepCount === 0) currentMeasurement.points[1] = {x: pos.x, y: pos.y};
-            else if (activeTool === 'sva') { currentMeasurement.points[1] = {x: pos.x, y: pos.y}; }
             draw();
-        } else {
+        } 
+        else if (activeTool === 'sva' && stepCount === 1 && currentMeasurement) {
+            currentMeasurement.tempPoint = {x: pos.x, y: pos.y};
+            draw();
+        }
+        else {
             let hover = checkHit(pos.x, pos.y);
             if(hover) canvas.style.cursor = (hover.type==='text'||hover.type==='lineSegment'||hover.type==='circleCenter'||hover.type==='sternumPoint'||hover.type==='slipPoint'||hover.type==='vertebraLabel') ? 'move' : 'pointer';
             else canvas.style.cursor = activeTool ? 'crosshair' : (zoomScale > 1.01 ? 'grab' : 'default');
@@ -865,7 +877,13 @@
         if (dragObj) { dragObj = null; canvas.style.cursor = 'default'; draw(); return; }
         
         if (currentMeasurement) {
-            if (activeTool === 'line' || activeTool === 'circle' || activeTool === 'angle' || activeTool === 'sva') deactivateTool();
+            if (activeTool === 'line' || activeTool === 'circle' || activeTool === 'angle') deactivateTool();
+            else if (activeTool === 'sva') {
+                if (stepCount === 0) {
+                    stepCount = 1;
+                    updateStatus(`Plomada trazada. Ahora haz clic en el borde posterior de S1`);
+                }
+            }
             else if (activeTool === 'cobb') { if (currentMeasurement.points.length === 2) updateStatus(`Traza el Segundo Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
             else if (activeTool === 'cobb_coronal') { if (currentMeasurement.points.length === 2) updateStatus(`Traza el Segundo Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
             else if (activeTool === 'horiz_angle') { deactivateTool(); }
@@ -941,6 +959,11 @@
             else if (m.type === 'thoracic') { if (m.sternum && Math.hypot(x - m.sternum.x, y - m.sternum.y) < baseRadius) return { type: 'sternumPoint', item: m }; for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < baseRadius) return { type: 'point', item: m, index: p }; if(m.points.length >= 2) if(distToSegment(x, y, m.points[0], m.points[1]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; }
             else if (m.type === 'circle') { let d = Math.hypot(x - m.points[0].x, y - m.points[0].y); if (d < baseRadius) return { type: 'circleCenter', item: m, index: 0 }; if (Math.abs(d - m.radius) < baseRadius) return { type: 'circleRadius', item: m, index: 0 }; }
             else if (m.type === 'point_marker') { let d = Math.hypot(x - m.points[0].x, y - m.points[0].y); if (d < baseRadius) return { type: 'point', item: m, index: 0 }; }
+            else if (m.type === 'sva') {
+                if (Math.hypot(x - m.points[0].x, y - m.points[0].y) < baseRadius) return { type: 'point', item: m, index: 0 };
+                if (m.points.length > 1 && Math.hypot(x - m.points[1].x, y - m.points[1].y) < baseRadius) return { type: 'point', item: m, index: 1 };
+                if (Math.abs(x - m.points[0].x) < baseRadius) return { type: 'svaLine', item: m };
+            }
             else if (m.points) { for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < baseRadius) return { type: 'point', item: m, index: p }; if(m.points.length >= 2) if(distToSegment(x, y, m.points[0], m.points[1]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; if(m.points.length === 4) if(distToSegment(x, y, m.points[2], m.points[3]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 2, idx2: 3, lastX: x, lastY: y }; }
         }
         return null;
@@ -1035,19 +1058,6 @@
                         if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize); 
                     }
                 }
-                else if (m.type === 'sva') { 
-                    ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y - 500); ctx.lineTo(m.points[0].x, m.points[0].y + 1000); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
-                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill(); 
-                    
-                    if(m.points.length > 1) {
-                        ctx.beginPath(); ctx.arc(m.points[1].x, m.points[1].y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill();
-                        ctx.beginPath(); ctx.moveTo(m.points[1].x, m.points[1].y); ctx.lineTo(m.points[0].x, m.points[1].y); ctx.setLineDash([2,2]); ctx.stroke(); ctx.setLineDash([]);
-                        
-                        let dist = (m.points[0].x - m.points[1].x) * gazeDirection; 
-                        let signStr = dist >= 0 ? "+" : "-";
-                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${signStr}${Math.abs(dist).toFixed(0)} mm`, m.color, m.fontSize);
-                    }
-                }
                 else if (m.type === 'coronal_cf') { 
                     m.circles.forEach(c => { 
                         ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); 
@@ -1137,6 +1147,26 @@
                     let dx = m.points[1].x - m.points[0].x; let dy = m.points[1].y - m.points[0].y; 
                     let ang = -(Math.atan2(dx, dy) * 180 / Math.PI) * gazeDirection; 
                     if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize); 
+                }
+                else if (m.type === 'sva') { 
+                    ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y - 800); ctx.lineTo(m.points[0].x, m.points[0].y + 1200); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
+                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill(); 
+                    
+                    let targetPoint = m.points.length > 1 ? m.points[1] : m.tempPoint;
+
+                    if (targetPoint) {
+                        ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill();
+                        ctx.beginPath(); ctx.moveTo(targetPoint.x, targetPoint.y); ctx.lineTo(m.points[0].x, targetPoint.y); ctx.setLineDash([2,2]); ctx.stroke(); ctx.setLineDash([]);
+                        
+                        let dist = (m.points[0].x - targetPoint.x) * gazeDirection; 
+                        let signStr = dist >= 0 ? "+" : "-";
+                        
+                        if(m.textPos) {
+                            drawText(m.textPos.x, m.textPos.y, m.title, `${signStr}${Math.abs(dist).toFixed(0)} mm`, m.color, m.fontSize);
+                        } else {
+                            drawText(targetPoint.x + 10, targetPoint.y + 10, null, `${signStr}${Math.abs(dist).toFixed(0)} mm`, m.color, m.fontSize);
+                        }
+                    }
                 }
                 else if (m.type === 'sagittal') { let pelvic = measurements.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2); if (pelvic) { let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2; let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2; ctx.beginPath(); ctx.arc(ha_x, ha_y, 2, 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill(); ctx.fillStyle = m.color; ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke(); let angle = 0; let signedAngle = 0; let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 = Math.hypot(v1.x, v1.y); if (m.subType === 'pa') { let s1_x = (pelvic.line[0].x + pelvic.line[1].x)/2; let s1_y = (pelvic.line[0].y + pelvic.line[1].y)/2; let v2 = {x: s1_x - ha_x, y: s1_y - ha_y}; let mag2 = Math.hypot(v2.x, v2.y); let dot = v1.x*v2.x + v1.y*v2.y; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let cross = v2.x * v1.y - v2.y * v1.x; let side = cross * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; if (m.title === 'L1-PA') val_L1PA = signedAngle; if (m.title === 'T4-PA') val_T4PA = signedAngle; } else if (m.subType === 'tilt') { let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y; let mag2 = 1; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let side = v1.x * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; } drawText(m.textPos.x, m.textPos.y, m.title, `${signedAngle.toFixed(0)}°`, m.color, m.fontSize); } else drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize); }
             });
