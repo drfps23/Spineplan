@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V52 - Clasificación Bao (2016)</title>
+    <title>SpinePlan Pro V53 - Interfaz Sagital Unificada & Enteros</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -117,9 +117,10 @@
                     </div>
                 </div>
 
-                <div class="border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">3. Balance Sagital</div>
-                    <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
+                <!-- MÓDULO 3: BALANCE SAGITAL Y ROUSSOULY UNIFICADO -->
+                <div class="border border-sky-700 rounded-lg overflow-hidden">
+                    <div class="bg-sky-900/40 px-3 py-2 text-sm font-semibold text-sky-400">3. Balance Sagital y Roussouly</div>
+                    <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50 border-b border-gray-700">
                         <button onclick="activateTool('sagittal', 'L1-PA', 'pa')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">L1-PA</button>
                         <button onclick="activateTool('sagittal', 'L1 Tilt', 'tilt')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">L1 Tilt</button>
                         <button onclick="activateTool('sagittal', 'T4-PA', 'pa')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">T4-PA</button>
@@ -128,6 +129,14 @@
                         <button onclick="activateTool('sagittal', 'C7 Tilt', 'tilt')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C7 Tilt</button>
                         <button onclick="activateTool('sagittal', 'C2-PA', 'pa')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C2-PA</button>
                         <button onclick="activateTool('sagittal', 'C2 Tilt', 'tilt')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C2 Tilt</button>
+                    </div>
+                    <div class="p-3 bg-gray-900/50 space-y-2">
+                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block">Clasificación Roussouly (2018)</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="activateTool('point_marker', 'Apex L', 'apex')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📍 Apex L</button>
+                            <button onclick="activateTool('point_marker', 'Inflexión', 'inflection')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📍 Inflexión</button>
+                        </div>
+                        <button onclick="showRoussouly()" class="tool-btn w-full border border-sky-600 bg-sky-600/20 rounded px-2 py-2 text-xs font-bold text-sky-300 hover:bg-sky-600 hover:text-white transition-colors flex justify-center items-center shadow-lg mt-2">Calcular Morfotipo & Índices</button>
                     </div>
                 </div>
 
@@ -158,7 +167,6 @@
                     </div>
                 </div>
 
-                <!-- MÓDULO 7 ACTUALIZADO: PLANO CORONAL Y BAO -->
                 <div class="border border-purple-800 rounded-lg overflow-hidden">
                     <div class="bg-purple-900/40 px-3 py-2 text-sm font-semibold text-purple-400">7. Plano Coronal y Bao</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50 border-b border-gray-700">
@@ -177,7 +185,7 @@
                     </div>
                 </div>
 
-                <div class="border border-indigo-700 rounded-lg overflow-hidden mt-3">
+                <div class="border border-indigo-700 rounded-lg overflow-hidden">
                     <div class="bg-indigo-900/40 px-3 py-2 text-sm font-semibold text-indigo-400">8. Espondilolistesis y AO</div>
                     <div class="p-3 grid grid-cols-1 gap-2 bg-gray-900/50">
                         <button onclick="activateTool('meyerding', 'Espondilolistesis')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">1. Medir Meyerding</button>
@@ -185,18 +193,8 @@
                     </div>
                 </div>
 
-                <div class="border border-sky-700 rounded-lg overflow-hidden mt-3">
-                    <div class="bg-sky-900/40 px-3 py-2 text-sm font-semibold text-sky-400">9. Roussouly (2018)</div>
-                    <div class="p-3 bg-gray-900/50 space-y-2">
-                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block">1. Mide PI, SS (Pelvis), L1-S1 y L4-S1</span>
-                        <button onclick="activateTool('point_marker', 'Apex L', 'apex')" class="tool-btn w-full border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">📍 Marcar Apex L</button>
-                        <button onclick="activateTool('point_marker', 'Inflexión', 'inflection')" class="tool-btn w-full border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">📍 Marcar Inflexión</button>
-                        <button onclick="showRoussouly()" class="tool-btn w-full border border-sky-600 bg-sky-600/20 rounded px-2 py-2 text-xs font-bold text-sky-300 hover:bg-sky-600 hover:text-white transition-colors flex justify-center items-center shadow-lg mt-2">Calcular Morfotipo & Índices</button>
-                    </div>
-                </div>
-
                 <div class="border border-gray-700 rounded-lg overflow-hidden mt-3">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">10. Mapeo Vertebral</div>
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">9. Mapeo Vertebral</div>
                     <div class="p-3 bg-gray-900/50 space-y-3">
                         <div>
                             <span class="text-[10px] text-gray-400 uppercase tracking-wider mb-1 block">Etiquetas (Letra y Número)</span>
@@ -479,7 +477,7 @@
         let abs_shift = Math.abs(shift_mm);
         let shiftDir = shift_mm > 0 ? "Derecha" : "Izquierda";
         
-        document.getElementById('bao-shift').innerText = abs_shift.toFixed(1) + ' mm (' + shiftDir + ')';
+        document.getElementById('bao-shift').innerText = abs_shift.toFixed(0) + ' mm (' + shiftDir + ')';
         document.getElementById('bao-curve').innerText = "Convexidad " + convexity;
 
         let typeBox = document.getElementById('bao-type-badge');
@@ -523,22 +521,22 @@
             return;
         }
 
-        document.getElementById('rs-pi').innerText = pi.toFixed(1) + '°';
-        document.getElementById('rs-ss').innerText = ss.toFixed(1) + '°';
-        document.getElementById('rs-ll').innerText = Math.abs(ll).toFixed(1) + '°';
+        document.getElementById('rs-pi').innerText = pi.toFixed(0) + '°';
+        document.getElementById('rs-ss').innerText = ss.toFixed(0) + '°';
+        document.getElementById('rs-ll').innerText = Math.abs(ll).toFixed(0) + '°';
         
         // Mismatch PI - LL
         let mismatch = pi - Math.abs(ll);
         let mmBox = document.getElementById('rs-mismatch');
-        mmBox.innerText = mismatch.toFixed(1) + '°';
+        mmBox.innerText = mismatch.toFixed(0) + '°';
         mmBox.style.color = Math.abs(mismatch) <= 10 ? '#10b981' : '#f43f5e'; 
 
         // Proporcion L4-S1
         let pBox = document.getElementById('rs-prop');
         if (l4s1 !== undefined && ll !== 0) {
-            document.getElementById('rs-l4s1').innerText = Math.abs(l4s1).toFixed(1) + '°';
+            document.getElementById('rs-l4s1').innerText = Math.abs(l4s1).toFixed(0) + '°';
             let prop = (Math.abs(l4s1) / Math.abs(ll)) * 100;
-            pBox.innerText = prop.toFixed(1) + '%';
+            pBox.innerText = prop.toFixed(0) + '%';
             pBox.style.color = (prop >= 60 && prop <= 75) ? '#10b981' : '#f59e0b'; 
         } else {
             document.getElementById('rs-l4s1').innerText = "-";
@@ -579,9 +577,9 @@
             return;
         }
 
-        document.getElementById('ao-pi').innerText = pi.toFixed(1) + '°';
-        document.getElementById('ao-slip').innerText = slip.toFixed(1) + '%';
-        document.getElementById('ao-l1s1').innerText = l1s1.toFixed(1) + '° (' + (l1s1 >= 0 ? 'Lordosis' : 'Cifosis') + ')';
+        document.getElementById('ao-pi').innerText = pi.toFixed(0) + '°';
+        document.getElementById('ao-slip').innerText = slip.toFixed(0) + '%';
+        document.getElementById('ao-l1s1').innerText = l1s1.toFixed(0) + '° (' + (l1s1 >= 0 ? 'Lordosis' : 'Cifosis') + ')';
 
         let typeBox = document.getElementById('ao-type-badge');
         let descBox = document.getElementById('ao-desc');
@@ -624,8 +622,8 @@
     function showTheoreticalProfile() {
         if (!window.currentResults['PI']) { updateStatus("⚠️ Debes medir los Parámetros Pélvicos (PI) primero.", true); document.getElementById('theoretical-table').classList.add('hidden'); return; }
         let pi = window.currentResults['PI']; let ideal_L1S1 = (pi * 0.6) + 30; let ideal_PA = (pi * 0.5) - 20;
-        let formatVal = (val) => val !== undefined ? val.toFixed(1) + '°' : '-';
-        let base_PI = window.currentResults['PI'] ? window.currentResults['PI'].toFixed(1) + '°' : '-';
+        let formatVal = (val) => val !== undefined ? val.toFixed(0) + '°' : '-';
+        let base_PI = window.currentResults['PI'] ? window.currentResults['PI'].toFixed(0) + '°' : '-';
         let base_L1S1 = formatVal(window.currentResults['L1-S1']); let base_L4S1 = formatVal(window.currentResults['L4-S1']);
         let base_L1PA = formatVal(window.currentResults['L1-PA']); let base_T4PA = formatVal(window.currentResults['T4-PA']);
         let base_C2Tilt = formatVal(window.currentResults['C2 Tilt']);
@@ -633,11 +631,11 @@
         let tbody = document.getElementById('theo-tbody');
         tbody.innerHTML = `
             <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-3 font-medium text-emerald-400">PI</td><td class="py-2 pr-3">${base_PI}</td><td class="py-2 font-bold text-emerald-400">${base_PI}</td></tr>
-            <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-3 font-medium text-white">L1-S1</td><td class="py-2 pr-3 text-gray-300">${base_L1S1}</td><td class="py-2 font-bold text-emerald-400">${ideal_L1S1.toFixed(1)}°</td></tr>
-            <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-3 font-medium text-white">L4-S1</td><td class="py-2 pr-3 text-gray-300">${base_L4S1}</td><td class="py-2 font-bold text-emerald-400">35.0° a 40.0°</td></tr>
-            <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-3 font-medium text-white">L1-PA</td><td class="py-2 pr-3 text-gray-300">${base_L1PA}</td><td class="py-2 font-bold text-emerald-400">${ideal_PA.toFixed(1)}°</td></tr>
-            <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-3 font-medium text-white">T4-PA</td><td class="py-2 pr-3 text-gray-300">${base_T4PA}</td><td class="py-2 font-bold text-emerald-400">${ideal_PA.toFixed(1)}°</td></tr>
-            <tr class="hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-3 font-medium text-white">C2 Tilt</td><td class="py-2 pr-3 text-gray-300">${base_C2Tilt}</td><td class="py-2 font-bold text-emerald-400">1.0° a -3.0°</td></tr>
+            <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-3 font-medium text-white">L1-S1</td><td class="py-2 pr-3 text-gray-300">${base_L1S1}</td><td class="py-2 font-bold text-emerald-400">${ideal_L1S1.toFixed(0)}°</td></tr>
+            <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-3 font-medium text-white">L4-S1</td><td class="py-2 pr-3 text-gray-300">${base_L4S1}</td><td class="py-2 font-bold text-emerald-400">35° a 40°</td></tr>
+            <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-3 font-medium text-white">L1-PA</td><td class="py-2 pr-3 text-gray-300">${base_L1PA}</td><td class="py-2 font-bold text-emerald-400">${ideal_PA.toFixed(0)}°</td></tr>
+            <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-3 font-medium text-white">T4-PA</td><td class="py-2 pr-3 text-gray-300">${base_T4PA}</td><td class="py-2 font-bold text-emerald-400">${ideal_PA.toFixed(0)}°</td></tr>
+            <tr class="hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-3 font-medium text-white">C2 Tilt</td><td class="py-2 pr-3 text-gray-300">${base_C2Tilt}</td><td class="py-2 font-bold text-emerald-400">1° a -3°</td></tr>
         `;
         document.getElementById('theoretical-table').classList.remove('hidden'); if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu(); updateStatus("Perfil Teórico calculado exitosamente.");
     }
@@ -862,8 +860,8 @@
             measurements.forEach(m => {
                 ctx.strokeStyle = m.color; ctx.fillStyle = m.color; ctx.lineWidth = m.width / (baseScale * zoomScale); ctx.lineCap = 'round';
                 
-                if (m.type === 'line' || m.type === 'angle') { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); let dist = Math.hypot(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y).toFixed(1); let text = m.type === 'line' ? `${dist} mm` : 'WIP'; drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize); }
-                else if (m.type === 'circle') { ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, m.radius, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(m.radius > 5) { ctx.beginPath(); ctx.arc(m.points[0].x + m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x - m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y + m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y - m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } drawText(m.textPos.x, m.textPos.y, m.title, `${m.radius.toFixed(1)}mm`, m.color, m.fontSize); }
+                if (m.type === 'line' || m.type === 'angle') { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); let dist = Math.hypot(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y).toFixed(0); let text = m.type === 'line' ? `${dist} mm` : 'WIP'; drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize); }
+                else if (m.type === 'circle') { ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, m.radius, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(m.radius > 5) { ctx.beginPath(); ctx.arc(m.points[0].x + m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x - m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y + m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y - m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } drawText(m.textPos.x, m.textPos.y, m.title, `${m.radius.toFixed(0)}mm`, m.color, m.fontSize); }
                 else if (m.type === 'cobb') {
                     if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
                     if(m.points.length === 4) {
@@ -882,7 +880,7 @@
                             finalVal = diff * sign; prefix = (sign < 0) ? '' : '';
                         }
                         if(isNaN(finalVal)) finalVal = 0;
-                        window.currentResults[m.title] = finalVal; if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${finalVal.toFixed(1)}°`, m.color, m.fontSize);
+                        window.currentResults[m.title] = finalVal; if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${finalVal.toFixed(0)}°`, m.color, m.fontSize);
                     }
                 }
                 else if (m.type === 'cobb_coronal') {
@@ -893,7 +891,7 @@
                         let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
                         let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
                         if(isNaN(diff)) diff = 0;
-                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${diff.toFixed(1)}°`, m.color, m.fontSize);
+                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${diff.toFixed(0)}°`, m.color, m.fontSize);
                         
                         let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
                         let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; 
@@ -930,7 +928,7 @@
                         let dirX = lp.x >= hp.x ? 1 : -1;
                         let lineLen = Math.max(80 / (baseScale*zoomScale), dx + 30 / (baseScale*zoomScale));
                         ctx.beginPath(); ctx.moveTo(hp.x, hp.y); ctx.lineTo(hp.x + lineLen * dirX, hp.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
-                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(1)}°`, m.color, m.fontSize); 
+                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize); 
                     }
                 }
                 else if (m.type === 'coronal_cf') { 
@@ -965,7 +963,7 @@
                             let pi = ss + pt; 
                             window.currentResults['PI'] = pi; 
                             window.currentResults['SS'] = ss;
-                            let text = `PI: ${pi.toFixed(1)}°\nPT: ${pt.toFixed(1)}°\nSS: ${ss.toFixed(1)}°`; 
+                            let text = `PI: ${pi.toFixed(0)}°\nPT: ${pt.toFixed(0)}°\nSS: ${ss.toFixed(0)}°`; 
                             drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); 
                         } 
                     } 
@@ -987,7 +985,7 @@
                                 if (absPercent <= 25) grade = "I"; else if (absPercent <= 50) grade = "II"; else if (absPercent <= 75) grade = "III"; else if (absPercent <= 100) grade = "IV"; else grade = "V";
                                 let tipo = percent > 0 ? "Anterolistesis" : "Retrolistesis"; if (Math.abs(percent) < 2) tipo = "Sin patología de listesis";
                                 window.currentResults['Slip'] = absPercent; 
-                                let text = `${tipo}\nDeslizamiento: ${absPercent.toFixed(1)}%\nMeyerding: Grado ${grade}`;
+                                let text = `${tipo}\nDeslizamiento: ${absPercent.toFixed(0)}%\nMeyerding: Grado ${grade}`;
                                 drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize);
                             }
                         }
@@ -1016,20 +1014,20 @@
                         }
                     }
                 }
-                else if (m.type === 'thoracic') { if (m.points.length === 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); if(m.sternum && m.textPos) { ctx.beginPath(); ctx.arc(m.sternum.x, m.sternum.y, 4, 0, 2*Math.PI); ctx.fill(); let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2; ctx.beginPath(); ctx.moveTo(midX, midY); ctx.lineTo(m.sternum.x, m.sternum.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI); let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI); let tia = t1s + nt; let text = `T1S: ${t1s.toFixed(1)}°\nTIA: ${tia.toFixed(1)}°\nNT: ${nt.toFixed(1)}°`; drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); } } }
+                else if (m.type === 'thoracic') { if (m.points.length === 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); if(m.sternum && m.textPos) { ctx.beginPath(); ctx.arc(m.sternum.x, m.sternum.y, 4, 0, 2*Math.PI); ctx.fill(); let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2; ctx.beginPath(); ctx.moveTo(midX, midY); ctx.lineTo(m.sternum.x, m.sternum.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI); let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI); let tia = t1s + nt; let text = `T1S: ${t1s.toFixed(0)}°\nTIA: ${tia.toFixed(0)}°\nNT: ${nt.toFixed(0)}°`; drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); } } }
                 else if (m.type === 'sva') { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y - 500); ctx.lineTo(m.points[0].x, m.points[0].y + 1000); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 3, 0, 2*Math.PI); ctx.fill(); drawText(m.textPos.x, m.textPos.y, m.title, `SVA Plomada`, m.color, m.fontSize); }
                 else if (m.type === 'cbva' && m.points.length === 2) { 
                     ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); 
                     let dx = m.points[1].x - m.points[0].x; let dy = m.points[1].y - m.points[0].y; 
                     let ang = -(Math.atan2(dx, dy) * 180 / Math.PI) * gazeDirection; 
-                    if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(1)}°`, m.color, m.fontSize); 
+                    if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize); 
                 }
-                else if (m.type === 'sagittal') { let pelvic = measurements.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2); if (pelvic) { let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2; let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2; ctx.beginPath(); ctx.arc(ha_x, ha_y, 2, 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill(); ctx.fillStyle = m.color; ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke(); let angle = 0; let signedAngle = 0; let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 = Math.hypot(v1.x, v1.y); if (m.subType === 'pa') { let s1_x = (pelvic.line[0].x + pelvic.line[1].x)/2; let s1_y = (pelvic.line[0].y + pelvic.line[1].y)/2; let v2 = {x: s1_x - ha_x, y: s1_y - ha_y}; let mag2 = Math.hypot(v2.x, v2.y); let dot = v1.x*v2.x + v1.y*v2.y; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let cross = v2.x * v1.y - v2.y * v1.x; let side = cross * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; if (m.title === 'L1-PA') val_L1PA = signedAngle; if (m.title === 'T4-PA') val_T4PA = signedAngle; } else if (m.subType === 'tilt') { let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y; let mag2 = 1; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let side = v1.x * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; } drawText(m.textPos.x, m.textPos.y, m.title, `${signedAngle.toFixed(1)}°`, m.color, m.fontSize); } else drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize); }
+                else if (m.type === 'sagittal') { let pelvic = measurements.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2); if (pelvic) { let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2; let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2; ctx.beginPath(); ctx.arc(ha_x, ha_y, 2, 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill(); ctx.fillStyle = m.color; ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke(); let angle = 0; let signedAngle = 0; let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 = Math.hypot(v1.x, v1.y); if (m.subType === 'pa') { let s1_x = (pelvic.line[0].x + pelvic.line[1].x)/2; let s1_y = (pelvic.line[0].y + pelvic.line[1].y)/2; let v2 = {x: s1_x - ha_x, y: s1_y - ha_y}; let mag2 = Math.hypot(v2.x, v2.y); let dot = v1.x*v2.x + v1.y*v2.y; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let cross = v2.x * v1.y - v2.y * v1.x; let side = cross * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; if (m.title === 'L1-PA') val_L1PA = signedAngle; if (m.title === 'T4-PA') val_T4PA = signedAngle; } else if (m.subType === 'tilt') { let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y; let mag2 = 1; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let side = v1.x * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; } drawText(m.textPos.x, m.textPos.y, m.title, `${signedAngle.toFixed(0)}°`, m.color, m.fontSize); } else drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize); }
             });
             ctx.restore();
 
             let mmBox = document.getElementById('mismatch-box'); let mmVal = document.getElementById('mismatch-val');
-            if(val_L1PA !== null && val_T4PA !== null) { let mismatch = val_T4PA - val_L1PA; let absMismatch = Math.abs(mismatch); let mColor = absMismatch <= 4 ? '#10b981' : '#f43f5e'; mmVal.innerText = `${mismatch.toFixed(1)}°`; mmVal.style.color = mColor; mmBox.style.borderColor = mColor; mmBox.classList.remove('hidden'); } else { mmBox.classList.add('hidden'); }
+            if(val_L1PA !== null && val_T4PA !== null) { let mismatch = val_T4PA - val_L1PA; let absMismatch = Math.abs(mismatch); let mColor = absMismatch <= 4 ? '#10b981' : '#f43f5e'; mmVal.innerText = `${mismatch.toFixed(0)}°`; mmVal.style.color = mColor; mmBox.style.borderColor = mColor; mmBox.classList.remove('hidden'); } else { mmBox.classList.add('hidden'); }
         }
     }
 
