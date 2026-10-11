@@ -46,6 +46,8 @@
             <select id="lang-login" onchange="setLang(this.value)" class="bg-gray-900/80 text-white border border-gray-600 rounded px-3 py-1 text-xs outline-none focus:border-emerald-500 backdrop-blur-md cursor-pointer">
                 <option value="es">🇪🇸 Español</option>
                 <option value="en">🇺🇸 English</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="pt">🇧🇷 Português</option>
             </select>
         </div>
 
@@ -79,6 +81,8 @@
             <select id="lang-header" onchange="setLang(this.value)" class="bg-gray-800 text-gray-300 border border-gray-600 rounded px-2 py-1 text-xs outline-none focus:border-emerald-500 hidden sm:block cursor-pointer">
                 <option value="es">ES</option>
                 <option value="en">EN</option>
+                <option value="fr">FR</option>
+                <option value="pt">PT</option>
             </select>
 
             <button onclick="openPatientModal()" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 px-2 py-1.5 md:px-3 rounded text-xs md:text-sm font-medium transition-colors border border-blue-500/50 flex items-center shadow-sm">
@@ -539,10 +543,10 @@
         },
         "fr": {
             "login_restricted": "Accès Restreint",
-            "login_pass": "Mot de passe",
+            "login_pass": "Mot de passe maître",
             "login_btn": "Entrer",
             "login_err": "Mot de passe incorrect.",
-            "btn_skip": "Passer",
+            "btn_skip": "Passer l'intro",
             "pat_title": "Données du Patient",
             "pat_name": "Patient:",
             "pat_id": "ID:",
@@ -551,7 +555,7 @@
             "pat_id_ph": "Numéro d'identité",
             "pat_age_ph": "Âge",
             "btn_cancel": "Annuler",
-            "btn_generate": "Générer",
+            "btn_generate": "Générer Fiche",
             "btn_pat": "Patient",
             "btn_gaze": "Regard:",
             "btn_load": "Charger Rx",
@@ -563,37 +567,37 @@
             "menu_4": "4. Roussouly (2018)",
             "menu_5": "5. Abelin-Genevois (EIA)",
             "menu_6": "6. Mesures Lombaires",
-            "menu_7": "7. Profil Idéal",
+            "menu_7": "7. Profil Théorique Idéal",
             "menu_8": "8. Profil Sagittal Cervical",
             "menu_9": "9. Plan Coronal et Bao",
-            "menu_10": "10. Spondylolisthésis",
+            "menu_10": "10. Spondylolisthésis et AO",
             "menu_11": "11. Cartographie",
             "t_line": "Ligne Simple",
             "t_circle": "Cercle",
             "t_cobb": "Angle de Cobb",
             "t_tk": "Tk (Cyphose)",
-            "t_pelvic": "Mesurer IP, VP, PS",
+            "t_pelvic": "Mesurer IP, VP et PS",
             "t_sva": "📍 SVA (C7 -> S1)",
             "t_apexl": "📍 Apex L",
             "t_inflexion": "📍 Inflexion",
             "t_cobb_tl": "📐 Angle Cobb TL",
             "t_c7s": "📐 Pente C7 (C7S)",
-            "t_l1s1": "Lordose Globale",
-            "t_l4s1": "Lordose Basse",
-            "t_l4l5": "Segmentaire",
-            "t_op_thoracic": "T1S, TIA, NT",
+            "t_l1s1": "Lordose Globale (L1-S1)",
+            "t_l4s1": "Lordose Basse (L4-S1)",
+            "t_l4l5": "Segmentaire (L4-L5)",
+            "t_op_thoracic": "T1S, TIA, NT (Ensemble)",
             "t_cf": "CF (Têtes Fémorales)",
-            "hint_roussouly": "1. Mesurez IP, PS, L1-S1",
+            "hint_roussouly": "1. Mesurez IP, PS, L1-S1 et L4-S1",
             "hint_ag": "Adaptation Sagittale",
             "btn_calc_rou": "Calculer Morphotype",
             "btn_eval_ag": "Évaluer Abelin-Genevois",
             "btn_calc_theo": "Calculer Valeurs",
             "btn_eval_bao": "Évaluer Bao (Coronal)",
-            "btn_meyerding": "1. Meyerding",
-            "btn_ao": "2. Classification AO",
-            "placeholder": "Sélectionnez 'Charger Rx'",
-            "lbl_tags": "Étiquettes",
-            "lbl_contours": "Contours",
+            "btn_meyerding": "1. Mesurer Meyerding",
+            "btn_ao": "2. Classification AO Spine",
+            "placeholder": "Sélectionnez 'Charger Rx' pour commencer",
+            "lbl_tags": "Étiquettes (Lettres/Nombres)",
+            "lbl_contours": "Contours (Bords)",
             "tbl_param": "Paramètre",
             "tbl_base": "Base",
             "tbl_ideal": "Idéal",
@@ -625,7 +629,7 @@
             "menu_4": "4. Roussouly (2018)",
             "menu_5": "5. Abelin-Genevois (EIA)",
             "menu_6": "6. Medidas Lombares",
-            "menu_7": "7. Perfil Ideal",
+            "menu_7": "7. Perfil Teórico Ideal",
             "menu_8": "8. Perfil Cervical",
             "menu_9": "9. Plano Coronal e Bao",
             "menu_10": "10. Espondilolistese e AO",
@@ -640,22 +644,22 @@
             "t_inflexion": "📍 Inflexão",
             "t_cobb_tl": "📐 Ângulo Cobb TL",
             "t_c7s": "📐 Slope C7 (C7S)",
-            "t_l1s1": "Lordose Global",
-            "t_l4s1": "LL Baixa",
-            "t_l4l5": "Segmentar",
-            "t_op_thoracic": "T1S, TIA, NT",
-            "t_cf": "Cabeças Femorais",
-            "hint_roussouly": "1. Medir IP, IS, L1-S1",
+            "t_l1s1": "Lordose Global (L1-S1)",
+            "t_l4s1": "LL Baixa (L4-S1)",
+            "t_l4l5": "Segmentar (L4-L5)",
+            "t_op_thoracic": "T1S, TIA, NT (Conjunto)",
+            "t_cf": "CF (Cabeças Femorais)",
+            "hint_roussouly": "1. Medir IP, IS, L1-S1 e L4-S1",
             "hint_ag": "Adaptação Sagital",
             "btn_calc_rou": "Calcular Morfotipo",
             "btn_eval_ag": "Avaliar Abelin-Genevois",
             "btn_calc_theo": "Calcular Valores",
             "btn_eval_bao": "Avaliar Bao (Coronal)",
             "btn_meyerding": "1. Medir Meyerding",
-            "btn_ao": "2. Classificação AO",
-            "placeholder": "Selecione 'Carregar Rx'",
-            "lbl_tags": "Rótulos",
-            "lbl_contours": "Contornos",
+            "btn_ao": "2. Classificação AO Spine",
+            "placeholder": "Selecione 'Carregar Rx' para começar",
+            "lbl_tags": "Rótulos (Letras e Números)",
+            "lbl_contours": "Contornos (Bordas)",
             "tbl_param": "Parâmetro",
             "tbl_base": "Base",
             "tbl_ideal": "Ideal",
@@ -775,6 +779,7 @@
         document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); event.currentTarget.classList.add('active');
         activeTool = type; activeTitle = title; activeSubType = subType; currentMeasurement = null; stepCount = 0; clickIntent = null;
         
+        // Tooltips (Status bar) translated loosely for logic
         if(type === 'pelvic') updateStatus(`1/3: Cabeza Femoral`);
         else if (type === 'sagittal') updateStatus(`Clic en vértebra ${title}`);
         else if (type === 'sva') updateStatus(`1 CLIC: Centro C7`);
@@ -1042,7 +1047,7 @@
                     }; 
                     measurements.push(currentMeasurement);
                     stepCount = 1; 
-                    updateStatus(`1 CLIC: S1`);
+                    updateStatus(`Plomada lista. Ahora 1 CLIC en S1`);
                 } else if (stepCount === 1) {
                     currentMeasurement.points.push({x: pos.x, y: pos.y});
                     currentMeasurement.textPos = {x: currentMeasurement.points[0].x + 20, y: pos.y - 20};
@@ -1051,7 +1056,7 @@
                 }
             }
 
-            else if (activeTool === 'cbva') { if(!currentMeasurement) { currentMeasurement = { id: Date.now(), type: 'cbva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: null }; measurements.push(currentMeasurement); stepCount = 1; updateStatus(`-> Mentón`); } else { currentMeasurement.points.push({x: pos.x, y: pos.y}); currentMeasurement.textPos = {x: pos.x + 20, y: pos.y + 20}; deactivateTool(); } }
+            else if (activeTool === 'cbva') { if(!currentMeasurement) { currentMeasurement = { id: Date.now(), type: 'cbva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: null }; measurements.push(currentMeasurement); stepCount = 1; updateStatus(`Haz clic en la Ceja`); } else { currentMeasurement.points.push({x: pos.x, y: pos.y}); currentMeasurement.textPos = {x: pos.x + 20, y: pos.y + 20}; deactivateTool(); } }
             else if (activeTool === 'thoracic') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'thoracic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], sternum: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.sternum = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 20}; deactivateTool(); } }
             else if (activeTool === 'meyerding') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'meyerding', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], slipPoint: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.slipPoint = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 40}; deactivateTool(); } }
             else if (activeTool === 'point_marker') { 
@@ -1134,7 +1139,7 @@
                         x: clickIntent.logX, y: clickIntent.logY 
                     });
                     currentVIndex++; 
-                    updateStatus(`-> ${activeVertebraRegion}${currentVIndex}`);
+                    updateStatus(`Etiqueta ${activeVertebraRegion}${currentVIndex} lista.`);
                 } 
                 else if (clickIntent.tool === 'vertebraContour') {
                     if (!currentMeasurement) {
@@ -1161,14 +1166,15 @@
         if (dragObj) { dragObj = null; canvas.style.cursor = 'default'; draw(); return; }
         
         if (currentMeasurement) {
+            // SVA EXCLUIDA de desactivación inmediata
             if (activeTool === 'line' || activeTool === 'circle' || activeTool === 'angle') deactivateTool();
-            else if (activeTool === 'cobb') { if (currentMeasurement.points.length === 2) updateStatus(`-> Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
-            else if (activeTool === 'cobb_coronal') { if (currentMeasurement.points.length === 2) updateStatus(`-> Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
+            else if (activeTool === 'cobb') { if (currentMeasurement.points.length === 2) updateStatus(`Traza el Segundo Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
+            else if (activeTool === 'cobb_coronal') { if (currentMeasurement.points.length === 2) updateStatus(`Traza el Segundo Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
             else if (activeTool === 'horiz_angle') { deactivateTool(); }
-            else if (activeTool === 'pelvic') { if(stepCount === 0) { stepCount = 1; updateStatus(`2/3: Femoral`); } else if(stepCount === 1) { stepCount = 2; updateStatus(`3/3: Platillo S1`); } else if(stepCount === 2) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.line[0].x + 40, y: currentMeasurement.line[0].y - 20}; deactivateTool(); } } 
-            else if (activeTool === 'coronal_cf') { if(stepCount === 0) { stepCount = 1; updateStatus(`2/2: Femoral`); } else if(stepCount === 1) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.circles[0].x + 40, y: currentMeasurement.circles[0].y - 20}; deactivateTool(); } } 
-            else if (activeTool === 'thoracic') { if(stepCount === 0) { stepCount = 1; updateStatus(`-> Esternón`); } }
-            else if (activeTool === 'meyerding') { if(stepCount === 0) { stepCount = 1; updateStatus(`-> Vértebra inf.`); } }
+            else if (activeTool === 'pelvic') { if(stepCount === 0) { stepCount = 1; updateStatus(`Traza la Segunda Cabeza Femoral`); } else if(stepCount === 1) { stepCount = 2; updateStatus(`Traza el Platillo de S1`); } else if(stepCount === 2) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.line[0].x + 40, y: currentMeasurement.line[0].y - 20}; deactivateTool(); } } 
+            else if (activeTool === 'coronal_cf') { if(stepCount === 0) { stepCount = 1; updateStatus(`Traza la Segunda Cefálica Femoral`); } else if(stepCount === 1) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.circles[0].x + 40, y: currentMeasurement.circles[0].y - 20}; deactivateTool(); } } 
+            else if (activeTool === 'thoracic') { if(stepCount === 0) { stepCount = 1; updateStatus(`Haz clic en el Manubrio del Esternón`); } }
+            else if (activeTool === 'meyerding') { if(stepCount === 0) { stepCount = 1; updateStatus(`Esquina inferior`); } }
         }
         draw();
     });
@@ -1252,203 +1258,25 @@
     function draw() {
         ctx.clearRect(0,0, canvas.width, canvas.height); window.currentResults = {}; 
         if (bgImage) {
-            ctx.save(); 
-            try {
-                ctx.translate(panX, panY); ctx.scale(baseScale * zoomScale, baseScale * zoomScale); ctx.drawImage(bgImage, 0, 0);
-                let val_L1PA = null; let val_T4PA = null;
+            ctx.save(); ctx.translate(panX, panY); ctx.scale(baseScale * zoomScale, baseScale * zoomScale); ctx.drawImage(bgImage, 0, 0);
+            let val_L1PA = null; let val_T4PA = null;
 
-                measurements.forEach(m => {
-                    ctx.strokeStyle = m.color; ctx.fillStyle = m.color; ctx.lineWidth = m.width / (baseScale * zoomScale); ctx.lineCap = 'round';
-                    
-                    if (m.type === 'line' || m.type === 'angle') { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); let dist = Math.hypot(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y).toFixed(0); let text = m.type === 'line' ? `${dist} mm` : 'WIP'; drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize); }
-                    else if (m.type === 'circle') { ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, m.radius, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(m.radius > 5) { ctx.beginPath(); ctx.arc(m.points[0].x + m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x - m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y + m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y - m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } drawText(m.textPos.x, m.textPos.y, m.title, `${m.radius.toFixed(0)}mm`, m.color, m.fontSize); }
-                    else if (m.type === 'cobb') {
-                        if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
-                        if(m.points.length === 4) {
-                            ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
-                            let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x); let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
-                            let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
-                            
-                            let finalVal = diff; let prefix = '';
-                            let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
-                            let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; let det = A1*B2 - A2*B1;
-                            if (Math.abs(det) > 0.0001) {
-                                let x_int = (B2*C1 - B1*C2) / det; let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
-                                let isKyphosis = (x_int > spine_x && gazeDirection === 1) || (x_int < spine_x && gazeDirection === -1); let isLordosis = !isKyphosis;
-                                let title = m.title || ""; let isThoracic = title.includes('Tk') || title.includes('Cifosis') || title.includes('TL'); let isCervical = title.includes('C2-C7') || title.includes('C0-C2'); let isLumbar = title.includes('L1-S1') || title.includes('L4-S1') || title.includes('L4-L5') || title.includes('Lordosis');
-                                let sign = 1; if (isThoracic) { sign = isKyphosis ? 1 : -1; } else if (isCervical || isLumbar) { sign = isLordosis ? 1 : -1; }
-                                finalVal = diff * sign; prefix = (sign < 0) ? '' : '';
-                            }
-                            if(isNaN(finalVal)) finalVal = 0;
-                            window.currentResults[m.title] = finalVal; if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${finalVal.toFixed(0)}°`, m.color, m.fontSize);
-                        }
-                    }
-                    else if (m.type === 'cobb_coronal') {
-                        if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
-                        if(m.points.length === 4) {
-                            ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
-                            let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x); 
-                            let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
-                            let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
-                            if(isNaN(diff)) diff = 0;
-                            if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${diff.toFixed(0)}°`, m.color, m.fontSize);
-                            
-                            let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
-                            let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; 
-                            let det = A1*B2 - A2*B1;
-                            if (Math.abs(det) > 0.0001) {
-                                let x_int = (B2*C1 - B1*C2) / det; 
-                                let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
-                                let convexity = x_int > spine_x ? "Izquierda" : "Derecha";
-                                window.currentResults['CoronalConvexity'] = convexity;
-                            }
-                        }
-                    }
-                    else if (m.type === 'point_marker') {
-                        ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.fill();
-                        ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 8 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.stroke();
-                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, "", m.color, m.fontSize);
-
-                        if (m.subType === 'bao_c7') {
-                            ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[0].x, m.points[0].y + 800); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
-                            window.currentResults['BaoC7_X'] = m.points[0].x;
-                        }
-                        if (m.subType === 'bao_s1') {
-                            ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[0].x, m.points[0].y - 800); ctx.setLineDash([2,4]); ctx.stroke(); ctx.setLineDash([]);
-                            window.currentResults['BaoS1_X'] = m.points[0].x;
-                        }
-                        if (m.subType === 'apex') {
-                            window.currentResults['ApexL_Y'] = m.points[0].y;
-                        }
-                        if (m.subType === 'inflection') {
-                            window.currentResults['Inflection_Y'] = m.points[0].y;
-                        }
-                    }
-                    else if (m.type === 'horiz_angle') {
-                        if (m.points.length === 2) {
-                            ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); 
-                            let hp = m.points[0].y < m.points[1].y ? m.points[0] : m.points[1];
-                            let lp = m.points[0].y < m.points[1].y ? m.points[1] : m.points[0];
-                            let dx = Math.abs(lp.x - hp.x); let dy = lp.y - hp.y; 
-                            let ang = Math.atan2(dy, dx) * 180 / Math.PI; 
-                            let dirX = lp.x >= hp.x ? 1 : -1;
-                            let lineLen = Math.max(80 / (baseScale*zoomScale), dx + 30 / (baseScale*zoomScale));
-                            ctx.beginPath(); ctx.moveTo(hp.x, hp.y); ctx.lineTo(hp.x + lineLen * dirX, hp.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
-                            window.currentResults[m.title] = ang;
-                            if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize); 
-                        }
-                    }
-                    else if (m.type === 'coronal_cf') { 
-                        m.circles.forEach(c => { 
-                            ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); 
-                            let dotR = 4 / (baseScale * zoomScale); 
-                            ctx.beginPath(); ctx.arc(c.x, c.y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); 
-                            if(c.r > 5) { 
-                                ctx.beginPath(); ctx.arc(c.x + c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                                ctx.beginPath(); ctx.arc(c.x - c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                                ctx.beginPath(); ctx.arc(c.x, c.y + c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                                ctx.beginPath(); ctx.arc(c.x, c.y - c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                            } 
-                        }); 
-                        if (m.circles.length === 2 && m.textPos) {
-                            drawText(m.textPos.x, m.textPos.y, null, m.title, m.color, m.fontSize);
-                        }
-                    }
-                    else if (m.type === 'pelvic') { 
-                        m.circles.forEach(c => { ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(c.x, c.y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(c.r > 5) { ctx.beginPath(); ctx.arc(c.x + c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x - c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y + c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y - c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } }); 
-                        if(m.line && m.line.length === 2) { 
-                            ctx.beginPath(); ctx.moveTo(m.line[0].x, m.line[0].y); ctx.lineTo(m.line[1].x, m.line[1].y); ctx.stroke(); 
-                            if(m.circles.length === 2 && m.textPos) { 
-                                let ha_x = (m.circles[0].x + m.circles[1].x)/2; let ha_y = (m.circles[0].y + m.circles[1].y)/2; 
-                                let s1_x = (m.line[0].x + m.line[1].x)/2; let s1_y = (m.line[0].y + m.line[1].y)/2; 
-                                let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if(ss>90) ss=180-ss; 
-                                let pt_mag = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if(pt_mag>90) pt_mag=Math.abs(pt_mag-180); 
-                                
-                                let isAnterior = ((s1_x - ha_x) * gazeDirection) > 0;
-                                let pt = isAnterior ? -pt_mag : pt_mag;
-                                
-                                let pi = ss + pt; 
-                                window.currentResults['PI'] = pi; 
-                                window.currentResults['SS'] = ss;
-                                let text = `PI: ${pi.toFixed(0)}°\nPT: ${pt.toFixed(0)}°\nSS: ${ss.toFixed(0)}°`; 
-                                drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); 
-                            } 
-                        } 
-                    }
-                    else if (m.type === 'meyerding') {
-                        if (m.points.length === 2) {
-                            ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke();
-                            if (m.slipPoint && m.textPos) {
-                                let dotR = 4 / (baseScale * zoomScale);
-                                ctx.beginPath(); ctx.arc(m.slipPoint.x, m.slipPoint.y, dotR * 1.5, 0, 2*Math.PI); ctx.fill();
-                                let pA = m.points[0]; let pB = m.points[1]; let pPost, pAnt;
-                                if (gazeDirection === 1) { if (pA.x < pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } } else { if (pA.x > pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } }
-                                ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(pPost.x, pPost.y, dotR, 0, 2*Math.PI); ctx.fill(); ctx.fillStyle = m.color;
-                                let dx = pAnt.x - pPost.x; let dy = pAnt.y - pPost.y; let L = Math.hypot(dx, dy);
-                                if (L > 0) {
-                                    let dot = (m.slipPoint.x - pPost.x)*dx + (m.slipPoint.y - pPost.y)*dy; let projDist = dot / L; let projX = pPost.x + (projDist / L) * dx; let projY = pPost.y + (projDist / L) * dy;
-                                    ctx.beginPath(); ctx.moveTo(m.slipPoint.x, m.slipPoint.y); ctx.lineTo(projX, projY); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(projX, projY, dotR * 0.8, 0, 2*Math.PI); ctx.fill();
-                                    let percent = (projDist / L) * 100; let absPercent = Math.abs(percent); let grade = "";
-                                    if (absPercent <= 25) grade = "I"; else if (absPercent <= 50) grade = "II"; else if (absPercent <= 75) grade = "III"; else if (absPercent <= 100) grade = "IV"; else grade = "V";
-                                    let tipo = percent > 0 ? "Anterolistesis" : "Retrolistesis"; if (Math.abs(percent) < 2) tipo = "Sin patología de listesis";
-                                    window.currentResults['Slip'] = absPercent; 
-                                    let text = `${tipo}\n${dict[currentLang]['ao_slip']} ${absPercent.toFixed(0)}%\nMeyerding: Grade ${grade}`;
-                                    drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize);
-                                }
-                            }
-                        }
-                    }
-                    else if (m.type === 'vertebraLabel') {
-                        let sc = baseScale * zoomScale;
-                        ctx.font = `bold ${(m.fontSize + 6)/sc}px sans-serif`; 
-                        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                        ctx.fillStyle = m.color; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 8/sc;
-                        ctx.fillText(m.title, m.x, m.y); ctx.fillText(m.title, m.x, m.y); ctx.shadowBlur = 0;
-                    }
-                    else if (m.type === 'vertebraContour') {
-                        if (m.points.length > 0) {
-                            ctx.beginPath();
-                            ctx.moveTo(m.points[0].x, m.points[0].y);
-                            for (let i = 1; i < m.points.length; i++) ctx.lineTo(m.points[i].x, m.points[i].y);
-                            if (m.closed) {
-                                ctx.closePath(); ctx.fillStyle = m.color + '4D'; ctx.fill();
-                            } else if (m.tempPoint) {
-                                ctx.lineTo(m.tempPoint.x, m.tempPoint.y);
-                            }
-                            ctx.stroke();
-                            if (!m.closed) {
-                                ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 6/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill();
-                            }
-                        }
-                    }
-                    else if (m.type === 'thoracic') { if (m.points.length === 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); if(m.sternum && m.textPos) { ctx.beginPath(); ctx.arc(m.sternum.x, m.sternum.y, 4, 0, 2*Math.PI); ctx.fill(); let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2; ctx.beginPath(); ctx.moveTo(midX, midY); ctx.lineTo(m.sternum.x, m.sternum.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI); let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI); let tia = t1s + nt; let text = `T1S: ${t1s.toFixed(0)}°\nTIA: ${tia.toFixed(0)}°\nNT: ${nt.toFixed(0)}°`; drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); } } }
-                    else if (m.type === 'cbva' && m.points.length === 2) { 
-                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); 
-                        let dx = m.points[1].x - m.points[0].x; let dy = m.points[1].y - m.points[0].y; 
-                        let ang = -(Math.atan2(dx, dy) * 180 / Math.PI) * gazeDirection; 
-                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize); 
-                    }
-                    else if (m.type === 'sva') { 
-                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y - 800); ctx.lineTo(m.points[0].x, m.points[0].y + 1200); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
-                        ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill(); 
-                        ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 8/(baseScale*zoomScale), 0, 2*Math.PI); ctx.stroke();
+            measurements.forEach(m => {
+                ctx.strokeStyle = m.color; ctx.fillStyle = m.color; ctx.lineWidth = m.width / (baseScale * zoomScale); ctx.lineCap = 'round';
+                
+                if (m.type === 'line' || m.type === 'angle') { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); let dist = Math.hypot(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y).toFixed(0); let text = m.type === 'line' ? `${dist} mm` : 'WIP'; drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize); }
+                else if (m.type === 'circle') { ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, m.radius, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(m.radius > 5) { ctx.beginPath(); ctx.arc(m.points[0].x + m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x - m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y + m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y - m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } drawText(m.textPos.x, m.textPos.y, m.title, `${m.radius.toFixed(0)}mm`, m.color, m.fontSize); }
+                else if (m.type === 'cobb') {
+                    if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
+                    if(m.points.length === 4) {
+                        ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
+                        let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x); let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
+                        let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
                         
-                        let targetPoint = m.points.length > 1 ? m.points[1] : m.tempPoint;
-
-                        if (targetPoint) {
-                            ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill();
-                            ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, 8/(baseScale*zoomScale), 0, 2*Math.PI); ctx.stroke();
-                            
-                            ctx.beginPath(); ctx.moveTo(targetPoint.x, targetPoint.y); ctx.lineTo(m.points[0].x, targetPoint.y); ctx.setLineDash([2,2]); ctx.stroke(); ctx.setLineDash([]);
-                            
-                            let dist = (m.points[0].x - targetPoint.x) * gazeDirection; 
-                            let signStr = dist >= 0 ? "+" : "-";
-                            
-                            if(m.textPos) {
-                                drawText(m.textPos.x, m.textPos.y, m.title, `${signStr}${Math.abs(dist).toFixed(0)} mm`, m.color, m.fontSize);
-                            } else {
-                                drawText(targetPoint.x + 10, targetPoint.y + 10, null, `${signStr}${Math.abs(dist).toFixed(0)} mm`, m.color, m.fontSize);
-                            }
-                        }
-                    }
-                    else if (m.type === 'sagittal') { let pelvic = measurements.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2); if (pelvic) { let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2; let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2; ctx.beginPath(); ctx.arc(ha_x, ha_y, 2, 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill(); ctx.fillStyle = m.color; ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke(); let angle = 0; let signedAngle = 0; let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 =
+                        let finalVal = diff; let prefix = '';
+                        let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
+                        let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; let det = A1*B2 - A2*B1;
+                        if (Math.abs(det) > 0.0001) {
+                            let x_int = (B2*C1 - B1*C2) / det; let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
+                            let isKyphosis = (x_int > spine_x && gazeDirection === 1) || (x_int < spine_x && gazeDirection === -1); let isLordosis = !isKyphosis;
+                            let title = m.title || ""; let isThoracic = title.includes('Tk') || title.includes('Cifosis') || title.includes('TL'); let isCervical = title
