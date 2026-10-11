@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V63 - SaaS Trilingüe & Leyenda Activa</title>
+    <title>SpinePlan Pro V59 - Multi-idioma (i18n) + Leyenda</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -39,7 +39,9 @@
     </div>
 
     <!-- Splash y Login -->
-    <div id="splash-screen" class="fixed inset-0 z-[100] bg-[#0f172a] flex items-center justify-center transition-opacity duration-700 cursor-pointer" onclick="handleSplashClick(event)">
+    <div id="splash-screen" class="fixed inset-0 z-[100] bg-[#0f172a] flex items-center justify-center transition-opacity duration-700">
+        
+        <!-- Selector Idioma Login -->
         <div class="absolute top-6 left-6 z-[130]">
             <select id="lang-login" onchange="setLang(this.value)" class="bg-gray-900/80 text-white border border-gray-600 rounded px-3 py-1 text-xs outline-none focus:border-emerald-500 backdrop-blur-md cursor-pointer">
                 <option value="es">🇪🇸 Español</option>
@@ -52,8 +54,7 @@
             <source src="intro_spine.mp4" type="video/mp4">
         </video>
         <button id="skip-btn" onclick="showLogin()" class="absolute top-6 right-6 z-[110] bg-black/50 text-white/70 hover:text-white px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-sm border border-white/10 transition-colors" data-i18n="btn_skip">Saltar Intro</button>
-        
-        <div id="login-container" class="relative z-[120] flex flex-col items-center opacity-0 pointer-events-none transition-all duration-700 translate-y-4 cursor-default">
+        <div id="login-container" class="relative z-[120] flex flex-col items-center opacity-0 pointer-events-none transition-all duration-700 translate-y-4">
             <img src="nuevo_logo.jpeg" alt="Logo" class="w-24 h-24 object-cover rounded-2xl shadow-[0_0_15px_rgba(16,185,129,0.3)] mb-6 border-2 border-emerald-500/50">
             <div class="bg-gray-900/60 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 shadow-2xl w-80 text-center">
                 <h2 class="text-2xl font-bold text-white mb-1">SpinePlan <span class="text-emerald-400 font-normal">Pro</span></h2>
@@ -75,6 +76,7 @@
         </div>
         
         <div class="flex items-center space-x-1.5 md:space-x-2">
+            <!-- Selector Idioma Header -->
             <select id="lang-header" onchange="setLang(this.value)" class="bg-gray-800 text-gray-300 border border-gray-600 rounded px-2 py-1 text-xs outline-none focus:border-emerald-500 hidden sm:block cursor-pointer">
                 <option value="es">ES</option>
                 <option value="en">EN</option>
@@ -425,6 +427,7 @@
     </div>
 
 <script>
+    // DICCIONARIO DE IDIOMAS (i18n) Y LEYENDAS (TUTORIAL)
     const dict = {
         "es": {
             "login_restricted": "Acceso Restringido", "login_pass": "Contraseña Maestra", "login_btn": "Ingresar", "login_err": "Contraseña incorrecta.", "btn_skip": "Saltar Intro",
@@ -485,33 +488,33 @@
             "h_horiz": "Click and drag to draw the line. The system computes its angle relative to the pure horizontal."
         },
         "fr": {
-            "login_restricted": "Accès Restreint", "login_pass": "Mot de passe maître", "login_btn": "Entrer", "login_err": "Mot de passe incorrect.", "btn_skip": "Passer",
+            "login_restricted": "Accès Restreint", "login_pass": "Mot de passe maître", "login_btn": "Entrer", "login_err": "Mot de passe incorrect.", "btn_skip": "Passer l'Intro",
             "pat_title": "Données du Patient", "pat_name": "Patient:", "pat_id": "ID:", "pat_age": "Âge:", "pat_name_ph": "Nom complet", "pat_id_ph": "Numéro d'identité", "pat_age_ph": "Âge",
             "btn_cancel": "Annuler", "btn_generate": "Générer", "btn_pat": "Patient", "btn_gaze": "Regard:", "btn_load": "Charger Rx", "btn_clear": "Effacer", "status_ready": "Système Prêt",
-            "menu_1": "1. Outils de Base", "menu_2": "2. Paramètres Pelviens", "menu_3": "3. Équilibre Sagittal", "menu_4": "4. Roussouly (2018)", "menu_5": "5. Abelin-Genevois",
-            "menu_6": "6. Mesures Lombaires", "menu_7": "7. Profil Idéal", "menu_8": "8. Profil Sagittal Cervical", "menu_9": "9. Plan Coronal & Bao", "menu_10": "10. Spondylolisthésis", "menu_11": "11. Cartographie",
+            "menu_1": "1. Outils de Base", "menu_2": "2. Paramètres Pelviens", "menu_3": "3. Équilibre Sagittal", "menu_4": "4. Roussouly (2018)", "menu_5": "5. Abelin-Genevois (EIA)",
+            "menu_6": "6. Mesures Lombaires", "menu_7": "7. Profil Idéal", "menu_8": "8. Profil Sagittal Cervical", "menu_9": "9. Plan Coronal et Bao", "menu_10": "10. Spondylolisthésis et AO", "menu_11": "11. Cartographie",
             "t_line": "Ligne Simple", "t_circle": "Cercle", "t_cobb": "Angle de Cobb", "t_tk": "Tk (Cyphose)", "t_pelvic": "Mesurer IP, VP, PS", "t_sva": "📍 SVA (C7 -> S1)",
-            "t_apexl": "📍 Apex L", "t_inflexion": "📍 Inflexion", "t_cobb_tl": "📐 Angle Cobb TL", "t_c7s": "📐 Pente C7 (C7S)", "t_l1s1": "Lordose Globale", "t_l4s1": "Lordose Basse",
+            "t_apexl": "📍 Apex L", "t_inflexion": "📍 Inflexion", "t_cobb_tl": "📐 Angle Cobb TL", "t_c7s": "📐 Pente C7 (C7S)", "t_l1s1": "Lordose Globale (L1-S1)", "t_l4s1": "Lordose Basse (L4-S1)",
             "t_l4l5": "Segmentaire (L4-L5)", "t_op_thoracic": "T1S, TIA, NT", "t_cf": "CF (Têtes Fémorales)",
-            "hint_roussouly": "1. Mesurez IP, PS, L1-S1", "hint_ag": "Adaptation Sagittale", "hint_bao": "Classification Bao",
-            "btn_calc_rou": "Calculer Morphotype", "btn_eval_ag": "Évaluer Abelin-Genevois", "btn_calc_theo": "Calculer Valeurs", "btn_eval_bao": "Évaluer Bao",
-            "btn_meyerding": "1. Meyerding", "btn_ao": "2. Classification AO", "placeholder": "Sélectionnez 'Charger Rx'",
-            "lbl_tags": "Étiquettes", "lbl_contours": "Contours", "tbl_param": "Paramètre", "tbl_base": "Base", "tbl_ideal": "Idéal", "ao_slip": "Glissement:",
-            "bao_curve": "Courbe Lombaire:", "bao_alert_title": "Alerte:", "bao_alert_desc": "Risque d'aggraver le déséquilibre.", "rs_topo": "Topographie:",
+            "hint_roussouly": "1. Mesurez IP, PS, L1-S1", "hint_ag": "Adaptation Sagittale Scoliose", "hint_bao": "Classification Bao (2016)",
+            "btn_calc_rou": "Calculer Morphotype", "btn_eval_ag": "Évaluer Abelin-Genevois", "btn_calc_theo": "Calculer Valeurs", "btn_eval_bao": "Évaluer Bao (Coronal)",
+            "btn_meyerding": "1. Mesurer Meyerding", "btn_ao": "2. Classification AO Spine", "placeholder": "Sélectionnez 'Charger Rx' pour commencer",
+            "lbl_tags": "Étiquettes (Lettre et Numéro)", "lbl_contours": "Contours (Bords)", "tbl_param": "Paramètre", "tbl_base": "Base", "tbl_ideal": "Idéal", "ao_slip": "Glissement:",
+            "bao_curve": "Courbe Lombaire:", "bao_alert_title": "Alerte Biomécanique:", "bao_alert_desc": "Risque d'aggraver le déséquilibre si seule la courbe principale est corrigée.", "rs_topo": "Topographie:",
             "btn_legend": "📖 Légende", "legend_title": "Guide de Mesure",
-            "h_def": "Sélectionnez un outil à gauche pour voir les instructions.",
-            "h_line": "Cliquez et faites glisser.",
-            "h_circle": "Cliquez au centre et faites glisser.",
-            "h_cobb": "Tracez le plateau supérieur puis le plateau inférieur.",
-            "h_pelvic": "Tracez les deux têtes fémorales puis le plateau de S1.",
-            "h_sva": "1 clic sur C7, puis 1 clic sur S1.",
-            "h_sagittal": "Cliquez sur la vertèbre pour croiser avec les paramètres pelviens.",
-            "h_meyerding": "Tracez le plateau inférieur, puis cliquez sur le coin inférieur de la vertèbre déplacée.",
-            "h_point": "Cliquez sur le point anatomique.",
-            "h_vert": "Cliquez sur la vertèbre pour l'étiqueter.",
-            "h_contour": "Cliquez sur les bords de la vertèbre. Fermez sur le point rouge.",
-            "h_cf": "Tracez les têtes fémorales.",
-            "h_horiz": "Tracez la ligne pour mesurer l'angle avec l'horizontale."
+            "h_def": "Sélectionnez un outil sur le panneau de gauche pour voir ses instructions ici.",
+            "h_line": "Cliquez sur le point de départ et faites glisser jusqu'au point final.",
+            "h_circle": "Cliquez au centre et faites glisser pour définir le rayon anatomique.",
+            "h_cobb": "Étape 1: Cliquez et faites glisser le long du plateau supérieur.\nÉtape 2: Cliquez et faites glisser le long du plateau inférieur.",
+            "h_pelvic": "Étape 1: Tracez le rayon de la 1ère tête fémorale.\nÉtape 2: Tracez le rayon de la 2ème tête fémorale.\nÉtape 3: Tracez une ligne le long du plateau de S1.",
+            "h_sva": "Étape 1: Faites UN CLIC au centre de C7 pour déposer le fil à plomb.\nÉtape 2: Faites UN CLIC sur le coin postéro-supérieur du sacrum (S1) pour calculer la distance.",
+            "h_sagittal": "Cliquez sur le centre de la vertèbre demandée. Le système croisera automatiquement cette marque avec les paramètres pelviens.",
+            "h_meyerding": "Étape 1: Tracez une ligne le long du plateau de la vertèbre inférieure.\nÉtape 2: Cliquez sur le coin postéro-inférieur de la vertèbre déplacée.",
+            "h_point": "Cliquez directement sur le repère anatomique demandé (ex: C7, Apex, Inflexion) pour fixer le marqueur.",
+            "h_vert": "Cliquez sur le corps vertébral pour déposer l'étiquette correspondante.",
+            "h_contour": "Cliquez consécutivement autour du bord de la vertèbre. Touchez le point initial (rouge) pour fermer le dessin.",
+            "h_cf": "Étape 1: Tracez le rayon de la 1ère tête fémorale.\nÉtape 2: Tracez le rayon de la 2ème tête fémorale.",
+            "h_horiz": "Cliquez et faites glisser pour tracer la ligne. Le système calculera son angle par rapport à l'horizontale."
         }
     };
 
@@ -534,10 +537,12 @@
         let selHeader = document.getElementById('lang-header');
         if (selHeader) selHeader.value = lang;
 
+        // Force update gaze button text direction
         toggleGaze(true);
         updateLegendContent();
     }
 
+    // Call on init
     document.addEventListener("DOMContentLoaded", () => {
         setLang('es');
     });
@@ -603,34 +608,8 @@
     makeInteractivePanel(document.getElementById('legend-box'));
 
     const splashScreen = document.getElementById('splash-screen'); const introVideo = document.getElementById('intro-video'); const loginContainer = document.getElementById('login-container'); const passInput = document.getElementById('pass-input'); const loginError = document.getElementById('login-error'); const skipBtn = document.getElementById('skip-btn');
-    
-    let loginShown = false;
-    function showLogin() { 
-        if (loginShown) return;
-        loginShown = true;
-        introVideo.style.opacity = '0'; 
-        skipBtn.style.display = 'none'; 
-        
-        loginContainer.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4'); 
-        loginContainer.classList.add('opacity-100', 'translate-y-0'); 
-        
-        setTimeout(() => { 
-            introVideo.style.display = 'none'; 
-            passInput.focus();
-        }, 800); 
-    }
-    
-    // El video se reproduce normalmente. Solo avanza si termina, hay un error, o el usuario lo salta.
-    introVideo.addEventListener('ended', showLogin); 
-    introVideo.addEventListener('error', showLogin);
-    
-    // Tap to Skip: Un clic en el fondo oscuro salta el video.
-    function handleSplashClick(e) {
-        if (!loginShown && !e.target.closest('#login-container') && !e.target.closest('#lang-login')) {
-            showLogin();
-        }
-    }
-
+    function showLogin() { introVideo.style.opacity = '0'; skipBtn.style.display = 'none'; setTimeout(() => { introVideo.style.display = 'none'; loginContainer.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4'); loginContainer.classList.add('opacity-100', 'translate-y-0'); }, 800); }
+    introVideo.addEventListener('ended', showLogin); introVideo.addEventListener('error', showLogin);
     function checkPassword() { if (passInput.value === 'Drfps2914') { splashScreen.style.opacity = '0'; setTimeout(() => { splashScreen.style.display = 'none'; }, 700); } else { loginError.classList.remove('hidden'); passInput.value = ''; passInput.focus(); } }
     passInput.addEventListener('keypress', function (e) { if (e.key === 'Enter') checkPassword(); });
 
@@ -684,23 +663,23 @@
         
         updateLegendContent();
 
-        if(type === 'pelvic') updateStatus(`1/3: Femoral`);
-        else if (type === 'sagittal') updateStatus(`-> ${title}`);
-        else if (type === 'sva') updateStatus(`1 CLIC: C7`);
-        else if (type === 'cbva') updateStatus(`-> Mentón`);
-        else if (type === 'thoracic') updateStatus(`-> T1`);
-        else if (type === 'meyerding') updateStatus(`-> Vértebra`);
-        else if (type === 'cobb_coronal') updateStatus(`-> Curva`);
-        else if (type === 'horiz_angle') updateStatus(`-> Línea`);
-        else if (type === 'coronal_cf') updateStatus(`1/2: Femoral`);
-        else if (type === 'point_marker') updateStatus(`-> ${title}`);
+        if(type === 'pelvic') updateStatus(`1/3: Cabeza Femoral`);
+        else if (type === 'sagittal') updateStatus(`Clic en vértebra ${title}`);
+        else if (type === 'sva') updateStatus(`1 CLIC: Centro C7`);
+        else if (type === 'cbva') updateStatus(`Clic en Mentón`);
+        else if (type === 'thoracic') updateStatus(`Platillo T1`);
+        else if (type === 'meyerding') updateStatus(`Vértebra inferior (Línea)`);
+        else if (type === 'cobb_coronal') updateStatus(`Platillo de la curva`);
+        else if (type === 'horiz_angle') updateStatus(`Línea de extremo a extremo`);
+        else if (type === 'coronal_cf') updateStatus(`1/2: Cefálica Femoral`);
+        else if (type === 'point_marker') updateStatus(`Marcar ${title}`);
         else if (type === 'vertebra') {
             activeVertebraRegion = subType; currentVIndex = 1;
-            updateStatus(`-> ${activeVertebraRegion}${currentVIndex}`);
+            updateStatus(`Etiqueta ${activeVertebraRegion}${currentVIndex}`);
         }
         else if (type === 'vertebraContour') {
             activeVertebraRegion = subType;
-            updateStatus(`-> Contorno`);
+            updateStatus(`Contorno (Rojo cierra)`);
         }
         else updateStatus(`${title}...`);
         
@@ -723,7 +702,7 @@
         let c7s = window.currentResults['C7S'];
         
         if (tk === undefined || tl === undefined || c7s === undefined) {
-            updateStatus("⚠️", true); return;
+            updateStatus("⚠️ Mide Tk, Cobb TL y C7S.", true); return;
         }
 
         document.getElementById('ag-tk').innerText = tk.toFixed(0) + '°';
@@ -764,7 +743,7 @@
         let convexity = window.currentResults['CoronalConvexity'];
         
         if (c7x === undefined || s1x === undefined || convexity === undefined) {
-            updateStatus("⚠️", true); return;
+            updateStatus("⚠️ Mide Cobb Coronal, C7 y S1.", true); return;
         }
 
         let shift_px = c7x - s1x;
@@ -813,7 +792,7 @@
         let infY = window.currentResults['Inflection_Y'];
         
         if (pi === undefined || ss === undefined || ll === undefined || apexY === undefined || infY === undefined) {
-            updateStatus("⚠️", true); return;
+            updateStatus("⚠️ Mide PI, SS, L1-S1, Apex L e Inflexión.", true); return;
         }
 
         document.getElementById('rs-pi').innerText = pi.toFixed(0) + '°';
@@ -865,7 +844,7 @@
         let l1s1 = window.currentResults['L1-S1'];
         
         if (pi === undefined || slip === undefined || l1s1 === undefined) {
-            updateStatus("⚠️", true); return;
+            updateStatus("⚠️ Mide PI, Meyerding y L1-S1.", true); return;
         }
 
         document.getElementById('ao-pi').innerText = pi.toFixed(0) + '°';
@@ -901,7 +880,7 @@
     }
 
     function showTheoreticalProfile() {
-        if (!window.currentResults['PI']) { updateStatus("⚠️", true); return; }
+        if (!window.currentResults['PI']) { updateStatus("⚠️ Mide PI primero.", true); return; }
         let pi = window.currentResults['PI']; let ideal_L1S1 = (pi * 0.6) + 30; let ideal_PA = (pi * 0.5) - 20;
         let formatVal = (val) => val !== undefined ? val.toFixed(0) + '°' : '-';
         let base_PI = window.currentResults['PI'] ? window.currentResults['PI'].toFixed(0) + '°' : '-';
@@ -992,10 +971,11 @@
             else if (dragObj.type === 'point') { item.points[dragObj.index].x = pos.x; item.points[dragObj.index].y = pos.y; }
             else if (dragObj.type === 'sternumPoint') { item.sternum.x = pos.x; item.sternum.y = pos.y; }
             else if (dragObj.type === 'slipPoint') { item.slipPoint.x = pos.x; item.slipPoint.y = pos.y; }
-            else if (dragObj.type === 'vertebraLabel') { item.x = pos.x; item.y = pos.y; } 
+            else if (dragObj.type === 'verteLabel') { item.x = pos.x; item.y = pos.y; } 
             else if (dragObj.type === 'circleRadius') { let cx = item.circles[dragObj.index].x, cy = item.circles[dragObj.index].y; item.circles[dragObj.index].r = Math.max(1, Math.hypot(pos.x - cx, pos.y - cy)); }
             else if (dragObj.type === 'circleCenter') { item.circles[dragObj.index].x = pos.x; item.circles[dragObj.index].y = pos.y; }
             else if (dragObj.type === 'lineSegment') { let dx = pos.x - dragObj.lastX; let dy = pos.y - dragObj.lastY; if (item.points && item.points.length >= 2) { item.points[dragObj.idx1].x += dx; item.points[dragObj.idx1].y += dy; item.points[dragObj.idx2].x += dx; item.points[dragObj.idx2].y += dy; } else if (item.line && item.line.length === 2) { item.line[dragObj.idx1].x += dx; item.line[dragObj.idx1].y += dy; item.line[dragObj.idx2].x += dx; item.line[dragObj.idx2].y += dy; } dragObj.lastX = pos.x; dragObj.lastY = pos.y; }
+            else if (dragObj.type === 'svaLine') { item.points[0].x = pos.x; }
             draw(); if(!document.getElementById('theoretical-table').classList.contains('hidden')){ showTheoreticalProfile(); } return;
         }
         if (currentMeasurement && activeTool === 'vertebraContour') {
@@ -1042,7 +1022,7 @@
                         x: clickIntent.logX, y: clickIntent.logY 
                     });
                     currentVIndex++; 
-                    updateStatus(`-> ${activeVertebraRegion}${currentVIndex}`);
+                    updateStatus(`Etiqueta ${activeVertebraRegion}${currentVIndex} lista.`);
                 } 
                 else if (clickIntent.tool === 'vertebraContour') {
                     if (!currentMeasurement) {
@@ -1054,7 +1034,7 @@
                         if (currentMeasurement.points.length > 2 && d < (25 / (baseScale * zoomScale))) {
                             currentMeasurement.closed = true;
                             deactivateTool();
-                            updateStatus("OK.");
+                            updateStatus("Contorno cerrado.");
                         } else {
                             currentMeasurement.points.push({x: clickIntent.logX, y: clickIntent.logY});
                         }
@@ -1069,6 +1049,7 @@
         if (dragObj) { dragObj = null; canvas.style.cursor = 'default'; draw(); return; }
         
         if (currentMeasurement) {
+            // SVA EXCLUIDA de desactivación inmediata
             if (activeTool === 'line' || activeTool === 'circle' || activeTool === 'angle') deactivateTool();
             else if (activeTool === 'cobb') { if (currentMeasurement.points.length === 2) updateStatus(`-> Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
             else if (activeTool === 'cobb_coronal') { if (currentMeasurement.points.length === 2) updateStatus(`-> Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
@@ -1338,23 +1319,3 @@
                     ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y - 800); ctx.lineTo(m.points[0].x, m.points[0].y + 1200); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
                     ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill(); 
                     ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 8/(baseScale*zoomScale), 0, 2*Math.PI); ctx.stroke();
-                    
-                    let targetPoint = m.points.length > 1 ? m.points[1] : m.tempPoint;
-
-                    if (targetPoint) {
-                        ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill();
-                        ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, 8/(baseScale*zoomScale), 0, 2*Math.PI); ctx.stroke();
-                        
-                        ctx.beginPath(); ctx.moveTo(targetPoint.x, targetPoint.y); ctx.lineTo(m.points[0].x, targetPoint.y); ctx.setLineDash([2,2]); ctx.stroke(); ctx.setLineDash([]);
-                        
-                        let dist = (m.points[0].x - targetPoint.x) * gazeDirection; 
-                        let signStr = dist >= 0 ? "+" : "-";
-                        
-                        if(m.textPos) {
-                            drawText(m.textPos.x, m.textPos.y, m.title, `${signStr}${Math.abs(dist).toFixed(0)} mm`, m.color, m.fontSize);
-                        } else {
-                            drawText(targetPoint.x + 10, targetPoint.y + 10, null, `${signStr}${Math.abs(dist).toFixed(0)} mm`, m.color, m.fontSize);
-                        }
-                    }
-                }
-                else if (m.type === 'sagittal') { let pelvic = measurements.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2); if (pelvic) { let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2; let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2; ctx.beginPath(); ctx.arc(ha_x, ha_y, 2, 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill(); ctx.fillStyle = m.color; ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke(); let angle = 0; let signedAngle = 0; let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 = Math.hypot(v1.x, v1.y); if (m.subType === 'pa') { let s1_x = (pelvic.line[0].x + pelvic.line[1].x)/2; let s1_y = (pelvic.line[0].y + pelvic.line[1].y)/2; let v2 = {x: s1_x - ha_x, y: s1_y - ha_y}; let mag2 = Math.hypot(v2.x, v2.y); let dot = v1.x*v2.x + v1.y*v2.y; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let cross = v2.x * v1.y - v2.y * v1.x; let side = cross * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; if (m.title === 'L1-PA') val_L1PA = signedAngle; if (m.title === 'T4-PA') val_T4PA = signedAngle; } else if (m.subType === 'tilt') { let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y; let mag2 = 1; angle = Math.acos(Math.max(-1, Math.min(1, dot
