@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V59 - Multi-idioma (i18n)</title>
+    <title>SpinePlan Pro V60 - SaaS Multi-Idiomas & Leyenda Dinámica</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -24,7 +24,6 @@
 </head>
 <body class="h-screen flex flex-col overscroll-none relative">
 
-    <!-- Modal Paciente -->
     <div id="patient-modal" class="hidden fixed inset-0 z-[200] bg-black/80 flex items-center justify-center backdrop-blur-sm">
         <div class="bg-gray-900 border border-gray-700 p-6 rounded-xl w-80 shadow-2xl">
             <h3 class="text-emerald-400 font-bold mb-4" data-i18n="pat_title">Datos del Paciente</h3>
@@ -38,14 +37,16 @@
         </div>
     </div>
 
-    <!-- Splash y Login -->
     <div id="splash-screen" class="fixed inset-0 z-[100] bg-[#0f172a] flex items-center justify-center transition-opacity duration-700">
-        
-        <!-- Selector Idioma Login -->
         <div class="absolute top-6 left-6 z-[130]">
             <select id="lang-login" onchange="setLang(this.value)" class="bg-gray-900/80 text-white border border-gray-600 rounded px-3 py-1 text-xs outline-none focus:border-emerald-500 backdrop-blur-md cursor-pointer">
                 <option value="es">🇪🇸 Español</option>
                 <option value="en">🇺🇸 English</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="pt">🇧🇷 Português</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="ru">🇷🇺 Русский</option>
+                <option value="ar">🇸🇦 العربية</option>
             </select>
         </div>
 
@@ -75,11 +76,19 @@
         </div>
         
         <div class="flex items-center space-x-1.5 md:space-x-2">
-            <!-- Selector Idioma Header -->
             <select id="lang-header" onchange="setLang(this.value)" class="bg-gray-800 text-gray-300 border border-gray-600 rounded px-2 py-1 text-xs outline-none focus:border-emerald-500 hidden sm:block cursor-pointer">
                 <option value="es">ES</option>
                 <option value="en">EN</option>
+                <option value="fr">FR</option>
+                <option value="pt">PT</option>
+                <option value="de">DE</option>
+                <option value="ru">RU</option>
+                <option value="ar">AR</option>
             </select>
+
+            <button onclick="toggleLegend()" class="bg-yellow-600/20 hover:bg-yellow-600/40 text-yellow-400 px-2 py-1.5 md:px-3 rounded text-xs md:text-sm font-medium transition-colors border border-yellow-500/50 flex items-center shadow-sm">
+                <span data-i18n="btn_legend">📖 Leyenda</span>
+            </button>
 
             <button onclick="openPatientModal()" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 px-2 py-1.5 md:px-3 rounded text-xs md:text-sm font-medium transition-colors border border-blue-500/50 flex items-center shadow-sm">
                 <svg class="w-4 h-4 md:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -145,7 +154,7 @@
                         <button onclick="activateTool('sagittal', 'C7 Tilt', 'tilt')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C7 Tilt</button>
                         <button onclick="activateTool('sagittal', 'C2-PA', 'pa')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C2-PA</button>
                         <button onclick="activateTool('sagittal', 'C2 Tilt', 'tilt')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C2 Tilt</button>
-                        <button onclick="activateTool('sva', 'SVA')" class="tool-btn col-span-2 border border-emerald-700/50 bg-emerald-900/20 rounded px-2 py-1.5 text-xs text-emerald-300 hover:bg-emerald-800/40 flex justify-center items-center font-bold" data-i18n="t_sva">📍 SVA (Plomada C7 a S1)</button>
+                        <button onclick="activateTool('sva', 'SVA')" class="tool-btn col-span-2 border border-emerald-700/50 bg-emerald-900/20 rounded px-2 py-1.5 text-xs text-emerald-300 hover:bg-emerald-800/40 flex justify-center items-center font-bold" data-i18n="t_sva">📍 SVA (C7 -> S1)</button>
                     </div>
                 </div>
 
@@ -197,7 +206,6 @@
                         <button onclick="activateTool('cbva', 'CBVA')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">CBVA</button>
                         <button onclick="activateTool('cobb', 'C2-C7')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C2-C7</button>
                         <button onclick="activateTool('cobb', 'C0-C2')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C0-C2</button>
-                        <button onclick="activateTool('sva', 'SVA')" class="tool-btn col-span-2 border border-emerald-700/50 bg-emerald-900/20 rounded px-2 py-1.5 text-xs text-emerald-300 hover:bg-emerald-800/40 font-bold flex justify-center" data-i18n="t_sva">📍 SVA (C7 -> S1)</button>
                     </div>
                 </div>
 
@@ -207,10 +215,10 @@
                         <button onclick="activateTool('cobb_coronal', 'Cobb')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800" data-i18n="t_cobb">Ángulo de Cobb</button>
                         <button onclick="activateTool('horiz_angle', 'C.A')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C.A</button>
                         <button onclick="activateTool('horiz_angle', 'IP')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">IP</button>
-                        <button onclick="activateTool('coronal_cf', 'CF')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800" data-i18n="t_cf">CF (Cefálicas Femorales)</button>
+                        <button onclick="activateTool('coronal_cf', 'CF')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800" data-i18n="t_cf">CF</button>
                     </div>
                     <div class="p-3 bg-gray-900/50 space-y-2">
-                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block">Clasificación Bao (2016)</span>
+                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block" data-i18n="hint_bao">Clasificación Bao (2016)</span>
                         <div class="grid grid-cols-2 gap-2">
                             <button onclick="activateTool('point_marker', 'C7', 'bao_c7')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📍 C7</button>
                             <button onclick="activateTool('point_marker', 'S1', 'bao_s1')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📍 CSVL</button>
@@ -258,6 +266,20 @@
             <span id="placeholder-text" class="absolute text-gray-600 font-medium text-lg pointer-events-none px-4 text-center" data-i18n="placeholder">Selecciona "Cargar Radiografía" para comenzar</span>
             <canvas id="mainCanvas" class="absolute z-10"></canvas>
             
+            <!-- MODAL FLOTANTE: LEYENDA (TUTORIAL) -->
+            <div id="legend-box" class="hidden absolute top-4 left-1/2 transform -translate-x-1/2 bg-yellow-900/95 border border-yellow-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md cursor-move select-none w-[320px]">
+                <div class="flex justify-between items-center mb-2 border-b border-yellow-700/50 pb-2 pointer-events-none">
+                    <h3 class="text-yellow-400 font-bold text-sm flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span data-i18n="legend_title">Guía de Medición</span>
+                    </h3>
+                    <button onclick="toggleLegend()" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto">&times;</button>
+                </div>
+                <div class="pointer-events-auto text-xs text-gray-200">
+                    <p id="legend-desc" class="leading-relaxed"></p>
+                </div>
+            </div>
+
             <div id="theoretical-table" class="hidden absolute top-4 left-4 bg-gray-900/95 border border-emerald-500 rounded-lg p-4 shadow-2xl z-30 backdrop-blur-md min-w-[280px] cursor-move select-none">
                 <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2 pointer-events-none">
                     <h3 class="text-emerald-400 font-bold text-sm" data-i18n="menu_7">Perfil Teórico Ideal</h3>
@@ -276,7 +298,6 @@
                 </table>
             </div>
 
-            <!-- MODAL FLOTANTE: ABELIN-GENEVOIS -->
             <div id="ag-box" class="hidden absolute top-20 right-1/2 transform translate-x-1/4 bg-gray-900/95 border border-orange-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md cursor-move select-none w-[320px]">
                 <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2 pointer-events-none">
                     <h3 class="text-orange-400 font-bold text-sm">Clasificación Abelin-Genevois</h3>
@@ -288,7 +309,6 @@
                         <div><span class="text-gray-400 block mb-1">Unión TL</span> <span id="ag-tl" class="font-bold text-white text-sm"></span></div>
                         <div><span class="text-gray-400 block mb-1">C7S</span> <span id="ag-c7s" class="font-bold text-white text-sm"></span></div>
                     </div>
-
                     <div id="ag-result-container" class="text-center mt-2">
                         <div id="ag-type-badge" class="bg-orange-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md">Tipo 1</div>
                         <p id="ag-desc" class="text-[11px] text-gray-300 mb-1 leading-tight font-medium"></p>
@@ -296,16 +316,15 @@
                 </div>
             </div>
 
-            <!-- MODAL FLOTANTE: CLASIFICACIÓN BAO (2016) -->
             <div id="bao-box" class="hidden absolute top-20 left-1/2 transform -translate-x-1/2 bg-gray-900/95 border border-purple-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md cursor-move select-none w-[320px]">
                 <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2 pointer-events-none">
-                    <h3 class="text-purple-400 font-bold text-sm">Clasificación Bao (2016)</h3>
+                    <h3 class="text-purple-400 font-bold text-sm" data-i18n="hint_bao">Clasificación Bao (2016)</h3>
                     <button onclick="document.getElementById('bao-box').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto">&times;</button>
                 </div>
                 <div class="pointer-events-auto text-xs text-gray-300">
                     <div class="grid grid-cols-2 gap-2 mb-3 border-b border-gray-700 pb-3">
                         <div><span class="text-gray-400">Shift C7-CSVL:</span> <br><span id="bao-shift" class="font-bold text-white"></span></div>
-                        <div><span class="text-gray-400">Curva Lumbar:</span> <br><span id="bao-curve" class="font-bold text-white"></span></div>
+                        <div><span class="text-gray-400" data-i18n="bao_curve">Curva Lumbar:</span> <br><span id="bao-curve" class="font-bold text-white"></span></div>
                     </div>
                     
                     <div id="bao-result-container" class="text-center mt-2">
@@ -313,13 +332,12 @@
                         <p id="bao-desc" class="text-[11px] text-gray-300 mb-2 leading-tight font-medium"></p>
                         
                         <div id="bao-alert" class="hidden bg-red-900/50 border border-red-500 text-red-300 p-2 rounded text-[10px] text-left">
-                            ⚠️ <span class="font-bold">Alerta / Alert:</span> Riesgo de empeorar desbalance / Risk of worsening imbalance.
+                            ⚠️ <span class="font-bold" data-i18n="bao_alert_title">Alerta Biomecánica:</span> <span data-i18n="bao_alert_desc">Riesgo de empeorar desbalance si solo se corrige la curva principal.</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- MODAL FLOTANTE: ROUSSOULY -->
             <div id="roussouly-box" class="hidden absolute top-20 right-4 bg-gray-900/95 border border-sky-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md cursor-move select-none w-[320px]">
                 <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2 pointer-events-none">
                     <h3 class="text-sky-400 font-bold text-sm">Roussouly (2018)</h3>
@@ -343,7 +361,7 @@
                             <span id="rs-prop" class="font-bold px-2 py-0.5 rounded bg-gray-800"></span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-gray-400">Topografía:</span> 
+                            <span class="text-gray-400" data-i18n="rs_topo">Topografía:</span> 
                             <span class="font-bold text-[10px] text-sky-300">Ápex & Inflex. OK</span>
                         </div>
                     </div>
@@ -412,135 +430,215 @@
     </div>
 
 <script>
-    // DICCIONARIO DE IDIOMAS (i18n)
+    // DICCIONARIO DE IDIOMAS EXPANDIDO (i18n) + LEYENDAS (TUTORIAL)
     const dict = {
         "es": {
-            "login_restricted": "Acceso Restringido",
-            "login_pass": "Contraseña Maestra",
-            "login_btn": "Ingresar",
-            "login_err": "Contraseña incorrecta.",
-            "btn_skip": "Saltar Intro",
-            "pat_title": "Datos del Paciente",
-            "pat_name": "Paciente:",
-            "pat_id": "C.I / ID:",
-            "pat_age": "Edad:",
-            "pat_name_ph": "Nombre y Apellido",
-            "pat_id_ph": "Cédula de Identidad / ID",
-            "pat_age_ph": "Edad",
-            "btn_cancel": "Cancelar",
-            "btn_generate": "Generar Ficha",
-            "btn_pat": "Paciente",
-            "btn_gaze": "Mirada:",
-            "btn_load": "Cargar Rx",
-            "btn_clear": "Limpiar",
-            "status_ready": "Sistema Listo",
-            "menu_1": "1. Herramientas Básicas",
-            "menu_2": "2. Parámetros Pélvicos",
-            "menu_3": "3. Balance Sagital",
-            "menu_4": "4. Roussouly (2018)",
-            "menu_5": "5. Abelin-Genevois (EIA)",
-            "menu_6": "6. Mediciones Lumbares",
-            "menu_7": "7. Perfil Teórico Ideal",
-            "menu_8": "8. Perfil Sagital Cervical",
-            "menu_9": "9. Plano Coronal y Bao",
-            "menu_10": "10. Espondilolistesis y AO",
-            "menu_11": "11. Mapeo Vertebral",
-            "t_line": "Línea Simple",
-            "t_circle": "Círculo",
-            "t_cobb": "Ángulo Cobb",
-            "t_tk": "Tk (Cifosis)",
-            "t_pelvic": "Medir PI, PT y SS",
-            "t_sva": "📍 SVA (C7 -> S1)",
-            "t_apexl": "📍 Apex L",
-            "t_inflexion": "📍 Inflexión",
-            "t_cobb_tl": "📐 Ángulo Cobb TL",
-            "t_c7s": "📐 Pendiente C7 (C7S)",
-            "t_l1s1": "Lordosis Global (L1-S1)",
-            "t_l4s1": "LL Baja (L4-S1)",
-            "t_l4l5": "Segmentaria (L4-L5)",
-            "t_op_thoracic": "T1S, TIA, NT (Conjunto)",
-            "t_cf": "CF (Cefálicas Femorales)",
-            "hint_roussouly": "1. Mide PI, SS, L1-S1 y L4-S1",
-            "hint_ag": "Adaptación Sagital Escoliosis",
-            "btn_calc_rou": "Calcular Morfotipo & Índices",
-            "btn_eval_ag": "Evaluar Abelin-Genevois",
-            "btn_calc_theo": "Calcular Valores",
-            "btn_eval_bao": "Evaluar Bao (Coronal)",
-            "btn_meyerding": "1. Medir Meyerding",
-            "btn_ao": "2. Clasificación AO Spine",
-            "placeholder": "Selecciona 'Cargar Rx' para comenzar",
-            "lbl_tags": "Etiquetas (Letra y Número)",
-            "lbl_contours": "Contornos (Bordes)",
-            "tbl_param": "Parámetro",
-            "tbl_base": "Base",
-            "tbl_ideal": "Ideal",
-            "ao_slip": "Desplazamiento:"
+            "login_restricted": "Acceso Restringido", "login_pass": "Contraseña Maestra", "login_btn": "Ingresar", "login_err": "Contraseña incorrecta.", "btn_skip": "Saltar Intro",
+            "pat_title": "Datos del Paciente", "pat_name": "Paciente:", "pat_id": "C.I / ID:", "pat_age": "Edad:", "pat_name_ph": "Nombre y Apellido", "pat_id_ph": "Cédula de Identidad / ID", "pat_age_ph": "Edad",
+            "btn_cancel": "Cancelar", "btn_generate": "Generar Ficha", "btn_pat": "Paciente", "btn_gaze": "Mirada:", "btn_load": "Cargar Rx", "btn_clear": "Limpiar", "status_ready": "Sistema Listo",
+            "menu_1": "1. Herramientas Básicas", "menu_2": "2. Parámetros Pélvicos", "menu_3": "3. Balance Sagital", "menu_4": "4. Roussouly (2018)", "menu_5": "5. Abelin-Genevois (EIA)",
+            "menu_6": "6. Mediciones Lumbares", "menu_7": "7. Perfil Teórico Ideal", "menu_8": "8. Perfil Sagital Cervical", "menu_9": "9. Plano Coronal y Bao", "menu_10": "10. Espondilolistesis y AO", "menu_11": "11. Mapeo Vertebral",
+            "t_line": "Línea Simple", "t_circle": "Círculo", "t_cobb": "Ángulo Cobb", "t_tk": "Tk (Cifosis)", "t_pelvic": "Medir PI, PT y SS", "t_sva": "📍 SVA (C7 -> S1)",
+            "t_apexl": "📍 Apex L", "t_inflexion": "📍 Inflexión", "t_cobb_tl": "📐 Ángulo Cobb TL", "t_c7s": "📐 Pendiente C7 (C7S)", "t_l1s1": "Lordosis Global (L1-S1)", "t_l4s1": "LL Baja (L4-S1)",
+            "t_l4l5": "Segmentaria (L4-L5)", "t_op_thoracic": "T1S, TIA, NT (Conjunto)", "t_cf": "CF (Cefálicas Femorales)",
+            "hint_roussouly": "1. Mide PI, SS, L1-S1 y L4-S1", "hint_ag": "Adaptación Sagital Escoliosis", "hint_bao": "Clasificación Bao (2016)",
+            "btn_calc_rou": "Calcular Morfotipo & Índices", "btn_eval_ag": "Evaluar Abelin-Genevois", "btn_calc_theo": "Calcular Valores", "btn_eval_bao": "Evaluar Bao (Coronal)",
+            "btn_meyerding": "1. Medir Meyerding", "btn_ao": "2. Clasificación AO Spine", "placeholder": "Selecciona 'Cargar Rx' para comenzar",
+            "lbl_tags": "Etiquetas (Letra y Número)", "lbl_contours": "Contornos (Bordes)", "tbl_param": "Parámetro", "tbl_base": "Base", "tbl_ideal": "Ideal", "ao_slip": "Desplazamiento:",
+            "bao_curve": "Curva Lumbar:", "bao_alert_title": "Alerta Biomecánica:", "bao_alert_desc": "Riesgo de empeorar desbalance si solo se corrige la curva principal.", "rs_topo": "Topografía:",
+            "btn_legend": "📖 Leyenda", "legend_title": "Guía de Medición",
+            "h_def": "Seleccione una herramienta del panel izquierdo para ver sus instrucciones aquí.",
+            "h_line": "Haz clic en el punto inicial y arrastra hasta el punto final.",
+            "h_circle": "Haz clic en el centro y arrastra para definir el radio anatómico.",
+            "h_cobb": "Paso 1: Haz clic y arrastra a lo largo del platillo superior.\nPaso 2: Haz clic y arrastra a lo largo del platillo inferior.",
+            "h_pelvic": "Paso 1: Traza el radio de la 1ra cabeza femoral.\nPaso 2: Traza el radio de la 2da cabeza femoral.\nPaso 3: Traza una línea a lo largo del platillo de S1.",
+            "h_sva": "Paso 1: Haz UN CLIC en el centro de la vértebra C7 para dejar caer la plomada.\nPaso 2: Haz UN CLIC en la esquina postero-superior del sacro (S1) para calcular la distancia.",
+            "h_sagittal": "Haz un clic sobre el centro de la vértebra solicitada. El sistema cruzará esta marca con los parámetros pélvicos automáticamente.",
+            "h_meyerding": "Paso 1: Traza una línea a lo largo del platillo de la vértebra inferior.\nPaso 2: Haz un clic en la esquina postero-inferior de la vértebra desplazada.",
+            "h_point": "Haz clic directamente en el punto anatómico solicitado (Ej. C7, Apex, Inflexión) para fijar el marcador.",
+            "h_vert": "Haz clic sobre el cuerpo vertebral para dejar la etiqueta correspondiente.",
+            "h_contour": "Haz clic consecutivamente alrededor del borde de la vértebra. Toca el punto inicial (rojo) para cerrar el dibujo.",
+            "h_cf": "Paso 1: Traza el radio de la 1ra Cefálica Femoral.\nPaso 2: Traza el radio de la 2da Cefálica Femoral.",
+            "h_horiz": "Haz clic y arrastra para trazar la línea. El sistema calculará su ángulo respecto a la horizontal pura."
         },
         "en": {
-            "login_restricted": "Restricted Access",
-            "login_pass": "Master Password",
-            "login_btn": "Login",
-            "login_err": "Incorrect password.",
-            "btn_skip": "Skip Intro",
-            "pat_title": "Patient Data",
-            "pat_name": "Patient:",
-            "pat_id": "ID:",
-            "pat_age": "Age:",
-            "pat_name_ph": "Full Name",
-            "pat_id_ph": "ID Number",
-            "pat_age_ph": "Age",
-            "btn_cancel": "Cancel",
-            "btn_generate": "Generate Record",
-            "btn_pat": "Patient",
-            "btn_gaze": "Facing:",
-            "btn_load": "Load X-Ray",
-            "btn_clear": "Clear",
-            "status_ready": "System Ready",
-            "menu_1": "1. Basic Tools",
-            "menu_2": "2. Pelvic Parameters",
-            "menu_3": "3. Sagittal Balance",
-            "menu_4": "4. Roussouly (2018)",
-            "menu_5": "5. Abelin-Genevois (AIS)",
-            "menu_6": "6. Lumbar Measurements",
-            "menu_7": "7. Theoretical Profile",
-            "menu_8": "8. Cervical Sagittal Profile",
-            "menu_9": "9. Coronal Plane & Bao",
-            "menu_10": "10. Spondylolisthesis & AO",
-            "menu_11": "11. Vertebral Mapping",
-            "t_line": "Simple Line",
-            "t_circle": "Circle",
-            "t_cobb": "Cobb Angle",
-            "t_tk": "Tk (Kyphosis)",
-            "t_pelvic": "Measure PI, PT & SS",
-            "t_sva": "📍 SVA (C7 -> S1)",
-            "t_apexl": "📍 L Apex",
-            "t_inflexion": "📍 Inflection",
-            "t_cobb_tl": "📐 TL Cobb Angle",
-            "t_c7s": "📐 C7 Slope (C7S)",
-            "t_l1s1": "Global Lordosis (L1-S1)",
-            "t_l4s1": "Lower LL (L4-S1)",
-            "t_l4l5": "Segmental (L4-L5)",
-            "t_op_thoracic": "T1S, TIA, NT (Joint)",
-            "t_cf": "FH (Femoral Heads)",
-            "hint_roussouly": "1. Measure PI, SS, L1-S1 & L4-S1",
-            "hint_ag": "Scoliosis Sagittal Adaptation",
-            "btn_calc_rou": "Calculate Morphotype",
-            "btn_eval_ag": "Evaluate Abelin-Genevois",
-            "btn_calc_theo": "Calculate Values",
-            "btn_eval_bao": "Evaluate Bao (Coronal)",
-            "btn_meyerding": "1. Measure Meyerding",
-            "btn_ao": "2. AO Spine Classification",
-            "placeholder": "Select 'Load X-Ray' to begin",
-            "lbl_tags": "Labels (Letter and Number)",
-            "lbl_contours": "Contours (Edges)",
-            "tbl_param": "Parameter",
-            "tbl_base": "Base",
-            "tbl_ideal": "Ideal",
-            "ao_slip": "Slip:"
+            "login_restricted": "Restricted Access", "login_pass": "Master Password", "login_btn": "Login", "login_err": "Incorrect password.", "btn_skip": "Skip Intro",
+            "pat_title": "Patient Data", "pat_name": "Patient:", "pat_id": "ID:", "pat_age": "Age:", "pat_name_ph": "Full Name", "pat_id_ph": "ID Number", "pat_age_ph": "Age",
+            "btn_cancel": "Cancel", "btn_generate": "Generate Record", "btn_pat": "Patient", "btn_gaze": "Facing:", "btn_load": "Load X-Ray", "btn_clear": "Clear", "status_ready": "System Ready",
+            "menu_1": "1. Basic Tools", "menu_2": "2. Pelvic Parameters", "menu_3": "3. Sagittal Balance", "menu_4": "4. Roussouly (2018)", "menu_5": "5. Abelin-Genevois (AIS)",
+            "menu_6": "6. Lumbar Measurements", "menu_7": "7. Theoretical Profile", "menu_8": "8. Cervical Sagittal Profile", "menu_9": "9. Coronal Plane & Bao", "menu_10": "10. Spondylolisthesis & AO", "menu_11": "11. Vertebral Mapping",
+            "t_line": "Simple Line", "t_circle": "Circle", "t_cobb": "Cobb Angle", "t_tk": "Tk (Kyphosis)", "t_pelvic": "Measure PI, PT & SS", "t_sva": "📍 SVA (C7 -> S1)",
+            "t_apexl": "📍 L Apex", "t_inflexion": "📍 Inflection", "t_cobb_tl": "📐 TL Cobb Angle", "t_c7s": "📐 C7 Slope (C7S)", "t_l1s1": "Global Lordosis (L1-S1)", "t_l4s1": "Lower LL (L4-S1)",
+            "t_l4l5": "Segmental (L4-L5)", "t_op_thoracic": "T1S, TIA, NT (Joint)", "t_cf": "FH (Femoral Heads)",
+            "hint_roussouly": "1. Measure PI, SS, L1-S1 & L4-S1", "hint_ag": "Scoliosis Sagittal Adaptation", "hint_bao": "Bao Classification (2016)",
+            "btn_calc_rou": "Calculate Morphotype", "btn_eval_ag": "Evaluate Abelin-Genevois", "btn_calc_theo": "Calculate Values", "btn_eval_bao": "Evaluate Bao (Coronal)",
+            "btn_meyerding": "1. Measure Meyerding", "btn_ao": "2. AO Spine Classification", "placeholder": "Select 'Load X-Ray' to begin",
+            "lbl_tags": "Labels (Letter/Number)", "lbl_contours": "Contours (Edges)", "tbl_param": "Parameter", "tbl_base": "Base", "tbl_ideal": "Ideal", "ao_slip": "Slip:",
+            "bao_curve": "Lumbar Curve:", "bao_alert_title": "Biomechanical Alert:", "bao_alert_desc": "Risk of worsening imbalance if only main curve is corrected.", "rs_topo": "Topography:",
+            "btn_legend": "📖 Legend", "legend_title": "Measurement Guide",
+            "h_def": "Select a tool from the left panel to see its instructions here.",
+            "h_line": "Click at the starting point and drag to the end point.",
+            "h_circle": "Click the center and drag to define the anatomical radius.",
+            "h_cobb": "Step 1: Click and drag along the superior endplate.\nStep 2: Click and drag along the inferior endplate.",
+            "h_pelvic": "Step 1: Draw the radius of the 1st femoral head.\nStep 2: Draw the radius of the 2nd femoral head.\nStep 3: Draw a line along the S1 endplate.",
+            "h_sva": "Step 1: Click ONCE in the center of C7 to drop the plumb line.\nStep 2: Click ONCE on the postero-superior corner of the sacrum (S1) to calculate distance.",
+            "h_sagittal": "Click on the center of the requested vertebra. The system will intersect this mark with the pelvic parameters automatically.",
+            "h_meyerding": "Step 1: Draw a line along the endplate of the lower vertebra.\nStep 2: Click on the postero-inferior corner of the displaced vertebra.",
+            "h_point": "Click directly on the requested anatomical landmark (e.g. C7, Apex) to set the marker.",
+            "h_vert": "Click on the vertebral body to drop the label.",
+            "h_contour": "Click consecutively around the vertebra's edge. Tap the initial (red) point to close the shape.",
+            "h_cf": "Step 1: Draw the radius for the 1st Femoral Head.\nStep 2: Draw the radius for the 2nd Femoral Head.",
+            "h_horiz": "Click and drag to draw the line. The system computes its angle relative to the pure horizontal."
+        },
+        "fr": {
+            "login_restricted": "Accès Restreint", "login_pass": "Mot de passe maître", "login_btn": "Entrer", "login_err": "Mot de passe incorrect.", "btn_skip": "Passer",
+            "pat_title": "Données du Patient", "pat_name": "Patient:", "pat_id": "ID:", "pat_age": "Âge:", "pat_name_ph": "Nom complet", "pat_id_ph": "Numéro d'identité", "pat_age_ph": "Âge",
+            "btn_cancel": "Annuler", "btn_generate": "Générer", "btn_pat": "Patient", "btn_gaze": "Regard:", "btn_load": "Charger Rx", "btn_clear": "Effacer", "status_ready": "Système Prêt",
+            "menu_1": "1. Outils de Base", "menu_2": "2. Paramètres Pelviens", "menu_3": "3. Équilibre Sagittal", "menu_4": "4. Roussouly (2018)", "menu_5": "5. Abelin-Genevois",
+            "menu_6": "6. Mesures Lombaires", "menu_7": "7. Profil Idéal", "menu_8": "8. Profil Sagittal Cervical", "menu_9": "9. Plan Coronal & Bao", "menu_10": "10. Spondylolisthésis", "menu_11": "11. Cartographie",
+            "t_line": "Ligne Simple", "t_circle": "Cercle", "t_cobb": "Angle de Cobb", "t_tk": "Tk (Cyphose)", "t_pelvic": "Mesurer IP, VP, PS", "t_sva": "📍 SVA (C7 -> S1)",
+            "t_apexl": "📍 Apex L", "t_inflexion": "📍 Inflexion", "t_cobb_tl": "📐 Angle Cobb TL", "t_c7s": "📐 Pente C7 (C7S)", "t_l1s1": "Lordose Globale", "t_l4s1": "Lordose Basse",
+            "t_l4l5": "Segmentaire (L4-L5)", "t_op_thoracic": "T1S, TIA, NT", "t_cf": "CF (Têtes Fémorales)",
+            "hint_roussouly": "1. Mesurez IP, PS, L1-S1", "hint_ag": "Adaptation Sagittale", "hint_bao": "Classification Bao",
+            "btn_calc_rou": "Calculer Morphotype", "btn_eval_ag": "Évaluer Abelin-Genevois", "btn_calc_theo": "Calculer Valeurs", "btn_eval_bao": "Évaluer Bao",
+            "btn_meyerding": "1. Meyerding", "btn_ao": "2. Classification AO", "placeholder": "Sélectionnez 'Charger Rx'",
+            "lbl_tags": "Étiquettes", "lbl_contours": "Contours", "tbl_param": "Paramètre", "tbl_base": "Base", "tbl_ideal": "Idéal", "ao_slip": "Glissement:",
+            "bao_curve": "Courbe Lombaire:", "bao_alert_title": "Alerte:", "bao_alert_desc": "Risque d'aggraver le déséquilibre.", "rs_topo": "Topographie:",
+            "btn_legend": "📖 Légende", "legend_title": "Guide de Mesure",
+            "h_def": "Sélectionnez un outil à gauche pour voir les instructions.",
+            "h_line": "Cliquez et faites glisser.",
+            "h_circle": "Cliquez au centre et faites glisser.",
+            "h_cobb": "Tracez le plateau supérieur puis le plateau inférieur.",
+            "h_pelvic": "Tracez les deux têtes fémorales puis le plateau de S1.",
+            "h_sva": "1 clic sur C7, puis 1 clic sur S1.",
+            "h_sagittal": "Cliquez sur la vertèbre pour croiser avec les paramètres pelviens.",
+            "h_meyerding": "Tracez le plateau inférieur, puis cliquez sur le coin inférieur de la vertèbre déplacée.",
+            "h_point": "Cliquez sur le point anatomique.",
+            "h_vert": "Cliquez sur la vertèbre pour l'étiqueter.",
+            "h_contour": "Cliquez sur les bords de la vertèbre. Fermez sur le point rouge.",
+            "h_cf": "Tracez les têtes fémorales.",
+            "h_horiz": "Tracez la ligne pour mesurer l'angle avec l'horizontale."
+        },
+        "pt": {
+            "login_restricted": "Acesso Restrito", "login_pass": "Senha Mestra", "login_btn": "Entrar", "login_err": "Senha incorreta.", "btn_skip": "Pular",
+            "pat_title": "Dados do Paciente", "pat_name": "Paciente:", "pat_id": "ID:", "pat_age": "Idade:", "pat_name_ph": "Nome Completo", "pat_id_ph": "Identidade", "pat_age_ph": "Idade",
+            "btn_cancel": "Cancelar", "btn_generate": "Gerar Ficha", "btn_pat": "Paciente", "btn_gaze": "Olhar:", "btn_load": "Carregar Rx", "btn_clear": "Limpar", "status_ready": "Sistema Pronto",
+            "menu_1": "1. Ferramentas", "menu_2": "2. Parâmetros Pélvicos", "menu_3": "3. Balanço Sagital", "menu_4": "4. Roussouly (2018)", "menu_5": "5. Abelin-Genevois",
+            "menu_6": "6. Medidas Lombares", "menu_7": "7. Perfil Ideal", "menu_8": "8. Perfil Cervical", "menu_9": "9. Plano Coronal", "menu_10": "10. Espondilolistese", "menu_11": "11. Mapeamento",
+            "t_line": "Linha", "t_circle": "Círculo", "t_cobb": "Ângulo Cobb", "t_tk": "Cifose", "t_pelvic": "Medir IP, VP, IS", "t_sva": "📍 SVA (C7 -> S1)",
+            "t_apexl": "📍 Apex L", "t_inflexion": "📍 Inflexão", "t_cobb_tl": "📐 Cobb TL", "t_c7s": "📐 Slope C7", "t_l1s1": "Lordose Global", "t_l4s1": "Lordose Baixa",
+            "t_l4l5": "Segmentar", "t_op_thoracic": "T1S, TIA, NT", "t_cf": "Cabeças Femorais",
+            "hint_roussouly": "1. Medir IP, IS, L1-S1", "hint_ag": "Adaptação Sagital", "hint_bao": "Classificação Bao",
+            "btn_calc_rou": "Calcular Morfotipo", "btn_eval_ag": "Avaliar Abelin-Genevois", "btn_calc_theo": "Calcular Valores", "btn_eval_bao": "Avaliar Bao",
+            "btn_meyerding": "1. Meyerding", "btn_ao": "2. Classificação AO", "placeholder": "Carregar radiografia",
+            "lbl_tags": "Rótulos", "lbl_contours": "Contornos", "tbl_param": "Parâmetro", "tbl_base": "Base", "tbl_ideal": "Ideal", "ao_slip": "Deslizamento:",
+            "bao_curve": "Curva Lombar:", "bao_alert_title": "Alerta:", "bao_alert_desc": "Risco de piorar o desequilíbrio.", "rs_topo": "Topografia:",
+            "btn_legend": "📖 Legenda", "legend_title": "Guia de Medição",
+            "h_def": "Selecione uma ferramenta no painel esquerdo.",
+            "h_line": "Clique e arraste.",
+            "h_circle": "Clique no centro e arraste.",
+            "h_cobb": "Trace o platô superior e depois o inferior.",
+            "h_pelvic": "Trace as cabeças femorais e o platô de S1.",
+            "h_sva": "1 clique em C7, 1 clique em S1.",
+            "h_sagittal": "Clique na vértebra para cruzar com a pelve.",
+            "h_meyerding": "Trace o platô inferior e clique na vértebra deslizada.",
+            "h_point": "Clique no ponto anatômico.",
+            "h_vert": "Clique na vértebra para adicionar o rótulo.",
+            "h_contour": "Clique nas bordas e feche no ponto vermelho.",
+            "h_cf": "Trace as cabeças femorais.",
+            "h_horiz": "Trace a linha para medir o ângulo horizontal."
+        },
+        "de": {
+            "login_restricted": "Eingeschränkter Zugang", "login_pass": "Master-Passwort", "login_btn": "Einloggen", "login_err": "Falsches Passwort.", "btn_skip": "Überspringen",
+            "pat_title": "Patientendaten", "pat_name": "Patient:", "pat_id": "ID:", "pat_age": "Alter:", "pat_name_ph": "Vollständiger Name", "pat_id_ph": "ID-Nummer", "pat_age_ph": "Alter",
+            "btn_cancel": "Stornieren", "btn_generate": "Erzeugen", "btn_pat": "Patient", "btn_gaze": "Blick:", "btn_load": "Röntgen laden", "btn_clear": "Löschen", "status_ready": "System bereit",
+            "menu_1": "1. Basiswerkzeuge", "menu_2": "2. Beckenparameter", "menu_3": "3. Sagittale Balance", "menu_4": "4. Roussouly (2018)", "menu_5": "5. Abelin-Genevois",
+            "menu_6": "6. Lendenmessungen", "menu_7": "7. Ideales Profil", "menu_8": "8. Zervikales Profil", "menu_9": "9. Koronalebene & Bao", "menu_10": "10. Spondylolisthesis", "menu_11": "11. Mapping",
+            "t_line": "Einfache Linie", "t_circle": "Kreis", "t_cobb": "Cobb-Winkel", "t_tk": "Kyphose", "t_pelvic": "PI, PT, SS messen", "t_sva": "📍 SVA (C7 -> S1)",
+            "t_apexl": "📍 L Apex", "t_inflexion": "📍 Wendepunkt", "t_cobb_tl": "📐 TL Cobb", "t_c7s": "📐 C7 Neigung", "t_l1s1": "Globale Lordose", "t_l4s1": "Untere Lordose",
+            "t_l4l5": "Segmental", "t_op_thoracic": "T1S, TIA, NT", "t_cf": "Femurköpfe",
+            "hint_roussouly": "1. PI, SS, L1-S1 messen", "hint_ag": "Sagittale Anpassung", "hint_bao": "Bao-Klassifikation",
+            "btn_calc_rou": "Morphotyp berechnen", "btn_eval_ag": "Abelin-Genevois bewerten", "btn_calc_theo": "Werte berechnen", "btn_eval_bao": "Bao bewerten",
+            "btn_meyerding": "1. Meyerding", "btn_ao": "2. AO Klassifikation", "placeholder": "Röntgenbild laden",
+            "lbl_tags": "Etiketten", "lbl_contours": "Konturen", "tbl_param": "Parameter", "tbl_base": "Basis", "tbl_ideal": "Ideal", "ao_slip": "Gleiten:",
+            "bao_curve": "Lendenkurve:", "bao_alert_title": "Warnung:", "bao_alert_desc": "Gefahr der Verschlechterung.", "rs_topo": "Topographie:",
+            "btn_legend": "📖 Legende", "legend_title": "Messanleitung",
+            "h_def": "Wählen Sie ein Werkzeug auf der linken Seite aus.",
+            "h_line": "Klicken und ziehen.",
+            "h_circle": "In die Mitte klicken und ziehen.",
+            "h_cobb": "Zeichnen Sie die obere und dann die untere Endplatte.",
+            "h_pelvic": "Zeichnen Sie die Femurköpfe und die S1-Endplatte.",
+            "h_sva": "1 Klick auf C7, 1 Klick auf S1.",
+            "h_sagittal": "Klicken Sie auf den Wirbelkörper (kreuzt sich mit dem Becken).",
+            "h_meyerding": "Untere Endplatte zeichnen, dann verschobenen Wirbel anklicken.",
+            "h_point": "Klicken Sie auf den anatomischen Punkt.",
+            "h_vert": "Klicken Sie auf den Wirbel, um ihn zu markieren.",
+            "h_contour": "Kontur klicken. Am roten Punkt schließen.",
+            "h_cf": "Femurköpfe zeichnen.",
+            "h_horiz": "Linie zeichnen, um den horizontalen Winkel zu messen."
+        },
+        "ru": {
+            "login_restricted": "Ограниченный доступ", "login_pass": "Мастер-пароль", "login_btn": "Войти", "login_err": "Неверный пароль.", "btn_skip": "Пропустить",
+            "pat_title": "Данные пациента", "pat_name": "Пациент:", "pat_id": "ID:", "pat_age": "Возраст:", "pat_name_ph": "ФИО", "pat_id_ph": "Номер документа", "pat_age_ph": "Возраст",
+            "btn_cancel": "Отмена", "btn_generate": "Создать", "btn_pat": "Пациент", "btn_gaze": "Взгляд:", "btn_load": "Загрузить Rx", "btn_clear": "Очистить", "status_ready": "Система готова",
+            "menu_1": "1. Инструменты", "menu_2": "2. Параметры таза", "menu_3": "3. Сагиттальный баланс", "menu_4": "4. Руссули (2018)", "menu_5": "5. Абелен-Женуа",
+            "menu_6": "6. Поясничные измерения", "menu_7": "7. Идеальный профиль", "menu_8": "8. Шейный профиль", "menu_9": "9. Корональная плоскость", "menu_10": "10. Спондилолистез", "menu_11": "11. Маркировка",
+            "t_line": "Линия", "t_circle": "Круг", "t_cobb": "Угол Кобба", "t_tk": "Кифоз", "t_pelvic": "Измерить PI, PT, SS", "t_sva": "📍 SVA (C7 -> S1)",
+            "t_apexl": "📍 Апекс", "t_inflexion": "📍 Перегиб", "t_cobb_tl": "📐 Кобб TL", "t_c7s": "📐 Наклон C7", "t_l1s1": "Глобальный Лордоз", "t_l4s1": "Нижний Лордоз",
+            "t_l4l5": "Сегментарный", "t_op_thoracic": "T1S, TIA, NT", "t_cf": "Головки бедра",
+            "hint_roussouly": "1. Измерить PI, SS, L1-S1", "hint_ag": "Сагиттальная адаптация", "hint_bao": "Классификация Бао",
+            "btn_calc_rou": "Расчет Морфотипа", "btn_eval_ag": "Оценить Абелен-Женуа", "btn_calc_theo": "Рассчитать", "btn_eval_bao": "Оценить Бао",
+            "btn_meyerding": "1. Мейердинг", "btn_ao": "2. Классификация AO", "placeholder": "Загрузить рентген",
+            "lbl_tags": "Метки", "lbl_contours": "Контуры", "tbl_param": "Параметр", "tbl_base": "База", "tbl_ideal": "Идеал", "ao_slip": "Смещение:",
+            "bao_curve": "Поясничная дуга:", "bao_alert_title": "Тревога:", "bao_alert_desc": "Риск ухудшения дисбаланса.", "rs_topo": "Топография:",
+            "btn_legend": "📖 Легенда", "legend_title": "Руководство",
+            "h_def": "Выберите инструмент на левой панели.",
+            "h_line": "Нажмите и потяните.",
+            "h_circle": "Кликните в центре и потяните.",
+            "h_cobb": "Нарисуйте верхнюю, затем нижнюю пластинку.",
+            "h_pelvic": "Головки бедра и пластинка S1.",
+            "h_sva": "1 клик на C7, 1 клик на S1.",
+            "h_sagittal": "Кликните на позвонок для пересечения с тазом.",
+            "h_meyerding": "Пластинка нижнего позвонка, затем смещенный позвонок.",
+            "h_point": "Кликните на анатомическую точку.",
+            "h_vert": "Кликните на позвонок для метки.",
+            "h_contour": "Обведите контур. Замкните на красной точке.",
+            "h_cf": "Головки бедра.",
+            "h_horiz": "Нарисуйте линию для измерения горизонтального угла."
+        },
+        "ar": {
+            "login_restricted": "دخول مقيد", "login_pass": "الكلمة السرية", "login_btn": "دخول", "login_err": "كلمة مرور خاطئة.", "btn_skip": "تخطي",
+            "pat_title": "بيانات المريض", "pat_name": "المريض:", "pat_id": "الهوية:", "pat_age": "العمر:", "pat_name_ph": "الاسم الكامل", "pat_id_ph": "رقم الهوية", "pat_age_ph": "العمر",
+            "btn_cancel": "إلغاء", "btn_generate": "توليد", "btn_pat": "المريض", "btn_gaze": "النظر:", "btn_load": "تحميل صورة", "btn_clear": "مسح", "status_ready": "النظام جاهز",
+            "menu_1": "1. أدوات أساسية", "menu_2": "2. معلمات الحوض", "menu_3": "3. التوازن السهمي", "menu_4": "4. روسولي (2018)", "menu_5": "5. أبيلين-جينيفوا",
+            "menu_6": "6. قياسات أسفل الظهر", "menu_7": "7. الملف المثالي", "menu_8": "8. الملف العنقي", "menu_9": "9. المستوى الإكليلي", "menu_10": "10. الانزلاق الغضروفي", "menu_11": "11. تعيين الفقرات",
+            "t_line": "خط", "t_circle": "دائرة", "t_cobb": "زاوية كوب", "t_tk": "حداب", "t_pelvic": "قياس PI, PT, SS", "t_sva": "📍 SVA (C7 -> S1)",
+            "t_apexl": "📍 قمة", "t_inflexion": "📍 انعطاف", "t_cobb_tl": "📐 كوب TL", "t_c7s": "📐 ميل C7", "t_l1s1": "قعس كلي", "t_l4s1": "قعس سفلي",
+            "t_l4l5": "قطاعي", "t_op_thoracic": "T1S, TIA, NT", "t_cf": "رؤوس الفخذ",
+            "hint_roussouly": "1. قياس PI, SS, L1-S1", "hint_ag": "التكيف السهمي", "hint_bao": "تصنيف باو",
+            "btn_calc_rou": "حساب النمط", "btn_eval_ag": "تقييم أبيلين-جينيفوا", "btn_calc_theo": "حساب القيم", "btn_eval_bao": "تقييم باو",
+            "btn_meyerding": "1. مايردينغ", "btn_ao": "2. تصنيف AO", "placeholder": "تحميل صورة الأشعة",
+            "lbl_tags": "تسميات", "lbl_contours": "خطوط المحيط", "tbl_param": "المعلمة", "tbl_base": "الأساس", "tbl_ideal": "المثالي", "ao_slip": "انزلاق:",
+            "bao_curve": "منحنى قطني:", "bao_alert_title": "تنبيه:", "bao_alert_desc": "خطر تفاقم الخلل.", "rs_topo": "الطبوغرافيا:",
+            "btn_legend": "📖 دليل", "legend_title": "دليل القياس",
+            "h_def": "حدد أداة من اللوحة اليسرى.",
+            "h_line": "انقر واسحب.",
+            "h_circle": "انقر في المنتصف واسحب.",
+            "h_cobb": "ارسم اللوحة العلوية ثم السفلية.",
+            "h_pelvic": "رؤوس الفخذ واللوحة S1.",
+            "h_sva": "نقرة على C7، نقرة على S1.",
+            "h_sagittal": "انقر على الفقرة للتقاطع مع الحوض.",
+            "h_meyerding": "اللوحة السفلية، ثم الفقرة المنزلقة.",
+            "h_point": "انقر على النقطة التشريحية.",
+            "h_vert": "انقر على الفقرة لتسميتها.",
+            "h_contour": "انقر على الحواف. أغلق عند النقطة الحمراء.",
+            "h_cf": "رؤوس الفخذ.",
+            "h_horiz": "ارسم خطاً لقياس الزاوية الأفقية."
         }
     };
 
     let currentLang = 'es';
+    let isLegendOpen = false;
 
     function setLang(lang) {
         currentLang = lang;
@@ -558,14 +656,41 @@
         let selHeader = document.getElementById('lang-header');
         if (selHeader) selHeader.value = lang;
 
-        // Force update gaze button text direction
         toggleGaze(true);
+        updateLegendContent();
     }
 
-    // Call on init
     document.addEventListener("DOMContentLoaded", () => {
         setLang('es');
     });
+
+    // LEYENDA (TUTORIAL) LOGIC
+    function toggleLegend() {
+        isLegendOpen = !isLegendOpen;
+        document.getElementById('legend-box').classList.toggle('hidden', !isLegendOpen);
+        updateLegendContent();
+    }
+
+    function updateLegendContent() {
+        let key = 'h_def';
+        if (activeTool === 'line') key = 'h_line';
+        else if (activeTool === 'circle') key = 'h_circle';
+        else if (activeTool === 'cobb' || activeTool === 'cobb_coronal') key = 'h_cobb';
+        else if (activeTool === 'pelvic') key = 'h_pelvic';
+        else if (activeTool === 'sva') key = 'h_sva';
+        else if (activeTool === 'sagittal' || activeTool === 'cbva') key = 'h_sagittal';
+        else if (activeTool === 'meyerding') key = 'h_meyerding';
+        else if (activeTool === 'point_marker' || activeTool === 'thoracic') key = 'h_point';
+        else if (activeTool === 'vertebra') key = 'h_vert';
+        else if (activeTool === 'vertebraContour') key = 'h_contour';
+        else if (activeTool === 'coronal_cf') key = 'h_cf';
+        else if (activeTool === 'horiz_angle') key = 'h_horiz';
+
+        let descEl = document.getElementById('legend-desc');
+        if(descEl && dict[currentLang][key]) {
+            descEl.innerText = dict[currentLang][key];
+        }
+    }
 
     function openPatientModal() { document.getElementById('patient-modal').classList.remove('hidden'); }
     function closePatientModal() { document.getElementById('patient-modal').classList.add('hidden'); }
@@ -597,6 +722,7 @@
     makeInteractivePanel(document.getElementById('roussouly-box')); 
     makeInteractivePanel(document.getElementById('bao-box'));
     makeInteractivePanel(document.getElementById('ag-box'));
+    makeInteractivePanel(document.getElementById('legend-box'));
 
     const splashScreen = document.getElementById('splash-screen'); const introVideo = document.getElementById('intro-video'); const loginContainer = document.getElementById('login-container'); const passInput = document.getElementById('pass-input'); const loginError = document.getElementById('login-error'); const skipBtn = document.getElementById('skip-btn');
     function showLogin() { introVideo.style.opacity = '0'; skipBtn.style.display = 'none'; setTimeout(() => { introVideo.style.display = 'none'; loginContainer.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4'); loginContainer.classList.add('opacity-100', 'translate-y-0'); }, 800); }
@@ -652,31 +778,32 @@
         document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); event.currentTarget.classList.add('active');
         activeTool = type; activeTitle = title; activeSubType = subType; currentMeasurement = null; stepCount = 0; clickIntent = null;
         
-        // Tooltips (Status bar) translated loosely for logic
-        if(type === 'pelvic') updateStatus(`1/3: Cabeza Femoral`);
-        else if (type === 'sagittal') updateStatus(`Clic en vértebra ${title}`);
-        else if (type === 'sva') updateStatus(`1 CLIC: Centro C7`);
-        else if (type === 'cbva') updateStatus(`Clic en Mentón`);
-        else if (type === 'thoracic') updateStatus(`Platillo T1`);
-        else if (type === 'meyerding') updateStatus(`Vértebra inferior (Línea)`);
-        else if (type === 'cobb_coronal') updateStatus(`Platillo de la curva`);
-        else if (type === 'horiz_angle') updateStatus(`Línea de extremo a extremo`);
-        else if (type === 'coronal_cf') updateStatus(`1/2: Cefálica Femoral`);
-        else if (type === 'point_marker') updateStatus(`Marcar ${title}`);
+        updateLegendContent();
+
+        if(type === 'pelvic') updateStatus(`1/3: Femoral`);
+        else if (type === 'sagittal') updateStatus(`-> ${title}`);
+        else if (type === 'sva') updateStatus(`1 CLIC: C7`);
+        else if (type === 'cbva') updateStatus(`-> Mentón`);
+        else if (type === 'thoracic') updateStatus(`-> T1`);
+        else if (type === 'meyerding') updateStatus(`-> Vértebra`);
+        else if (type === 'cobb_coronal') updateStatus(`-> Curva`);
+        else if (type === 'horiz_angle') updateStatus(`-> Línea`);
+        else if (type === 'coronal_cf') updateStatus(`1/2: Femoral`);
+        else if (type === 'point_marker') updateStatus(`-> ${title}`);
         else if (type === 'vertebra') {
             activeVertebraRegion = subType; currentVIndex = 1;
-            updateStatus(`Etiqueta ${activeVertebraRegion}${currentVIndex}`);
+            updateStatus(`-> ${activeVertebraRegion}${currentVIndex}`);
         }
         else if (type === 'vertebraContour') {
             activeVertebraRegion = subType;
-            updateStatus(`Contorno (Rojo cierra)`);
+            updateStatus(`-> Contorno`);
         }
         else updateStatus(`${title}...`);
         
         if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
     }
 
-    function deactivateTool() { document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); activeTool = null; activeSubType = null; currentMeasurement = null; stepCount = 0; clickIntent = null; updateStatus(dict[currentLang]['status_ready']); }
+    function deactivateTool() { document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); activeTool = null; activeSubType = null; currentMeasurement = null; stepCount = 0; clickIntent = null; updateStatus(dict[currentLang]['status_ready']); updateLegendContent(); }
     function updateStatus(text, isError = false) { 
         let colorClass = isError ? 'bg-red-500' : 'bg-emerald-500'; 
         let textClass = isError ? 'text-red-400' : 'text-emerald-400'; 
@@ -692,7 +819,7 @@
         let c7s = window.currentResults['C7S'];
         
         if (tk === undefined || tl === undefined || c7s === undefined) {
-            updateStatus("⚠️ Mide Tk, Cobb TL y C7S.", true); return;
+            updateStatus("⚠️", true); return;
         }
 
         document.getElementById('ag-tk').innerText = tk.toFixed(0) + '°';
@@ -733,7 +860,7 @@
         let convexity = window.currentResults['CoronalConvexity'];
         
         if (c7x === undefined || s1x === undefined || convexity === undefined) {
-            updateStatus("⚠️ Mide Cobb Coronal, C7 y S1.", true); return;
+            updateStatus("⚠️", true); return;
         }
 
         let shift_px = c7x - s1x;
@@ -782,7 +909,7 @@
         let infY = window.currentResults['Inflection_Y'];
         
         if (pi === undefined || ss === undefined || ll === undefined || apexY === undefined || infY === undefined) {
-            updateStatus("⚠️ Mide PI, SS, L1-S1, Apex L e Inflexión.", true); return;
+            updateStatus("⚠️", true); return;
         }
 
         document.getElementById('rs-pi').innerText = pi.toFixed(0) + '°';
@@ -834,7 +961,7 @@
         let l1s1 = window.currentResults['L1-S1'];
         
         if (pi === undefined || slip === undefined || l1s1 === undefined) {
-            updateStatus("⚠️ Mide PI, Meyerding y L1-S1.", true); return;
+            updateStatus("⚠️", true); return;
         }
 
         document.getElementById('ao-pi').innerText = pi.toFixed(0) + '°';
@@ -870,7 +997,7 @@
     }
 
     function showTheoreticalProfile() {
-        if (!window.currentResults['PI']) { updateStatus("⚠️ Mide PI primero.", true); return; }
+        if (!window.currentResults['PI']) { updateStatus("⚠️", true); return; }
         let pi = window.currentResults['PI']; let ideal_L1S1 = (pi * 0.6) + 30; let ideal_PA = (pi * 0.5) - 20;
         let formatVal = (val) => val !== undefined ? val.toFixed(0) + '°' : '-';
         let base_PI = window.currentResults['PI'] ? window.currentResults['PI'].toFixed(0) + '°' : '-';
@@ -920,7 +1047,7 @@
                     }; 
                     measurements.push(currentMeasurement);
                     stepCount = 1; 
-                    updateStatus(`Plomada lista. Ahora 1 CLIC en S1`);
+                    updateStatus(`1 CLIC: S1`);
                 } else if (stepCount === 1) {
                     currentMeasurement.points.push({x: pos.x, y: pos.y});
                     currentMeasurement.textPos = {x: currentMeasurement.points[0].x + 20, y: pos.y - 20};
@@ -929,7 +1056,7 @@
                 }
             }
 
-            else if (activeTool === 'cbva') { if(!currentMeasurement) { currentMeasurement = { id: Date.now(), type: 'cbva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: null }; measurements.push(currentMeasurement); stepCount = 1; updateStatus(`Haz clic en la Ceja`); } else { currentMeasurement.points.push({x: pos.x, y: pos.y}); currentMeasurement.textPos = {x: pos.x + 20, y: pos.y + 20}; deactivateTool(); } }
+            else if (activeTool === 'cbva') { if(!currentMeasurement) { currentMeasurement = { id: Date.now(), type: 'cbva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: null }; measurements.push(currentMeasurement); stepCount = 1; updateStatus(`-> Mentón`); } else { currentMeasurement.points.push({x: pos.x, y: pos.y}); currentMeasurement.textPos = {x: pos.x + 20, y: pos.y + 20}; deactivateTool(); } }
             else if (activeTool === 'thoracic') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'thoracic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], sternum: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.sternum = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 20}; deactivateTool(); } }
             else if (activeTool === 'meyerding') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'meyerding', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], slipPoint: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.slipPoint = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 40}; deactivateTool(); } }
             else if (activeTool === 'point_marker') { 
@@ -965,7 +1092,6 @@
             else if (dragObj.type === 'circleRadius') { let cx = item.circles[dragObj.index].x, cy = item.circles[dragObj.index].y; item.circles[dragObj.index].r = Math.max(1, Math.hypot(pos.x - cx, pos.y - cy)); }
             else if (dragObj.type === 'circleCenter') { item.circles[dragObj.index].x = pos.x; item.circles[dragObj.index].y = pos.y; }
             else if (dragObj.type === 'lineSegment') { let dx = pos.x - dragObj.lastX; let dy = pos.y - dragObj.lastY; if (item.points && item.points.length >= 2) { item.points[dragObj.idx1].x += dx; item.points[dragObj.idx1].y += dy; item.points[dragObj.idx2].x += dx; item.points[dragObj.idx2].y += dy; } else if (item.line && item.line.length === 2) { item.line[dragObj.idx1].x += dx; item.line[dragObj.idx1].y += dy; item.line[dragObj.idx2].x += dx; item.line[dragObj.idx2].y += dy; } dragObj.lastX = pos.x; dragObj.lastY = pos.y; }
-            else if (dragObj.type === 'svaLine') { item.points[0].x = pos.x; }
             draw(); if(!document.getElementById('theoretical-table').classList.contains('hidden')){ showTheoreticalProfile(); } return;
         }
         if (currentMeasurement && activeTool === 'vertebraContour') {
@@ -1012,7 +1138,7 @@
                         x: clickIntent.logX, y: clickIntent.logY 
                     });
                     currentVIndex++; 
-                    updateStatus(`Etiqueta ${activeVertebraRegion}${currentVIndex} lista.`);
+                    updateStatus(`-> ${activeVertebraRegion}${currentVIndex}`);
                 } 
                 else if (clickIntent.tool === 'vertebraContour') {
                     if (!currentMeasurement) {
@@ -1024,7 +1150,7 @@
                         if (currentMeasurement.points.length > 2 && d < (25 / (baseScale * zoomScale))) {
                             currentMeasurement.closed = true;
                             deactivateTool();
-                            updateStatus("Contorno cerrado.");
+                            updateStatus("OK.");
                         } else {
                             currentMeasurement.points.push({x: clickIntent.logX, y: clickIntent.logY});
                         }
@@ -1039,15 +1165,14 @@
         if (dragObj) { dragObj = null; canvas.style.cursor = 'default'; draw(); return; }
         
         if (currentMeasurement) {
-            // SVA EXCLUIDA de desactivación inmediata
             if (activeTool === 'line' || activeTool === 'circle' || activeTool === 'angle') deactivateTool();
-            else if (activeTool === 'cobb') { if (currentMeasurement.points.length === 2) updateStatus(`Traza el Segundo Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
-            else if (activeTool === 'cobb_coronal') { if (currentMeasurement.points.length === 2) updateStatus(`Traza el Segundo Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
+            else if (activeTool === 'cobb') { if (currentMeasurement.points.length === 2) updateStatus(`-> Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
+            else if (activeTool === 'cobb_coronal') { if (currentMeasurement.points.length === 2) updateStatus(`-> Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
             else if (activeTool === 'horiz_angle') { deactivateTool(); }
-            else if (activeTool === 'pelvic') { if(stepCount === 0) { stepCount = 1; updateStatus(`Traza la Segunda Cabeza Femoral`); } else if(stepCount === 1) { stepCount = 2; updateStatus(`Traza el Platillo de S1`); } else if(stepCount === 2) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.line[0].x + 40, y: currentMeasurement.line[0].y - 20}; deactivateTool(); } } 
-            else if (activeTool === 'coronal_cf') { if(stepCount === 0) { stepCount = 1; updateStatus(`Traza la Segunda Cefálica Femoral`); } else if(stepCount === 1) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.circles[0].x + 40, y: currentMeasurement.circles[0].y - 20}; deactivateTool(); } } 
-            else if (activeTool === 'thoracic') { if(stepCount === 0) { stepCount = 1; updateStatus(`Haz clic en el Manubrio del Esternón`); } }
-            else if (activeTool === 'meyerding') { if(stepCount === 0) { stepCount = 1; updateStatus(`Esquina inferior`); } }
+            else if (activeTool === 'pelvic') { if(stepCount === 0) { stepCount = 1; updateStatus(`2/3: Femoral`); } else if(stepCount === 1) { stepCount = 2; updateStatus(`3/3: Platillo S1`); } else if(stepCount === 2) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.line[0].x + 40, y: currentMeasurement.line[0].y - 20}; deactivateTool(); } } 
+            else if (activeTool === 'coronal_cf') { if(stepCount === 0) { stepCount = 1; updateStatus(`2/2: Femoral`); } else if(stepCount === 1) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.circles[0].x + 40, y: currentMeasurement.circles[0].y - 20}; deactivateTool(); } } 
+            else if (activeTool === 'thoracic') { if(stepCount === 0) { stepCount = 1; updateStatus(`-> Esternón`); } }
+            else if (activeTool === 'meyerding') { if(stepCount === 0) { stepCount = 1; updateStatus(`-> Vértebra inf.`); } }
         }
         draw();
     });
@@ -1121,206 +1246,4 @@
                 if (m.points.length > 1 && Math.hypot(x - m.points[1].x, y - m.points[1].y) < baseRadius) return { type: 'point', item: m, index: 1 };
                 if (Math.abs(x - m.points[0].x) < baseRadius) return { type: 'svaLine', item: m };
             }
-            else if (m.points) { for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < baseRadius) return { type: 'point', item: m, index: p }; if(m.points.length >= 2) if(distToSegment(x, y, m.points[0], m.points[1]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; if(m.points.length === 4) if(distToSegment(x, y, m.points[2], m.points[3]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 2, idx2: 3, lastX: x, lastY: y }; }
-        }
-        return null;
-    }
-
-    function distToSegment(x, y, p1, p2) { let A = x - p1.x; let B = y - p1.y; let C = p2.x - p1.x; let D = p2.y - p1.y; let dot = A * C + B * D; let len_sq = C * C + D * D; let param = -1; if (len_sq != 0) param = dot / len_sq; let xx, yy; if (param < 0) { xx = p1.x; yy = p1.y; } else if (param > 1) { xx = p2.x; yy = p2.y; } else { xx = p1.x + param * C; yy = p1.y + param * D; } let dx = x - xx; let dy = y - yy; return Math.sqrt(dx * dx + dy * dy); }
-
-    function draw() {
-        ctx.clearRect(0,0, canvas.width, canvas.height); window.currentResults = {}; 
-        if (bgImage) {
-            ctx.save(); ctx.translate(panX, panY); ctx.scale(baseScale * zoomScale, baseScale * zoomScale); ctx.drawImage(bgImage, 0, 0);
-            let val_L1PA = null; let val_T4PA = null;
-
-            measurements.forEach(m => {
-                ctx.strokeStyle = m.color; ctx.fillStyle = m.color; ctx.lineWidth = m.width / (baseScale * zoomScale); ctx.lineCap = 'round';
-                
-                if (m.type === 'line' || m.type === 'angle') { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); let dist = Math.hypot(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y).toFixed(0); let text = m.type === 'line' ? `${dist} mm` : 'WIP'; drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize); }
-                else if (m.type === 'circle') { ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, m.radius, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(m.radius > 5) { ctx.beginPath(); ctx.arc(m.points[0].x + m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x - m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y + m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y - m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } drawText(m.textPos.x, m.textPos.y, m.title, `${m.radius.toFixed(0)}mm`, m.color, m.fontSize); }
-                else if (m.type === 'cobb') {
-                    if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
-                    if(m.points.length === 4) {
-                        ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
-                        let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x); let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
-                        let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
-                        
-                        let finalVal = diff; let prefix = '';
-                        let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
-                        let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; let det = A1*B2 - A2*B1;
-                        if (Math.abs(det) > 0.0001) {
-                            let x_int = (B2*C1 - B1*C2) / det; let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
-                            let isKyphosis = (x_int > spine_x && gazeDirection === 1) || (x_int < spine_x && gazeDirection === -1); let isLordosis = !isKyphosis;
-                            let title = m.title || ""; let isThoracic = title.includes('Tk') || title.includes('Cifosis') || title.includes('TL'); let isCervical = title.includes('C2-C7') || title.includes('C0-C2'); let isLumbar = title.includes('L1-S1') || title.includes('L4-S1') || title.includes('L4-L5') || title.includes('Lordosis');
-                            let sign = 1; if (isThoracic) { sign = isKyphosis ? 1 : -1; } else if (isCervical || isLumbar) { sign = isLordosis ? 1 : -1; }
-                            finalVal = diff * sign; prefix = (sign < 0) ? '' : '';
-                        }
-                        if(isNaN(finalVal)) finalVal = 0;
-                        window.currentResults[m.title] = finalVal; if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${finalVal.toFixed(0)}°`, m.color, m.fontSize);
-                    }
-                }
-                else if (m.type === 'cobb_coronal') {
-                    if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
-                    if(m.points.length === 4) {
-                        ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
-                        let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x); 
-                        let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
-                        let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
-                        if(isNaN(diff)) diff = 0;
-                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${diff.toFixed(0)}°`, m.color, m.fontSize);
-                        
-                        let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
-                        let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; 
-                        let det = A1*B2 - A2*B1;
-                        if (Math.abs(det) > 0.0001) {
-                            let x_int = (B2*C1 - B1*C2) / det; 
-                            let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
-                            let convexity = x_int > spine_x ? "Izquierda" : "Derecha";
-                            window.currentResults['CoronalConvexity'] = convexity;
-                        }
-                    }
-                }
-                else if (m.type === 'point_marker') {
-                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.fill();
-                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 8 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.stroke();
-                    if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, "", m.color, m.fontSize);
-
-                    if (m.subType === 'bao_c7') {
-                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[0].x, m.points[0].y + 800); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
-                        window.currentResults['BaoC7_X'] = m.points[0].x;
-                    }
-                    if (m.subType === 'bao_s1') {
-                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[0].x, m.points[0].y - 800); ctx.setLineDash([2,4]); ctx.stroke(); ctx.setLineDash([]);
-                        window.currentResults['BaoS1_X'] = m.points[0].x;
-                    }
-                    if (m.subType === 'apex') {
-                        window.currentResults['ApexL_Y'] = m.points[0].y;
-                    }
-                    if (m.subType === 'inflection') {
-                        window.currentResults['Inflection_Y'] = m.points[0].y;
-                    }
-                }
-                else if (m.type === 'horiz_angle') {
-                    if (m.points.length === 2) {
-                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); 
-                        let hp = m.points[0].y < m.points[1].y ? m.points[0] : m.points[1];
-                        let lp = m.points[0].y < m.points[1].y ? m.points[1] : m.points[0];
-                        let dx = Math.abs(lp.x - hp.x); let dy = lp.y - hp.y; 
-                        let ang = Math.atan2(dy, dx) * 180 / Math.PI; 
-                        let dirX = lp.x >= hp.x ? 1 : -1;
-                        let lineLen = Math.max(80 / (baseScale*zoomScale), dx + 30 / (baseScale*zoomScale));
-                        ctx.beginPath(); ctx.moveTo(hp.x, hp.y); ctx.lineTo(hp.x + lineLen * dirX, hp.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
-                        window.currentResults[m.title] = ang;
-                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize); 
-                    }
-                }
-                else if (m.type === 'coronal_cf') { 
-                    m.circles.forEach(c => { 
-                        ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); 
-                        let dotR = 4 / (baseScale * zoomScale); 
-                        ctx.beginPath(); ctx.arc(c.x, c.y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); 
-                        if(c.r > 5) { 
-                            ctx.beginPath(); ctx.arc(c.x + c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                            ctx.beginPath(); ctx.arc(c.x - c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                            ctx.beginPath(); ctx.arc(c.x, c.y + c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                            ctx.beginPath(); ctx.arc(c.x, c.y - c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                        } 
-                    }); 
-                    if (m.circles.length === 2 && m.textPos) {
-                        drawText(m.textPos.x, m.textPos.y, null, m.title, m.color, m.fontSize);
-                    }
-                }
-                else if (m.type === 'pelvic') { 
-                    m.circles.forEach(c => { ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(c.x, c.y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(c.r > 5) { ctx.beginPath(); ctx.arc(c.x + c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x - c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y + c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y - c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } }); 
-                    if(m.line && m.line.length === 2) { 
-                        ctx.beginPath(); ctx.moveTo(m.line[0].x, m.line[0].y); ctx.lineTo(m.line[1].x, m.line[1].y); ctx.stroke(); 
-                        if(m.circles.length === 2 && m.textPos) { 
-                            let ha_x = (m.circles[0].x + m.circles[1].x)/2; let ha_y = (m.circles[0].y + m.circles[1].y)/2; 
-                            let s1_x = (m.line[0].x + m.line[1].x)/2; let s1_y = (m.line[0].y + m.line[1].y)/2; 
-                            let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if(ss>90) ss=180-ss; 
-                            let pt_mag = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if(pt_mag>90) pt_mag=Math.abs(pt_mag-180); 
-                            
-                            let isAnterior = ((s1_x - ha_x) * gazeDirection) > 0;
-                            let pt = isAnterior ? -pt_mag : pt_mag;
-                            
-                            let pi = ss + pt; 
-                            window.currentResults['PI'] = pi; 
-                            window.currentResults['SS'] = ss;
-                            let text = `PI: ${pi.toFixed(0)}°\nPT: ${pt.toFixed(0)}°\nSS: ${ss.toFixed(0)}°`; 
-                            drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); 
-                        } 
-                    } 
-                }
-                else if (m.type === 'meyerding') {
-                    if (m.points.length === 2) {
-                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke();
-                        if (m.slipPoint && m.textPos) {
-                            let dotR = 4 / (baseScale * zoomScale);
-                            ctx.beginPath(); ctx.arc(m.slipPoint.x, m.slipPoint.y, dotR * 1.5, 0, 2*Math.PI); ctx.fill();
-                            let pA = m.points[0]; let pB = m.points[1]; let pPost, pAnt;
-                            if (gazeDirection === 1) { if (pA.x < pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } } else { if (pA.x > pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } }
-                            ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(pPost.x, pPost.y, dotR, 0, 2*Math.PI); ctx.fill(); ctx.fillStyle = m.color;
-                            let dx = pAnt.x - pPost.x; let dy = pAnt.y - pPost.y; let L = Math.hypot(dx, dy);
-                            if (L > 0) {
-                                let dot = (m.slipPoint.x - pPost.x)*dx + (m.slipPoint.y - pPost.y)*dy; let projDist = dot / L; let projX = pPost.x + (projDist / L) * dx; let projY = pPost.y + (projDist / L) * dy;
-                                ctx.beginPath(); ctx.moveTo(m.slipPoint.x, m.slipPoint.y); ctx.lineTo(projX, projY); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(projX, projY, dotR * 0.8, 0, 2*Math.PI); ctx.fill();
-                                let percent = (projDist / L) * 100; let absPercent = Math.abs(percent); let grade = "";
-                                if (absPercent <= 25) grade = "I"; else if (absPercent <= 50) grade = "II"; else if (absPercent <= 75) grade = "III"; else if (absPercent <= 100) grade = "IV"; else grade = "V";
-                                let tipo = percent > 0 ? "Anterolistesis" : "Retrolistesis"; if (Math.abs(percent) < 2) tipo = "Sin patología de listesis";
-                                window.currentResults['Slip'] = absPercent; 
-                                let text = `${tipo}\n${dict[currentLang]['ao_slip']} ${absPercent.toFixed(0)}%\nMeyerding: Grade ${grade}`;
-                                drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize);
-                            }
-                        }
-                    }
-                }
-                else if (m.type === 'vertebraLabel') {
-                    let sc = baseScale * zoomScale;
-                    ctx.font = `bold ${(m.fontSize + 6)/sc}px sans-serif`; 
-                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    ctx.fillStyle = m.color; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 8/sc;
-                    ctx.fillText(m.title, m.x, m.y); ctx.fillText(m.title, m.x, m.y); ctx.shadowBlur = 0;
-                }
-                else if (m.type === 'vertebraContour') {
-                    if (m.points.length > 0) {
-                        ctx.beginPath();
-                        ctx.moveTo(m.points[0].x, m.points[0].y);
-                        for (let i = 1; i < m.points.length; i++) ctx.lineTo(m.points[i].x, m.points[i].y);
-                        if (m.closed) {
-                            ctx.closePath(); ctx.fillStyle = m.color + '4D'; ctx.fill();
-                        } else if (m.tempPoint) {
-                            ctx.lineTo(m.tempPoint.x, m.tempPoint.y);
-                        }
-                        ctx.stroke();
-                        if (!m.closed) {
-                            ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 6/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill();
-                        }
-                    }
-                }
-                else if (m.type === 'thoracic') { if (m.points.length === 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); if(m.sternum && m.textPos) { ctx.beginPath(); ctx.arc(m.sternum.x, m.sternum.y, 4, 0, 2*Math.PI); ctx.fill(); let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2; ctx.beginPath(); ctx.moveTo(midX, midY); ctx.lineTo(m.sternum.x, m.sternum.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI); let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI); let tia = t1s + nt; let text = `T1S: ${t1s.toFixed(0)}°\nTIA: ${tia.toFixed(0)}°\nNT: ${nt.toFixed(0)}°`; drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); } } }
-                else if (m.type === 'cbva' && m.points.length === 2) { 
-                    ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); 
-                    let dx = m.points[1].x - m.points[0].x; let dy = m.points[1].y - m.points[0].y; 
-                    let ang = -(Math.atan2(dx, dy) * 180 / Math.PI) * gazeDirection; 
-                    if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize); 
-                }
-                else if (m.type === 'sagittal') { let pelvic = measurements.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2); if (pelvic) { let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2; let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2; ctx.beginPath(); ctx.arc(ha_x, ha_y, 2, 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill(); ctx.fillStyle = m.color; ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke(); let angle = 0; let signedAngle = 0; let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 = Math.hypot(v1.x, v1.y); if (m.subType === 'pa') { let s1_x = (pelvic.line[0].x + pelvic.line[1].x)/2; let s1_y = (pelvic.line[0].y + pelvic.line[1].y)/2; let v2 = {x: s1_x - ha_x, y: s1_y - ha_y}; let mag2 = Math.hypot(v2.x, v2.y); let dot = v1.x*v2.x + v1.y*v2.y; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let cross = v2.x * v1.y - v2.y * v1.x; let side = cross * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; if (m.title === 'L1-PA') val_L1PA = signedAngle; if (m.title === 'T4-PA') val_T4PA = signedAngle; } else if (m.subType === 'tilt') { let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y; let mag2 = 1; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let side = v1.x * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; } drawText(m.textPos.x, m.textPos.y, m.title, `${signedAngle.toFixed(0)}°`, m.color, m.fontSize); } else drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize); }
-            });
-            ctx.restore();
-
-            let mmBox = document.getElementById('mismatch-box'); let mmVal = document.getElementById('mismatch-val');
-            if(val_L1PA !== null && val_T4PA !== null) { let mismatch = val_T4PA - val_L1PA; let absMismatch = Math.abs(mismatch); let mColor = absMismatch <= 4 ? '#10b981' : '#f43f5e'; mmVal.innerText = `${mismatch.toFixed(0)}°`; mmVal.style.color = mColor; mmBox.style.borderColor = mColor; mmBox.classList.remove('hidden'); } else { mmBox.classList.add('hidden'); }
-        }
-    }
-
-    function initTouch() {
-        let lastPinchDistance = null; let lastPinchCenter = null; let longPressTimer = null; let touchStartX = 0; let touchStartY = 0;
-        canvas.addEventListener('touchstart', function(e) { if(e.touches.length === 1) { let touch = e.touches[0]; touchStartX = touch.clientX; touchStartY = touch.clientY; longPressTimer = setTimeout(() => { if(!activeTool) { const rect = canvas.getBoundingClientRect(); let logicalPos = { x: (touch.clientX - rect.left - panX) / (baseScale * zoomScale), y: (touch.clientY - rect.top - panY) / (baseScale * zoomScale) }; let hit = checkHit(logicalPos.x, logicalPos.y); if(hit) { e.preventDefault(); showContextMenuAt(touch.clientX, touch.clientY, hit.item); } } }, 500); if(!activeTool && contextMenu.style.display === 'block') hideContextMenu(); e.preventDefault(); canvas.dispatchEvent(new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 1 })); } else if(e.touches.length === 2) { clearTimeout(longPressTimer); e.preventDefault(); let dx = e.touches[0].clientX - e.touches[1].clientX; let dy = e.touches[0].clientY - e.touches[1].clientY; lastPinchDistance = Math.hypot(dx, dy); lastPinchCenter = { x: (e.touches[0].clientX + e.touches[1].clientX) / 2, y: (e.touches[0].clientY + e.touches[1].clientY) / 2 }; } }, {passive: false});
-        canvas.addEventListener('touchmove', function(e) { if(e.touches.length === 1) { let touch = e.touches[0]; if (Math.hypot(touch.clientX - touchStartX, touch.clientY - touchStartY) > 10) clearTimeout(longPressTimer); e.preventDefault(); canvas.dispatchEvent(new MouseEvent('mousemove', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 1 })); } else if (e.touches.length === 2) { clearTimeout(longPressTimer); e.preventDefault(); let dx = e.touches[0].clientX - e.touches[1].clientX; let dy = e.touches[0].clientY - e.touches[1].clientY; let currentPinchDistance = Math.hypot(dx, dy); let currentPinchCenter = { x: (e.touches[0].clientX + e.touches[1].clientX) / 2, y: (e.touches[0].clientY + e.touches[1].clientY) / 2 }; if (lastPinchDistance && lastPinchCenter) { let pinchRatio = currentPinchDistance / lastPinchDistance; let newZoomScale = zoomScale * pinchRatio; if (newZoomScale >= 0.5 && newZoomScale <= 10) { const rect = canvas.getBoundingClientRect(); const mouseX = currentPinchCenter.x - rect.left; const mouseY = currentPinchCenter.y - rect.top; panX = mouseX - (mouseX - panX) * (newZoomScale / zoomScale); panY = mouseY - (mouseY - panY) * (newZoomScale / zoomScale); zoomScale = newZoomScale; } panX += (currentPinchCenter.x - lastPinchCenter.x); panY += (currentPinchCenter.y - lastPinchCenter.y); lastPinchDistance = currentPinchDistance; lastPinchCenter = currentPinchCenter; draw(); } } }, {passive: false});
-        canvas.addEventListener('touchend', function(e) { clearTimeout(longPressTimer); if(e.changedTouches.length === 1 && e.touches.length === 0) { e.preventDefault(); let touch = e.changedTouches[0]; canvas.dispatchEvent(new MouseEvent('mouseup', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 0 })); } if (e.touches.length < 2) { lastPinchDistance = null; lastPinchCenter = null; } }, {passive: false});
-    }
-    initTouch();
-</script>
-</body>
-</html>
+            else if (m.points) { for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < baseRadius) return { type: 'point', item: m, index: p }; if(m.points.length >= 2) if(distToSegment(x, y, m.points[0], m.points[1]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; if(m.points.length === 4) if(distToSegment(x, y, m.points[2], m.points[3]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 2
