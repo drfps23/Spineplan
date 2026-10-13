@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V58 - Calibrado Clínico (cm)</title>
+    <title>SpinePlan Pro V58 - SVA de 2 Clics Exactos</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -120,6 +120,7 @@
                     </div>
                 </div>
 
+                <!-- MÓDULO 3: BALANCE SAGITAL -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
                     <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">3. Balance Sagital</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
@@ -135,6 +136,7 @@
                     </div>
                 </div>
 
+                <!-- MÓDULO 4: ROUSSOULY -->
                 <div class="border border-sky-700 rounded-lg overflow-hidden">
                     <div class="bg-sky-900/40 px-3 py-2 text-sm font-semibold text-sky-400">4. Roussouly (2018)</div>
                     <div class="p-3 bg-gray-900/50 space-y-2">
@@ -147,6 +149,7 @@
                     </div>
                 </div>
 
+                <!-- MÓDULO 5: ABELIN-GENEVOIS -->
                 <div class="border border-orange-700 rounded-lg overflow-hidden">
                     <div class="bg-orange-900/40 px-3 py-2 text-sm font-semibold text-orange-400">5. Abelin-Genevois (EIA)</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50 border-b border-gray-700">
@@ -1003,194 +1006,259 @@
         if (bgImage) {
             let val_L1PA = null; let val_T4PA = null;
             ctx.save(); 
-            try {
-                ctx.translate(panX, panY); ctx.scale(baseScale * zoomScale, baseScale * zoomScale); ctx.drawImage(bgImage, 0, 0);
+            ctx.translate(panX, panY); ctx.scale(baseScale * zoomScale, baseScale * zoomScale); ctx.drawImage(bgImage, 0, 0);
 
-                measurements.forEach(m => {
-                    ctx.strokeStyle = m.color; ctx.fillStyle = m.color; ctx.lineWidth = m.width / (baseScale * zoomScale); ctx.lineCap = 'round';
-                    
-                    if (m.type === 'calibrate') {
-                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke();
+            measurements.forEach(m => {
+                ctx.strokeStyle = m.color; ctx.fillStyle = m.color; ctx.lineWidth = m.width / (baseScale * zoomScale); ctx.lineCap = 'round';
+                
+                if (m.type === 'calibrate') {
+                    ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke();
+                }
+                else if (m.type === 'line' || m.type === 'angle') { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); let rawDist = Math.hypot(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y); let realDist = rawDist * (window.cmPerPx || 1); let unit = window.cmPerPx ? ' cm' : ' px'; let text = m.type === 'line' ? `${realDist.toFixed(1)}${unit}` : 'WIP'; drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize); }
+                else if (m.type === 'circle') { ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, m.radius, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(m.radius > 5) { ctx.beginPath(); ctx.arc(m.points[0].x + m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x - m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y + m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y - m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } let realRad = m.radius * (window.cmPerPx || 1); let unit = window.cmPerPx ? ' cm' : ' px'; drawText(m.textPos.x, m.textPos.y, m.title, `${realRad.toFixed(1)}${unit}`, m.color, m.fontSize); }
+                else if (m.type === 'cobb') {
+                    if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
+                    if(m.points.length === 4) {
+                        ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
+                        let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x); let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
+                        let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
+                        
+                        let finalVal = diff; let prefix = '';
+                        let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
+                        let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; let det = A1*B2 - A2*B1;
+                        if (Math.abs(det) > 0.0001) {
+                            let x_int = (B2*C1 - B1*C2) / det; let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
+                            let isKyphosis = (x_int > spine_x && gazeDirection === 1) || (x_int < spine_x && gazeDirection === -1); let isLordosis = !isKyphosis;
+                            let title = m.title || ""; let isThoracic = title.includes('Tk') || title.includes('Cifosis') || title.includes('TL'); let isCervical = title.includes('C2-C7') || title.includes('C0-C2'); let isLumbar = title.includes('L1-S1') || title.includes('L4-S1') || title.includes('L4-L5') || title.includes('Lordosis');
+                            let sign = 1; if (isThoracic) { sign = isKyphosis ? 1 : -1; } else if (isCervical || isLumbar) { sign = isLordosis ? 1 : -1; }
+                            finalVal = diff * sign; prefix = (sign < 0) ? '' : '';
+                        }
+                        if(isNaN(finalVal)) finalVal = 0;
+                        window.currentResults[m.title] = finalVal; if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${finalVal.toFixed(0)}°`, m.color, m.fontSize);
                     }
-                    else if (m.type === 'line' || m.type === 'angle') { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); let rawDist = Math.hypot(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y); let realDist = rawDist * (window.cmPerPx || 1); let unit = window.cmPerPx ? ' cm' : ' px'; let text = m.type === 'line' ? `${realDist.toFixed(1)}${unit}` : 'WIP'; drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize); }
-                    else if (m.type === 'circle') { ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, m.radius, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(m.radius > 5) { ctx.beginPath(); ctx.arc(m.points[0].x + m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x - m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y + m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y - m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } let realRad = m.radius * (window.cmPerPx || 1); let unit = window.cmPerPx ? ' cm' : ' px'; drawText(m.textPos.x, m.textPos.y, m.title, `${realRad.toFixed(1)}${unit}`, m.color, m.fontSize); }
-                    else if (m.type === 'cobb') {
-                        if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
-                        if(m.points.length === 4) {
-                            ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
-                            let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x); let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
-                            let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
-                            
-                            let finalVal = diff; let prefix = '';
-                            let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
-                            let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; let det = A1*B2 - A2*B1;
-                            if (Math.abs(det) > 0.0001) {
-                                let x_int = (B2*C1 - B1*C2) / det; let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
-                                let isKyphosis = (x_int > spine_x && gazeDirection === 1) || (x_int < spine_x && gazeDirection === -1); let isLordosis = !isKyphosis;
-                                let title = m.title || ""; let isThoracic = title.includes('Tk') || title.includes('Cifosis') || title.includes('TL'); let isCervical = title.includes('C2-C7') || title.includes('C0-C2'); let isLumbar = title.includes('L1-S1') || title.includes('L4-S1') || title.includes('L4-L5') || title.includes('Lordosis');
-                                let sign = 1; if (isThoracic) { sign = isKyphosis ? 1 : -1; } else if (isCervical || isLumbar) { sign = isLordosis ? 1 : -1; }
-                                finalVal = diff * sign; prefix = (sign < 0) ? '' : '';
-                            }
-                            if(isNaN(finalVal)) finalVal = 0;
-                            window.currentResults[m.title] = finalVal; if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${finalVal.toFixed(0)}°`, m.color, m.fontSize);
+                }
+                else if (m.type === 'cobb_coronal') {
+                    if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
+                    if(m.points.length === 4) {
+                        ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
+                        let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x); 
+                        let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
+                        let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
+                        if(isNaN(diff)) diff = 0;
+                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${diff.toFixed(0)}°`, m.color, m.fontSize);
+                        
+                        let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
+                        let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; 
+                        let det = A1*B2 - A2*B1;
+                        if (Math.abs(det) > 0.0001) {
+                            let x_int = (B2*C1 - B1*C2) / det; 
+                            let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
+                            let convexity = x_int > spine_x ? "Izquierda" : "Derecha";
+                            window.currentResults['CoronalConvexity'] = convexity;
                         }
                     }
-                    else if (m.type === 'cobb_coronal') {
-                        if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
-                        if(m.points.length === 4) {
-                            ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
-                            let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x); 
-                            let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
-                            let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
-                            if(isNaN(diff)) diff = 0;
-                            if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${diff.toFixed(0)}°`, m.color, m.fontSize);
-                            
-                            let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
-                            let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; 
-                            let det = A1*B2 - A2*B1;
-                            if (Math.abs(det) > 0.0001) {
-                                let x_int = (B2*C1 - B1*C2) / det; 
-                                let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
-                                let convexity = x_int > spine_x ? "Izquierda" : "Derecha";
-                                window.currentResults['CoronalConvexity'] = convexity;
-                            }
-                        }
-                    }
-                    else if (m.type === 'point_marker') {
-                        ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.fill();
-                        ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 8 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.stroke();
-                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, "", m.color, m.fontSize);
+                }
+                else if (m.type === 'point_marker') {
+                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.fill();
+                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 8 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.stroke();
+                    if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, "", m.color, m.fontSize);
 
-                        if (m.subType === 'bao_c7') {
-                            ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[0].x, m.points[0].y + 800); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
-                            window.currentResults['BaoC7_X'] = m.points[0].x;
-                        }
-                        if (m.subType === 'bao_s1') {
-                            ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[0].x, m.points[0].y - 800); ctx.setLineDash([2,4]); ctx.stroke(); ctx.setLineDash([]);
-                            window.currentResults['BaoS1_X'] = m.points[0].x;
-                        }
-                        if (m.subType === 'apex') {
-                            window.currentResults['ApexL_Y'] = m.points[0].y;
-                        }
-                        if (m.subType === 'inflection') {
-                            window.currentResults['Inflection_Y'] = m.points[0].y;
-                        }
+                    if (m.subType === 'bao_c7') {
+                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[0].x, m.points[0].y + 800); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
+                        window.currentResults['BaoC7_X'] = m.points[0].x;
                     }
-                    else if (m.type === 'horiz_angle') {
-                        if (m.points.length === 2) {
-                            ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); 
-                            let hp = m.points[0].y < m.points[1].y ? m.points[0] : m.points[1];
-                            let lp = m.points[0].y < m.points[1].y ? m.points[1] : m.points[0];
-                            let dx = Math.abs(lp.x - hp.x); let dy = lp.y - hp.y; 
-                            let ang = Math.atan2(dy, dx) * 180 / Math.PI; 
-                            let dirX = lp.x >= hp.x ? 1 : -1;
-                            let lineLen = Math.max(80 / (baseScale*zoomScale), dx + 30 / (baseScale*zoomScale));
-                            ctx.beginPath(); ctx.moveTo(hp.x, hp.y); ctx.lineTo(hp.x + lineLen * dirX, hp.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
-                            window.currentResults[m.title] = ang;
-                            if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize); 
-                        }
+                    if (m.subType === 'bao_s1') {
+                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[0].x, m.points[0].y - 800); ctx.setLineDash([2,4]); ctx.stroke(); ctx.setLineDash([]);
+                        window.currentResults['BaoS1_X'] = m.points[0].x;
                     }
-                    else if (m.type === 'coronal_cf') { 
-                        m.circles.forEach(c => { 
-                            ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); 
-                            let dotR = 4 / (baseScale * zoomScale); 
-                            ctx.beginPath(); ctx.arc(c.x, c.y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); 
-                            if(c.r > 5) { 
-                                ctx.beginPath(); ctx.arc(c.x + c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                                ctx.beginPath(); ctx.arc(c.x - c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                                ctx.beginPath(); ctx.arc(c.x, c.y + c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                                ctx.beginPath(); ctx.arc(c.x, c.y - c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                            } 
-                        }); 
-                        if (m.circles.length === 2 && m.textPos) {
-                            drawText(m.textPos.x, m.textPos.y, null, m.title, m.color, m.fontSize);
-                        }
+                    if (m.subType === 'apex') {
+                        window.currentResults['ApexL_Y'] = m.points[0].y;
                     }
-                    else if (m.type === 'pelvic') { 
-                        m.circles.forEach(c => { ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(c.x, c.y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(c.r > 5) { ctx.beginPath(); ctx.arc(c.x + c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x - c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y + c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y - c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } }); 
-                        if(m.line && m.line.length === 2) { 
-                            ctx.beginPath(); ctx.moveTo(m.line[0].x, m.line[0].y); ctx.lineTo(m.line[1].x, m.line[1].y); ctx.stroke(); 
-                            if(m.circles.length === 2 && m.textPos) { 
-                                let ha_x = (m.circles[0].x + m.circles[1].x)/2; let ha_y = (m.circles[0].y + m.circles[1].y)/2; 
-                                let s1_x = (m.line[0].x + m.line[1].x)/2; let s1_y = (m.line[0].y + m.line[1].y)/2; 
-                                let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if(ss>90) ss=180-ss; 
-                                let pt_mag = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if(pt_mag>90) pt_mag=Math.abs(pt_mag-180); 
-                                
-                                let isAnterior = ((s1_x - ha_x) * gazeDirection) > 0;
-                                let pt = isAnterior ? -pt_mag : pt_mag;
-                                
-                                let pi = ss + pt; 
-                                window.currentResults['PI'] = pi; 
-                                window.currentResults['SS'] = ss;
-                                let text = `PI: ${pi.toFixed(0)}°\nPT: ${pt.toFixed(0)}°\nSS: ${ss.toFixed(0)}°`; 
-                                drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); 
-                            } 
-                        } 
+                    if (m.subType === 'inflection') {
+                        window.currentResults['Inflection_Y'] = m.points[0].y;
                     }
-                    else if (m.type === 'meyerding') {
-                        if (m.points.length === 2) {
-                            ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke();
-                            if (m.slipPoint && m.textPos) {
-                                let dotR = 4 / (baseScale * zoomScale);
-                                ctx.beginPath(); ctx.arc(m.slipPoint.x, m.slipPoint.y, dotR * 1.5, 0, 2*Math.PI); ctx.fill();
-                                let pA = m.points[0]; let pB = m.points[1]; let pPost, pAnt;
-                                if (gazeDirection === 1) { if (pA.x < pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } } else { if (pA.x > pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } }
-                                ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(pPost.x, pPost.y, dotR, 0, 2*Math.PI); ctx.fill(); ctx.fillStyle = m.color;
-                                let dx = pAnt.x - pPost.x; let dy = pAnt.y - pPost.y; let L = Math.hypot(dx, dy);
-                                if (L > 0) {
-                                    let dot = (m.slipPoint.x - pPost.x)*dx + (m.slipPoint.y - pPost.y)*dy; let projDist = dot / L; let projX = pPost.x + (projDist / L) * dx; let projY = pPost.y + (projDist / L) * dy;
-                                    ctx.beginPath(); ctx.moveTo(m.slipPoint.x, m.slipPoint.y); ctx.lineTo(projX, projY); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(projX, projY, dotR * 0.8, 0, 2*Math.PI); ctx.fill();
-                                    let percent = (projDist / L) * 100; let absPercent = Math.abs(percent); let grade = "";
-                                    if (absPercent <= 25) grade = "I"; else if (absPercent <= 50) grade = "II"; else if (absPercent <= 75) grade = "III"; else if (absPercent <= 100) grade = "IV"; else grade = "V";
-                                    let tipo = percent > 0 ? "Anterolistesis" : "Retrolistesis"; if (Math.abs(percent) < 2) tipo = "Sin patología de listesis";
-                                    window.currentResults['Slip'] = absPercent; 
-                                    let text = `${tipo}\nDeslizamiento: ${absPercent.toFixed(0)}%\nMeyerding: Grado ${grade}`;
-                                    drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize);
-                                }
-                            }
-                        }
-                    }
-                    else if (m.type === 'vertebraLabel') {
-                        let sc = baseScale * zoomScale;
-                        ctx.font = `bold ${(m.fontSize + 6)/sc}px sans-serif`; 
-                        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                        ctx.fillStyle = m.color; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 8/sc;
-                        ctx.fillText(m.title, m.x, m.y); ctx.fillText(m.title, m.x, m.y); ctx.shadowBlur = 0;
-                    }
-                    else if (m.type === 'vertebraContour') {
-                        if (m.points.length > 0) {
-                            ctx.beginPath();
-                            ctx.moveTo(m.points[0].x, m.points[0].y);
-                            for (let i = 1; i < m.points.length; i++) ctx.lineTo(m.points[i].x, m.points[i].y);
-                            if (m.closed) {
-                                ctx.closePath(); ctx.fillStyle = m.color + '4D'; ctx.fill();
-                            } else if (m.tempPoint) {
-                                ctx.lineTo(m.tempPoint.x, m.tempPoint.y);
-                            }
-                            ctx.stroke();
-                            if (!m.closed) {
-                                ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 6/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill();
-                            }
-                        }
-                    }
-                    else if (m.type === 'thoracic') { if (m.points.length === 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); if(m.sternum && m.textPos) { ctx.beginPath(); ctx.arc(m.sternum.x, m.sternum.y, 4, 0, 2*Math.PI); ctx.fill(); let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2; ctx.beginPath(); ctx.moveTo(midX, midY); ctx.lineTo(m.sternum.x, m.sternum.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI); let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI); let tia = t1s + nt; let text = `T1S: ${t1s.toFixed(0)}°\nTIA: ${tia.toFixed(0)}°\nNT: ${nt.toFixed(0)}°`; drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); } } }
-                    else if (m.type === 'cbva' && m.points.length === 2) { 
+                }
+                else if (m.type === 'horiz_angle') {
+                    if (m.points.length === 2) {
                         ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); 
-                        let dx = m.points[1].x - m.points[0].x; let dy = m.points[1].y - m.points[0].y; 
-                        let ang = -(Math.atan2(dx, dy) * 180 / Math.PI) * gazeDirection; 
+                        let hp = m.points[0].y < m.points[1].y ? m.points[0] : m.points[1];
+                        let lp = m.points[0].y < m.points[1].y ? m.points[1] : m.points[0];
+                        let dx = Math.abs(lp.x - hp.x); let dy = lp.y - hp.y; 
+                        let ang = Math.atan2(dy, dx) * 180 / Math.PI; 
+                        let dirX = lp.x >= hp.x ? 1 : -1;
+                        let lineLen = Math.max(80 / (baseScale*zoomScale), dx + 30 / (baseScale*zoomScale));
+                        ctx.beginPath(); ctx.moveTo(hp.x, hp.y); ctx.lineTo(hp.x + lineLen * dirX, hp.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
+                        window.currentResults[m.title] = ang;
                         if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize); 
                     }
-                    else if (m.type === 'sva') { 
-                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y - 800); ctx.lineTo(m.points[0].x, m.points[0].y + 1200); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
-                        ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill(); 
-                        ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 8/(baseScale*zoomScale), 0, 2*Math.PI); ctx.stroke();
-                        
-                        let targetPoint = m.points.length > 1 ? m.points[1] : m.tempPoint;
+                }
+                else if (m.type === 'coronal_cf') { 
+                    m.circles.forEach(c => { 
+                        ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); 
+                        let dotR = 4 / (baseScale * zoomScale); 
+                        ctx.beginPath(); ctx.arc(c.x, c.y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); 
+                        if(c.r > 5) { 
+                            ctx.beginPath(); ctx.arc(c.x + c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
+                            ctx.beginPath(); ctx.arc(c.x - c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
+                            ctx.beginPath(); ctx.arc(c.x, c.y + c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
+                            ctx.beginPath(); ctx.arc(c.x, c.y - c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
+                        } 
+                    }); 
+                    if (m.circles.length === 2 && m.textPos) {
+                        drawText(m.textPos.x, m.textPos.y, null, m.title, m.color, m.fontSize);
+                    }
+                }
+                else if (m.type === 'pelvic') { 
+                    m.circles.forEach(c => { ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(c.x, c.y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(c.r > 5) { ctx.beginPath(); ctx.arc(c.x + c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x - c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y + c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y - c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } }); 
+                    if(m.line && m.line.length === 2) { 
+                        ctx.beginPath(); ctx.moveTo(m.line[0].x, m.line[0].y); ctx.lineTo(m.line[1].x, m.line[1].y); ctx.stroke(); 
+                        if(m.circles.length === 2 && m.textPos) { 
+                            let ha_x = (m.circles[0].x + m.circles[1].x)/2; let ha_y = (m.circles[0].y + m.circles[1].y)/2; 
+                            let s1_x = (m.line[0].x + m.line[1].x)/2; let s1_y = (m.line[0].y + m.line[1].y)/2; 
+                            let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if(ss>90) ss=180-ss; 
+                            let pt_mag = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if(pt_mag>90) pt_mag=Math.abs(pt_mag-180); 
+                            
+                            let isAnterior = ((s1_x - ha_x) * gazeDirection) > 0;
+                            let pt = isAnterior ? -pt_mag : pt_mag;
+                            
+                            let pi = ss + pt; 
+                            window.currentResults['PI'] = pi; 
+                            window.currentResults['SS'] = ss;
+                            let text = `PI: ${pi.toFixed(0)}°\nPT: ${pt.toFixed(0)}°\nSS: ${ss.toFixed(0)}°`; 
+                            drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); 
+                        } 
+                    } 
+                }
+                else if (m.type === 'meyerding') {
+                    if (m.points.length === 2) {
+                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke();
+                        if (m.slipPoint && m.textPos) {
+                            let dotR = 4 / (baseScale * zoomScale);
+                            ctx.beginPath(); ctx.arc(m.slipPoint.x, m.slipPoint.y, dotR * 1.5, 0, 2*Math.PI); ctx.fill();
+                            let pA = m.points[0]; let pB = m.points[1]; let pPost, pAnt;
+                            if (gazeDirection === 1) { if (pA.x < pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } } else { if (pA.x > pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } }
+                            ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(pPost.x, pPost.y, dotR, 0, 2*Math.PI); ctx.fill(); ctx.fillStyle = m.color;
+                            let dx = pAnt.x - pPost.x; let dy = pAnt.y - pPost.y; let L = Math.hypot(dx, dy);
+                            if (L > 0) {
+                                let dot = (m.slipPoint.x - pPost.x)*dx + (m.slipPoint.y - pPost.y)*dy; let projDist = dot / L; let projX = pPost.x + (projDist / L) * dx; let projY = pPost.y + (projDist / L) * dy;
+                                ctx.beginPath(); ctx.moveTo(m.slipPoint.x, m.slipPoint.y); ctx.lineTo(projX, projY); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(projX, projY, dotR * 0.8, 0, 2*Math.PI); ctx.fill();
+                                let percent = (projDist / L) * 100; let absPercent = Math.abs(percent); let grade = "";
+                                if (absPercent <= 25) grade = "I"; else if (absPercent <= 50) grade = "II"; else if (absPercent <= 75) grade = "III"; else if (absPercent <= 100) grade = "IV"; else grade = "V";
+                                let tipo = percent > 0 ? "Anterolistesis" : "Retrolistesis"; if (Math.abs(percent) < 2) tipo = "Sin patología de listesis";
+                                window.currentResults['Slip'] = absPercent; 
+                                let text = `${tipo}\nDeslizamiento: ${absPercent.toFixed(0)}%\nMeyerding: Grado ${grade}`;
+                                drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize);
+                            }
+                        }
+                    }
+                }
+                else if (m.type === 'vertebraLabel') {
+                    let sc = baseScale * zoomScale;
+                    ctx.font = `bold ${(m.fontSize + 6)/sc}px sans-serif`; 
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.fillStyle = m.color; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 8/sc;
+                    ctx.fillText(m.title, m.x, m.y); ctx.fillText(m.title, m.x, m.y); ctx.shadowBlur = 0;
+                }
+                else if (m.type === 'vertebraContour') {
+                    if (m.points.length > 0) {
+                        ctx.beginPath();
+                        ctx.moveTo(m.points[0].x, m.points[0].y);
+                        for (let i = 1; i < m.points.length; i++) ctx.lineTo(m.points[i].x, m.points[i].y);
+                        if (m.closed) {
+                            ctx.closePath(); ctx.fillStyle = m.color + '4D'; ctx.fill();
+                        } else if (m.tempPoint) {
+                            ctx.lineTo(m.tempPoint.x, m.tempPoint.y);
+                        }
+                        ctx.stroke();
+                        if (!m.closed) {
+                            ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 6/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill();
+                        }
+                    }
+                }
+                else if (m.type === 'thoracic') { if (m.points.length === 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); if(m.sternum && m.textPos) { ctx.beginPath(); ctx.arc(m.sternum.x, m.sternum.y, 4, 0, 2*Math.PI); ctx.fill(); let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2; ctx.beginPath(); ctx.moveTo(midX, midY); ctx.lineTo(m.sternum.x, m.sternum.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI); let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI); let tia = t1s + nt; let text = `T1S: ${t1s.toFixed(0)}°\nTIA: ${tia.toFixed(0)}°\nNT: ${nt.toFixed(0)}°`; drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); } } }
+                else if (m.type === 'cbva' && m.points.length === 2) { 
+                    ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); 
+                    let dx = m.points[1].x - m.points[0].x; let dy = m.points[1].y - m.points[0].y; 
+                    let ang = -(Math.atan2(dx, dy) * 180 / Math.PI) * gazeDirection; 
+                    if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize); 
+                }
+                else if (m.type === 'sva') { 
+                    ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y - 800); ctx.lineTo(m.points[0].x, m.points[0].y + 1200); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
+                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill(); 
+                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 8/(baseScale*zoomScale), 0, 2*Math.PI); ctx.stroke();
+                    
+                    let targetPoint = m.points.length > 1 ? m.points[1] : m.tempPoint;
 
-                        if (targetPoint) {
-                            ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill();
-                            ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, 8/(baseScale*zoomScale), 0, 2*Math.PI); ctx.stroke();
-                            
-                            ctx.beginPath(); ctx.moveTo(targetPoint.x, targetPoint.y); ctx.lineTo(m.points[0].x, targetPoint.y); ctx.setLineDash([2,2]); ctx.stroke(); ctx.setLineDash([]);
-                            
-                            let rawDist = (m.points
+                    if (targetPoint) {
+                        ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill();
+                        ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, 8/(baseScale*zoomScale), 0, 2*Math.PI); ctx.stroke();
+                        
+                        ctx.beginPath(); ctx.moveTo(targetPoint.x, targetPoint.y); ctx.lineTo(m.points[0].x, targetPoint.y); ctx.setLineDash([2,2]); ctx.stroke(); ctx.setLineDash([]);
+                        
+                        let rawDist = (m.points[0].x - targetPoint.x) * gazeDirection; 
+                        let realDist = rawDist * (window.cmPerPx || 1);
+                        let signStr = realDist >= 0 ? "+" : "-";
+                        let unit = window.cmPerPx ? ' cm' : ' px';
+                        
+                        if(m.textPos) {
+                            drawText(m.textPos.x, m.textPos.y, m.title, `${signStr}${Math.abs(realDist).toFixed(1)}${unit}`, m.color, m.fontSize);
+                        } else {
+                            drawText(targetPoint.x + 10, targetPoint.y + 10, null, `${signStr}${Math.abs(realDist).toFixed(1)}${unit}`, m.color, m.fontSize);
+                        }
+                    }
+                }
+                else if (m.type === 'sagittal') { 
+                    let pelvic = measurements.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2); 
+                    if (pelvic) { 
+                        let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2; let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2; 
+                        ctx.beginPath(); ctx.arc(ha_x, ha_y, 2, 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill(); ctx.fillStyle = m.color; 
+                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke(); 
+                        let angle = 0; let signedAngle = 0; let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 = Math.hypot(v1.x, v1.y); 
+                        
+                        if (m.subType === 'pa') { 
+                            let s1_x = (pelvic.line[0].x + pelvic.line[1].x)/2; let s1_y = (pelvic.line[0].y + pelvic.line[1].y)/2; 
+                            let v2 = {x: s1_x - ha_x, y: s1_y - ha_y}; let mag2 = Math.hypot(v2.x, v2.y); let dot = v1.x*v2.x + v1.y*v2.y; 
+                            angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; 
+                            let cross = v2.x * v1.y - v2.y * v1.x; let side = cross * gazeDirection; signedAngle = side >= 0 ? angle : -angle; 
+                            window.currentResults[m.title] = signedAngle; 
+                            if (m.title === 'L1-PA') val_L1PA = signedAngle; 
+                            if (m.title === 'T4-PA') val_T4PA = signedAngle; 
+                        } else if (m.subType === 'tilt') { 
+                            let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y; let mag2 = 1; 
+                            angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let side = v1.x * gazeDirection; 
+                            signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; 
+                        } 
+                        drawText(m.textPos.x, m.textPos.y, m.title, `${signedAngle.toFixed(0)}°`, m.color, m.fontSize); 
+                    } else drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize); 
+                }
+            });
+            
+            ctx.restore();
+
+            let mmBox = document.getElementById('mismatch-box'); let mmVal = document.getElementById('mismatch-val');
+            if(val_L1PA !== null && val_T4PA !== null) { 
+                let mismatch = val_T4PA - val_L1PA; 
+                let absMismatch = Math.abs(mismatch); 
+                let mColor = absMismatch <= 4 ? '#10b981' : '#f43f5e'; 
+                mmVal.innerText = `${mismatch.toFixed(0)}°`; 
+                mmVal.style.color = mColor; 
+                mmBox.style.borderColor = mColor; 
+                mmBox.classList.remove('hidden'); 
+            } else { 
+                mmBox.classList.add('hidden'); 
+            }
+        }
+    }
+
+    function drawText(x, y, title, text, color, fontSize) { let sc = baseScale * zoomScale; ctx.font = `bold ${fontSize/sc}px sans-serif`; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = color; ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 4/sc; let curY = y; if(title) { ctx.fillText(title, x, curY); curY += (fontSize + 4)/sc; } let lines = text.split('\n'); lines.forEach(l => { ctx.fillText(l, x, curY); curY += (fontSize + 2)/sc; }); ctx.shadowBlur = 0; }
+
+    function initTouch() {
+        let lastPinchDistance = null; let lastPinchCenter = null; let longPressTimer = null; let touchStartX = 0; let touchStartY = 0;
+        canvas.addEventListener('touchstart', function(e) { if(e.touches.length === 1) { let touch = e.touches[0]; touchStartX = touch.clientX; touchStartY = touch.clientY; longPressTimer = setTimeout(() => { if(!activeTool) { const rect = canvas.getBoundingClientRect(); let logicalPos = { x: (touch.clientX - rect.left - panX) / (baseScale * zoomScale), y: (touch.clientY - rect.top - panY) / (baseScale * zoomScale) }; let hit = checkHit(logicalPos.x, logicalPos.y); if(hit) { e.preventDefault(); showContextMenuAt(touch.clientX, touch.clientY, hit.item); } } }, 500); if(!activeTool && contextMenu.style.display === 'block') hideContextMenu(); e.preventDefault(); canvas.dispatchEvent(new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 1 })); } else if(e.touches.length === 2) { clearTimeout(longPressTimer); e.preventDefault(); let dx = e.touches[0].clientX - e.touches[1].clientX; let dy = e.touches[0].clientY - e.touches[1].clientY; lastPinchDistance = Math.hypot(dx, dy); lastPinchCenter = { x: (e.touches[0].clientX + e.touches[1].clientX) / 2, y: (e.touches[0].clientY + e.touches[1].clientY) / 2 }; } }, {passive: false});
+        canvas.addEventListener('touchmove', function(e) { if(e.touches.length === 1) { let touch = e.touches[0]; if (Math.hypot(touch.clientX - touchStartX, touch.clientY - touchStartY) > 10) clearTimeout(longPressTimer); e.preventDefault(); canvas.dispatchEvent(new MouseEvent('mousemove', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 1 })); } else if (e.touches.length === 2) { clearTimeout(longPressTimer); e.preventDefault(); let dx = e.touches[0].clientX - e.touches[1].clientX; let dy = e.touches[0].clientY - e.touches[1].clientY; let currentPinchDistance = Math.hypot(dx, dy); let currentPinchCenter = { x: (e.touches[0].clientX + e.touches[1].clientX) / 2, y: (e.touches[0].clientY + e.touches[1].clientY) / 2 }; if (lastPinchDistance && lastPinchCenter) { let pinchRatio = currentPinchDistance / lastPinchDistance; let newZoomScale = zoomScale * pinchRatio; if (newZoomScale >= 0.5 && newZoomScale <= 10) { const rect = canvas.getBoundingClientRect(); const mouseX = currentPinchCenter.x - rect.left; const mouseY = currentPinchCenter.y - rect.top; panX = mouseX - (mouseX - panX) * (newZoomScale / zoomScale); panY = mouseY - (mouseY - panY) * (newZoomScale / zoomScale); zoomScale = newZoomScale; } panX += (currentPinchCenter.x - lastPinchCenter.x); panY += (currentPinchCenter.y - lastPinchCenter.y); lastPinchDistance = currentPinchDistance; lastPinchCenter = currentPinchCenter; draw(); } } }, {passive: false});
+        canvas.addEventListener('touchend', function(e) { clearTimeout(longPressTimer); if(e.changedTouches.length === 1 && e.touches.length === 0) { e.preventDefault(); let touch = e.changedTouches[0]; canvas.dispatchEvent(new MouseEvent('mouseup', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 0 })); } if (e.touches.length < 2) { lastPinchDistance = null; lastPinchCenter = null; } }, {passive: false});
+    }
+    initTouch();
+</script>
+</body>
+</html>
