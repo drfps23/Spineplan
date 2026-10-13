@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V58 - SVA de 2 Clics Exactos</title>
+    <title>SpinePlan Pro V58 - Calibrado Clínico</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -101,6 +101,10 @@
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
                     <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">1. Herramientas Básicas</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
+                        <!-- NUEVO BOTÓN DE CALIBRACIÓN -->
+                        <button onclick="activateTool('calibrate', 'Calibrar Escala')" class="tool-btn col-span-2 border border-blue-700/50 bg-blue-900/20 rounded px-2 py-2 text-xs text-blue-300 hover:bg-blue-800/40 flex justify-center items-center font-bold">
+                            📏 Calibrar Escala (mm)
+                        </button>
                         <button onclick="activateTool('line', 'Línea Simple')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">Línea Simple</button>
                         <button onclick="activateTool('circle', 'Círculo')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">Círculo</button>
                         <button onclick="activateTool('cobb', 'A. Cobb')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">Ángulo Cobb</button>
@@ -399,6 +403,9 @@
     </div>
 
 <script>
+    let clickIntent = null; 
+    window.mmPerPx = null; // Escala global de calibración
+
     function openPatientModal() { document.getElementById('patient-modal').classList.remove('hidden'); }
     function closePatientModal() { document.getElementById('patient-modal').classList.add('hidden'); }
     function savePatientData() {
@@ -447,7 +454,6 @@
     
     let measurements = []; let currentMeasurement = null; let activeTool = null; let activeTitle = ''; let activeSubType = null; let stepCount = 0; let dragObj = null; let isPanning = false; let gazeDirection = 1; window.currentResults = {};
     let activeVertebraRegion = ''; let currentVIndex = 1;
-    let clickIntent = null; 
 
     function toggleGaze() { gazeDirection *= -1; document.getElementById('gaze-btn').innerHTML = `<span class="hidden md:inline mr-1">Mirada:</span>${gazeDirection === 1 ? '➡️' : '⬅️'}`; draw(); }
     function getNextColor() { let c = COLORS[colorIndex]; colorIndex = (colorIndex + 1) % COLORS.length; return c; }
@@ -460,6 +466,7 @@
 
     function clearCanvas() {
         measurements = []; currentMeasurement = null; colorIndex = 0; window.currentResults = {}; clickIntent = null;
+        window.mmPerPx = null; // Reiniciar calibración al limpiar
         document.getElementById('theoretical-table').classList.add('hidden');
         document.getElementById('mismatch-box').classList.add('hidden');
         document.getElementById('patient-box').classList.add('hidden'); 
@@ -467,7 +474,7 @@
         document.getElementById('roussouly-box').classList.add('hidden'); 
         document.getElementById('bao-box').classList.add('hidden'); 
         document.getElementById('ag-box').classList.add('hidden'); 
-        updateStatus("Trazos limpiados. Sistema Listo");
+        updateStatus("Trazos y calibración limpiados. Sistema Listo");
         draw();
     }
 
@@ -480,7 +487,8 @@
         document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); event.currentTarget.classList.add('active');
         activeTool = type; activeTitle = title; activeSubType = subType; currentMeasurement = null; stepCount = 0; clickIntent = null;
         
-        if(type === 'pelvic') updateStatus(`Traza la Primera Cabeza Femoral`);
+        if (type === 'calibrate') updateStatus(`Traza una línea sobre un marcador de medida conocida (Clic y arrastrar)`);
+        else if (type === 'pelvic') updateStatus(`Traza la Primera Cabeza Femoral`);
         else if (type === 'sagittal') updateStatus(`Haz clic sobre la vértebra ${title}`);
         else if (type === 'sva') updateStatus(`Haz 1 CLIC en el centro de C7 para soltar la plomada`);
         else if (type === 'cbva') updateStatus(`Haz clic en el Mentón`);
@@ -562,11 +570,12 @@
         }
 
         let shift_px = c7x - s1x;
-        let shift_mm = shift_px; 
+        let shift_mm = shift_px * (window.mmPerPx || 1); 
         let abs_shift = Math.abs(shift_mm);
         let shiftDir = shift_mm > 0 ? "Derecha" : "Izquierda";
+        let unit = window.mmPerPx ? ' mm' : ' px';
         
-        document.getElementById('bao-shift').innerText = abs_shift.toFixed(0) + ' mm (' + shiftDir + ')';
+        document.getElementById('bao-shift').innerText = abs_shift.toFixed(1) + unit + ' (' + shiftDir + ')';
         document.getElementById('bao-curve').innerText = "Convexidad " + convexity;
 
         let typeBox = document.getElementById('bao-type-badge');
@@ -684,7 +693,7 @@
             } else if (pi < 60) { 
                 typeBox.innerText = 'Tipo 2'; descBox.innerText = "PI normal (45°-60°), columna equilibrada y sin cifosis lumbosacra."; 
             } else { 
-                typeBox.innerText = 'Tipo 3'; descBox.innerText = "PI alta (≥60°), columna equilibrada y sin cifosis lumbosacra."; 
+                typeBox.innerText = 'Tipo 3'; descBox.innerText = "PI alta (≥60°), columna equilibrada y sem cifosis lumbosacra."; 
             }
         } else {
             hgOptions.classList.remove('hidden');
@@ -744,7 +753,8 @@
                 return; 
             }
 
-            if (activeTool === 'line' || activeTool === 'angle') { currentMeasurement = { id: Date.now(), type: activeTool, title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], textPos: {x: pos.x + 20, y: pos.y + 20} }; measurements.push(currentMeasurement); } 
+            if (activeTool === 'calibrate') { currentMeasurement = { id: Date.now(), type: 'calibrate', title: activeTitle, color: '#3b82f6', width: DEFAULT_LINE_WIDTH * 2, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], textPos: {x: pos.x + 20, y: pos.y + 20}, realMm: 0 }; measurements.push(currentMeasurement); }
+            else if (activeTool === 'line' || activeTool === 'angle') { currentMeasurement = { id: Date.now(), type: activeTool, title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], textPos: {x: pos.x + 20, y: pos.y + 20} }; measurements.push(currentMeasurement); } 
             else if (activeTool === 'cobb') { if(!currentMeasurement) { currentMeasurement = { id: Date.now(), type: 'cobb', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], textPos: null }; measurements.push(currentMeasurement); } else { currentMeasurement.points.push({x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}); } }
             else if (activeTool === 'cobb_coronal') { if(!currentMeasurement) { currentMeasurement = { id: Date.now(), type: 'cobb_coronal', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], textPos: null }; measurements.push(currentMeasurement); } else { currentMeasurement.points.push({x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}); } }
             else if (activeTool === 'horiz_angle') { currentMeasurement = { id: Date.now(), type: 'horiz_angle', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], textPos: {x: pos.x + 20, y: pos.y + 20} }; measurements.push(currentMeasurement); }
@@ -807,6 +817,7 @@
             else if (dragObj.type === 'circleRadius') { let cx = item.circles[dragObj.index].x, cy = item.circles[dragObj.index].y; item.circles[dragObj.index].r = Math.max(1, Math.hypot(pos.x - cx, pos.y - cy)); }
             else if (dragObj.type === 'circleCenter') { item.circles[dragObj.index].x = pos.x; item.circles[dragObj.index].y = pos.y; }
             else if (dragObj.type === 'lineSegment') { let dx = pos.x - dragObj.lastX; let dy = pos.y - dragObj.lastY; if (item.points && item.points.length >= 2) { item.points[dragObj.idx1].x += dx; item.points[dragObj.idx1].y += dy; item.points[dragObj.idx2].x += dx; item.points[dragObj.idx2].y += dy; } else if (item.line && item.line.length === 2) { item.line[dragObj.idx1].x += dx; item.line[dragObj.idx1].y += dy; item.line[dragObj.idx2].x += dx; item.line[dragObj.idx2].y += dy; } dragObj.lastX = pos.x; dragObj.lastY = pos.y; }
+            else if (dragObj.type === 'svaLine') { item.points[0].x = pos.x; }
             draw(); if(!document.getElementById('theoretical-table').classList.contains('hidden')){ showTheoreticalProfile(); } return;
         }
         if (currentMeasurement && activeTool === 'vertebraContour') {
@@ -818,7 +829,8 @@
             draw();
         }
         else if (currentMeasurement && e.buttons === 1) {
-            if (activeTool === 'line' || activeTool === 'angle') currentMeasurement.points[1] = {x: pos.x, y: pos.y};
+            if (activeTool === 'calibrate') currentMeasurement.points[1] = {x: pos.x, y: pos.y};
+            else if (activeTool === 'line' || activeTool === 'angle') currentMeasurement.points[1] = {x: pos.x, y: pos.y};
             else if (activeTool === 'cobb') { if (currentMeasurement.points.length === 2) currentMeasurement.points[1] = {x: pos.x, y: pos.y}; else if (currentMeasurement.points.length === 4) currentMeasurement.points[3] = {x: pos.x, y: pos.y}; }
             else if (activeTool === 'cobb_coronal') { if (currentMeasurement.points.length === 2) currentMeasurement.points[1] = {x: pos.x, y: pos.y}; else if (currentMeasurement.points.length === 4) currentMeasurement.points[3] = {x: pos.x, y: pos.y}; }
             else if (activeTool === 'horiz_angle') { currentMeasurement.points[1] = {x: pos.x, y: pos.y}; }
@@ -853,7 +865,7 @@
                         x: clickIntent.logX, y: clickIntent.logY 
                     });
                     currentVIndex++; 
-                    updateStatus(`Haz clic para marcar etiqueta ${activeVertebraRegion}${currentVIndex}. (Arrastra para mover la imagen)`);
+                    updateStatus(`Etiqueta ${activeVertebraRegion}${currentVIndex} lista.`);
                 } 
                 else if (clickIntent.tool === 'vertebraContour') {
                     if (!currentMeasurement) {
@@ -880,8 +892,30 @@
         if (dragObj) { dragObj = null; canvas.style.cursor = 'default'; draw(); return; }
         
         if (currentMeasurement) {
-            // SVA EXCLUIDA de desactivación inmediata
-            if (activeTool === 'line' || activeTool === 'circle' || activeTool === 'angle') deactivateTool();
+            if (activeTool === 'calibrate') {
+                let dist = Math.hypot(currentMeasurement.points[1].x - currentMeasurement.points[0].x, currentMeasurement.points[1].y - currentMeasurement.points[0].y);
+                if (dist > 5) {
+                    let input = prompt("Ingresa la medida real de esta línea en milímetros (mm):");
+                    if (input !== null) {
+                        let realMm = parseFloat(input.replace(',','.'));
+                        if (!isNaN(realMm) && realMm > 0) {
+                            window.mmPerPx = realMm / dist;
+                            currentMeasurement.realMm = realMm;
+                            updateStatus("✅ Escala calibrada correctamente.");
+                        } else {
+                            measurements.pop();
+                            updateStatus("⚠️ Valor inválido. Calibración cancelada.", true);
+                        }
+                    } else {
+                        measurements.pop();
+                        updateStatus("⚠️ Calibración cancelada.", true);
+                    }
+                } else {
+                    measurements.pop();
+                }
+                deactivateTool();
+            }
+            else if (activeTool === 'line' || activeTool === 'circle' || activeTool === 'angle') deactivateTool();
             else if (activeTool === 'cobb') { if (currentMeasurement.points.length === 2) updateStatus(`Traza el Segundo Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
             else if (activeTool === 'cobb_coronal') { if (currentMeasurement.points.length === 2) updateStatus(`Traza el Segundo Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
             else if (activeTool === 'horiz_angle') { deactivateTool(); }
@@ -960,6 +994,7 @@
             else if (m.type === 'sva') {
                 if (Math.hypot(x - m.points[0].x, y - m.points[0].y) < baseRadius) return { type: 'point', item: m, index: 0 };
                 if (m.points.length > 1 && Math.hypot(x - m.points[1].x, y - m.points[1].y) < baseRadius) return { type: 'point', item: m, index: 1 };
+                if (Math.abs(x - m.points[0].x) < baseRadius) return { type: 'svaLine', item: m };
             }
             else if (m.points) { for(let p=0; p<m.points.length; p++) if (Math.hypot(x - m.points[p].x, y - m.points[p].y) < baseRadius) return { type: 'point', item: m, index: p }; if(m.points.length >= 2) if(distToSegment(x, y, m.points[0], m.points[1]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 0, idx2: 1, lastX: x, lastY: y }; if(m.points.length === 4) if(distToSegment(x, y, m.points[2], m.points[3]) < baseRadius) return { type: 'lineSegment', item: m, idx1: 2, idx2: 3, lastX: x, lastY: y }; }
         }
@@ -971,206 +1006,218 @@
     function draw() {
         ctx.clearRect(0,0, canvas.width, canvas.height); window.currentResults = {}; 
         if (bgImage) {
-            ctx.save(); ctx.translate(panX, panY); ctx.scale(baseScale * zoomScale, baseScale * zoomScale); ctx.drawImage(bgImage, 0, 0);
-            let val_L1PA = null; let val_T4PA = null;
+            ctx.save(); 
+            try {
+                ctx.translate(panX, panY); ctx.scale(baseScale * zoomScale, baseScale * zoomScale); ctx.drawImage(bgImage, 0, 0);
+                let val_L1PA = null; let val_T4PA = null;
 
-            measurements.forEach(m => {
-                ctx.strokeStyle = m.color; ctx.fillStyle = m.color; ctx.lineWidth = m.width / (baseScale * zoomScale); ctx.lineCap = 'round';
-                
-                if (m.type === 'line' || m.type === 'angle') { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); let dist = Math.hypot(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y).toFixed(0); let text = m.type === 'line' ? `${dist} mm` : 'WIP'; drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize); }
-                else if (m.type === 'circle') { ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, m.radius, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(m.radius > 5) { ctx.beginPath(); ctx.arc(m.points[0].x + m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x - m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y + m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y - m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } drawText(m.textPos.x, m.textPos.y, m.title, `${m.radius.toFixed(0)}mm`, m.color, m.fontSize); }
-                else if (m.type === 'cobb') {
-                    if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
-                    if(m.points.length === 4) {
-                        ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
-                        let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x); let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
-                        let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
-                        
-                        let finalVal = diff; let prefix = '';
-                        let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
-                        let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; let det = A1*B2 - A2*B1;
-                        if (Math.abs(det) > 0.0001) {
-                            let x_int = (B2*C1 - B1*C2) / det; let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
-                            let isKyphosis = (x_int > spine_x && gazeDirection === 1) || (x_int < spine_x && gazeDirection === -1); let isLordosis = !isKyphosis;
-                            let title = m.title || ""; let isThoracic = title.includes('Tk') || title.includes('Cifosis') || title.includes('TL'); let isCervical = title.includes('C2-C7') || title.includes('C0-C2'); let isLumbar = title.includes('L1-S1') || title.includes('L4-S1') || title.includes('L4-L5') || title.includes('Lordosis');
-                            let sign = 1; if (isThoracic) { sign = isKyphosis ? 1 : -1; } else if (isCervical || isLumbar) { sign = isLordosis ? 1 : -1; }
-                            finalVal = diff * sign; prefix = (sign < 0) ? '' : '';
-                        }
-                        if(isNaN(finalVal)) finalVal = 0;
-                        window.currentResults[m.title] = finalVal; if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${finalVal.toFixed(0)}°`, m.color, m.fontSize);
-                    }
-                }
-                else if (m.type === 'cobb_coronal') {
-                    if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
-                    if(m.points.length === 4) {
-                        ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
-                        let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x); 
-                        let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
-                        let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
-                        if(isNaN(diff)) diff = 0;
-                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${diff.toFixed(0)}°`, m.color, m.fontSize);
-                        
-                        let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
-                        let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; 
-                        let det = A1*B2 - A2*B1;
-                        if (Math.abs(det) > 0.0001) {
-                            let x_int = (B2*C1 - B1*C2) / det; 
-                            let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
-                            let convexity = x_int > spine_x ? "Izquierda" : "Derecha";
-                            window.currentResults['CoronalConvexity'] = convexity;
-                        }
-                    }
-                }
-                else if (m.type === 'point_marker') {
-                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.fill();
-                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 8 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.stroke();
-                    if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, "", m.color, m.fontSize);
-
-                    if (m.subType === 'bao_c7') {
-                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[0].x, m.points[0].y + 800); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
-                        window.currentResults['BaoC7_X'] = m.points[0].x;
-                    }
-                    if (m.subType === 'bao_s1') {
-                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[0].x, m.points[0].y - 800); ctx.setLineDash([2,4]); ctx.stroke(); ctx.setLineDash([]);
-                        window.currentResults['BaoS1_X'] = m.points[0].x;
-                    }
-                    if (m.subType === 'apex') {
-                        window.currentResults['ApexL_Y'] = m.points[0].y;
-                    }
-                    if (m.subType === 'inflection') {
-                        window.currentResults['Inflection_Y'] = m.points[0].y;
-                    }
-                }
-                else if (m.type === 'horiz_angle') {
-                    if (m.points.length === 2) {
-                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); 
-                        let hp = m.points[0].y < m.points[1].y ? m.points[0] : m.points[1];
-                        let lp = m.points[0].y < m.points[1].y ? m.points[1] : m.points[0];
-                        let dx = Math.abs(lp.x - hp.x); let dy = lp.y - hp.y; 
-                        let ang = Math.atan2(dy, dx) * 180 / Math.PI; 
-                        let dirX = lp.x >= hp.x ? 1 : -1;
-                        let lineLen = Math.max(80 / (baseScale*zoomScale), dx + 30 / (baseScale*zoomScale));
-                        ctx.beginPath(); ctx.moveTo(hp.x, hp.y); ctx.lineTo(hp.x + lineLen * dirX, hp.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
-                        window.currentResults[m.title] = ang;
-                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize); 
-                    }
-                }
-                else if (m.type === 'coronal_cf') { 
-                    m.circles.forEach(c => { 
-                        ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); 
-                        let dotR = 4 / (baseScale * zoomScale); 
-                        ctx.beginPath(); ctx.arc(c.x, c.y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); 
-                        if(c.r > 5) { 
-                            ctx.beginPath(); ctx.arc(c.x + c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                            ctx.beginPath(); ctx.arc(c.x - c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                            ctx.beginPath(); ctx.arc(c.x, c.y + c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                            ctx.beginPath(); ctx.arc(c.x, c.y - c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
-                        } 
-                    }); 
-                    if (m.circles.length === 2 && m.textPos) {
-                        drawText(m.textPos.x, m.textPos.y, null, m.title, m.color, m.fontSize);
-                    }
-                }
-                else if (m.type === 'pelvic') { 
-                    m.circles.forEach(c => { ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(c.x, c.y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(c.r > 5) { ctx.beginPath(); ctx.arc(c.x + c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x - c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y + c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y - c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } }); 
-                    if(m.line && m.line.length === 2) { 
-                        ctx.beginPath(); ctx.moveTo(m.line[0].x, m.line[0].y); ctx.lineTo(m.line[1].x, m.line[1].y); ctx.stroke(); 
-                        if(m.circles.length === 2 && m.textPos) { 
-                            let ha_x = (m.circles[0].x + m.circles[1].x)/2; let ha_y = (m.circles[0].y + m.circles[1].y)/2; 
-                            let s1_x = (m.line[0].x + m.line[1].x)/2; let s1_y = (m.line[0].y + m.line[1].y)/2; 
-                            let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if(ss>90) ss=180-ss; 
-                            let pt_mag = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if(pt_mag>90) pt_mag=Math.abs(pt_mag-180); 
-                            
-                            let isAnterior = ((s1_x - ha_x) * gazeDirection) > 0;
-                            let pt = isAnterior ? -pt_mag : pt_mag;
-                            
-                            let pi = ss + pt; 
-                            window.currentResults['PI'] = pi; 
-                            window.currentResults['SS'] = ss;
-                            let text = `PI: ${pi.toFixed(0)}°\nPT: ${pt.toFixed(0)}°\nSS: ${ss.toFixed(0)}°`; 
-                            drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); 
-                        } 
-                    } 
-                }
-                else if (m.type === 'meyerding') {
-                    if (m.points.length === 2) {
+                measurements.forEach(m => {
+                    ctx.strokeStyle = m.color; ctx.fillStyle = m.color; ctx.lineWidth = m.width / (baseScale * zoomScale); ctx.lineCap = 'round';
+                    
+                    if (m.type === 'calibrate') {
                         ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke();
-                        if (m.slipPoint && m.textPos) {
-                            let dotR = 4 / (baseScale * zoomScale);
-                            ctx.beginPath(); ctx.arc(m.slipPoint.x, m.slipPoint.y, dotR * 1.5, 0, 2*Math.PI); ctx.fill();
-                            let pA = m.points[0]; let pB = m.points[1]; let pPost, pAnt;
-                            if (gazeDirection === 1) { if (pA.x < pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } } else { if (pA.x > pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } }
-                            ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(pPost.x, pPost.y, dotR, 0, 2*Math.PI); ctx.fill(); ctx.fillStyle = m.color;
-                            let dx = pAnt.x - pPost.x; let dy = pAnt.y - pPost.y; let L = Math.hypot(dx, dy);
-                            if (L > 0) {
-                                let dot = (m.slipPoint.x - pPost.x)*dx + (m.slipPoint.y - pPost.y)*dy; let projDist = dot / L; let projX = pPost.x + (projDist / L) * dx; let projY = pPost.y + (projDist / L) * dy;
-                                ctx.beginPath(); ctx.moveTo(m.slipPoint.x, m.slipPoint.y); ctx.lineTo(projX, projY); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(projX, projY, dotR * 0.8, 0, 2*Math.PI); ctx.fill();
-                                let percent = (projDist / L) * 100; let absPercent = Math.abs(percent); let grade = "";
-                                if (absPercent <= 25) grade = "I"; else if (absPercent <= 50) grade = "II"; else if (absPercent <= 75) grade = "III"; else if (absPercent <= 100) grade = "IV"; else grade = "V";
-                                let tipo = percent > 0 ? "Anterolistesis" : "Retrolistesis"; if (Math.abs(percent) < 2) tipo = "Sin patología de listesis";
-                                window.currentResults['Slip'] = absPercent; 
-                                let text = `${tipo}\nDeslizamiento: ${absPercent.toFixed(0)}%\nMeyerding: Grado ${grade}`;
-                                drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize);
+                        if (m.realMm && m.textPos) {
+                            drawText(m.textPos.x, m.textPos.y, m.title, `${m.realMm} mm (Ref)`, m.color, m.fontSize);
+                        }
+                    }
+                    else if (m.type === 'line' || m.type === 'angle') { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); let rawDist = Math.hypot(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y); let realDist = rawDist * (window.mmPerPx || 1); let unit = window.mmPerPx ? ' mm' : ' px'; let text = m.type === 'line' ? `${realDist.toFixed(1)}${unit}` : 'WIP'; drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize); }
+                    else if (m.type === 'circle') { ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, m.radius, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(m.radius > 5) { ctx.beginPath(); ctx.arc(m.points[0].x + m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x - m.radius, m.points[0].y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y + m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y - m.radius, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } let realRad = m.radius * (window.mmPerPx || 1); let unit = window.mmPerPx ? ' mm' : ' px'; drawText(m.textPos.x, m.textPos.y, m.title, `${realRad.toFixed(1)}${unit}`, m.color, m.fontSize); }
+                    else if (m.type === 'cobb') {
+                        if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
+                        if(m.points.length === 4) {
+                            ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
+                            let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x); let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
+                            let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
+                            
+                            let finalVal = diff; let prefix = '';
+                            let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
+                            let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; let det = A1*B2 - A2*B1;
+                            if (Math.abs(det) > 0.0001) {
+                                let x_int = (B2*C1 - B1*C2) / det; let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
+                                let isKyphosis = (x_int > spine_x && gazeDirection === 1) || (x_int < spine_x && gazeDirection === -1); let isLordosis = !isKyphosis;
+                                let title = m.title || ""; let isThoracic = title.includes('Tk') || title.includes('Cifosis') || title.includes('TL'); let isCervical = title.includes('C2-C7') || title.includes('C0-C2'); let isLumbar = title.includes('L1-S1') || title.includes('L4-S1') || title.includes('L4-L5') || title.includes('Lordosis');
+                                let sign = 1; if (isThoracic) { sign = isKyphosis ? 1 : -1; } else if (isCervical || isLumbar) { sign = isLordosis ? 1 : -1; }
+                                finalVal = diff * sign; prefix = (sign < 0) ? '' : '';
+                            }
+                            if(isNaN(finalVal)) finalVal = 0;
+                            window.currentResults[m.title] = finalVal; if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${finalVal.toFixed(0)}°`, m.color, m.fontSize);
+                        }
+                    }
+                    else if (m.type === 'cobb_coronal') {
+                        if(m.points.length >= 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); }
+                        if(m.points.length === 4) {
+                            ctx.beginPath(); ctx.moveTo(m.points[2].x, m.points[2].y); ctx.lineTo(m.points[3].x, m.points[3].y); ctx.stroke();
+                            let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x); 
+                            let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
+                            let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
+                            if(isNaN(diff)) diff = 0;
+                            if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${diff.toFixed(0)}°`, m.color, m.fontSize);
+                            
+                            let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
+                            let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y; 
+                            let det = A1*B2 - A2*B1;
+                            if (Math.abs(det) > 0.0001) {
+                                let x_int = (B2*C1 - B1*C2) / det; 
+                                let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
+                                let convexity = x_int > spine_x ? "Izquierda" : "Derecha";
+                                window.currentResults['CoronalConvexity'] = convexity;
                             }
                         }
                     }
-                }
-                else if (m.type === 'vertebraLabel') {
-                    let sc = baseScale * zoomScale;
-                    ctx.font = `bold ${(m.fontSize + 6)/sc}px sans-serif`; 
-                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    ctx.fillStyle = m.color; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 8/sc;
-                    ctx.fillText(m.title, m.x, m.y); ctx.fillText(m.title, m.x, m.y); ctx.shadowBlur = 0;
-                }
-                else if (m.type === 'vertebraContour') {
-                    if (m.points.length > 0) {
-                        ctx.beginPath();
-                        ctx.moveTo(m.points[0].x, m.points[0].y);
-                        for (let i = 1; i < m.points.length; i++) ctx.lineTo(m.points[i].x, m.points[i].y);
-                        if (m.closed) {
-                            ctx.closePath(); ctx.fillStyle = m.color + '4D'; ctx.fill();
-                        } else if (m.tempPoint) {
-                            ctx.lineTo(m.tempPoint.x, m.tempPoint.y);
-                        }
-                        ctx.stroke();
-                        if (!m.closed) {
-                            ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 6/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill();
-                        }
-                    }
-                }
-                else if (m.type === 'thoracic') { if (m.points.length === 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); if(m.sternum && m.textPos) { ctx.beginPath(); ctx.arc(m.sternum.x, m.sternum.y, 4, 0, 2*Math.PI); ctx.fill(); let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2; ctx.beginPath(); ctx.moveTo(midX, midY); ctx.lineTo(m.sternum.x, m.sternum.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI); let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI); let tia = t1s + nt; let text = `T1S: ${t1s.toFixed(0)}°\nTIA: ${tia.toFixed(0)}°\nNT: ${nt.toFixed(0)}°`; drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); } } }
-                else if (m.type === 'cbva' && m.points.length === 2) { 
-                    ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); 
-                    let dx = m.points[1].x - m.points[0].x; let dy = m.points[1].y - m.points[0].y; 
-                    let ang = -(Math.atan2(dx, dy) * 180 / Math.PI) * gazeDirection; 
-                    if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize); 
-                }
-                else if (m.type === 'sva') { 
-                    ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y - 800); ctx.lineTo(m.points[0].x, m.points[0].y + 1200); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
-                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill(); 
-                    ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 8/(baseScale*zoomScale), 0, 2*Math.PI); ctx.stroke();
-                    
-                    let targetPoint = m.points.length > 1 ? m.points[1] : m.tempPoint;
+                    else if (m.type === 'point_marker') {
+                        ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.fill();
+                        ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 8 / (baseScale * zoomScale), 0, 2*Math.PI); ctx.stroke();
+                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, "", m.color, m.fontSize);
 
-                    if (targetPoint) {
-                        ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill();
-                        ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, 8/(baseScale*zoomScale), 0, 2*Math.PI); ctx.stroke();
-                        
-                        ctx.beginPath(); ctx.moveTo(targetPoint.x, targetPoint.y); ctx.lineTo(m.points[0].x, targetPoint.y); ctx.setLineDash([2,2]); ctx.stroke(); ctx.setLineDash([]);
-                        
-                        let dist = (m.points[0].x - targetPoint.x) * gazeDirection; 
-                        let signStr = dist >= 0 ? "+" : "-";
-                        
-                        if(m.textPos) {
-                            drawText(m.textPos.x, m.textPos.y, m.title, `${signStr}${Math.abs(dist).toFixed(0)} mm`, m.color, m.fontSize);
-                        } else {
-                            drawText(targetPoint.x + 10, targetPoint.y + 10, null, `${signStr}${Math.abs(dist).toFixed(0)} mm`, m.color, m.fontSize);
+                        if (m.subType === 'bao_c7') {
+                            ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[0].x, m.points[0].y + 800); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
+                            window.currentResults['BaoC7_X'] = m.points[0].x;
+                        }
+                        if (m.subType === 'bao_s1') {
+                            ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[0].x, m.points[0].y - 800); ctx.setLineDash([2,4]); ctx.stroke(); ctx.setLineDash([]);
+                            window.currentResults['BaoS1_X'] = m.points[0].x;
+                        }
+                        if (m.subType === 'apex') {
+                            window.currentResults['ApexL_Y'] = m.points[0].y;
+                        }
+                        if (m.subType === 'inflection') {
+                            window.currentResults['Inflection_Y'] = m.points[0].y;
                         }
                     }
-                }
-                else if (m.type === 'sagittal') { let pelvic = measurements.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2); if (pelvic) { let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2; let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2; ctx.beginPath(); ctx.arc(ha_x, ha_y, 2, 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill(); ctx.fillStyle = m.color; ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke(); let angle = 0; let signedAngle = 0; let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 = Math.hypot(v1.x, v1.y); if (m.subType === 'pa') { let s1_x = (pelvic.line[0].x + pelvic.line[1].x)/2; let s1_y = (pelvic.line[0].y + pelvic.line[1].y)/2; let v2 = {x: s1_x - ha_x, y: s1_y - ha_y}; let mag2 = Math.hypot(v2.x, v2.y); let dot = v1.x*v2.x + v1.y*v2.y; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let cross = v2.x * v1.y - v2.y * v1.x; let side = cross * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; if (m.title === 'L1-PA') val_L1PA = signedAngle; if (m.title === 'T4-PA') val_T4PA = signedAngle; } else if (m.subType === 'tilt') { let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y; let mag2 = 1; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let side = v1.x * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; } drawText(m.textPos.x, m.textPos.y, m.title, `${signedAngle.toFixed(0)}°`, m.color, m.fontSize); } else drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize); }
-            });
-            ctx.restore();
+                    else if (m.type === 'horiz_angle') {
+                        if (m.points.length === 2) {
+                            ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); 
+                            let hp = m.points[0].y < m.points[1].y ? m.points[0] : m.points[1];
+                            let lp = m.points[0].y < m.points[1].y ? m.points[1] : m.points[0];
+                            let dx = Math.abs(lp.x - hp.x); let dy = lp.y - hp.y; 
+                            let ang = Math.atan2(dy, dx) * 180 / Math.PI; 
+                            let dirX = lp.x >= hp.x ? 1 : -1;
+                            let lineLen = Math.max(80 / (baseScale*zoomScale), dx + 30 / (baseScale*zoomScale));
+                            ctx.beginPath(); ctx.moveTo(hp.x, hp.y); ctx.lineTo(hp.x + lineLen * dirX, hp.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
+                            window.currentResults[m.title] = ang;
+                            if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize); 
+                        }
+                    }
+                    else if (m.type === 'coronal_cf') { 
+                        m.circles.forEach(c => { 
+                            ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); 
+                            let dotR = 4 / (baseScale * zoomScale); 
+                            ctx.beginPath(); ctx.arc(c.x, c.y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); 
+                            if(c.r > 5) { 
+                                ctx.beginPath(); ctx.arc(c.x + c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
+                                ctx.beginPath(); ctx.arc(c.x - c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
+                                ctx.beginPath(); ctx.arc(c.x, c.y + c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
+                                ctx.beginPath(); ctx.arc(c.x, c.y - c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); 
+                            } 
+                        }); 
+                        if (m.circles.length === 2 && m.textPos) {
+                            drawText(m.textPos.x, m.textPos.y, null, m.title, m.color, m.fontSize);
+                        }
+                    }
+                    else if (m.type === 'pelvic') { 
+                        m.circles.forEach(c => { ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI); ctx.stroke(); let dotR = 4 / (baseScale * zoomScale); ctx.beginPath(); ctx.arc(c.x, c.y, dotR * 1.2, 0, 2*Math.PI); ctx.fill(); if(c.r > 5) { ctx.beginPath(); ctx.arc(c.x + c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x - c.r, c.y, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y + c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(c.x, c.y - c.r, dotR*0.8, 0, 2*Math.PI); ctx.fill(); } }); 
+                        if(m.line && m.line.length === 2) { 
+                            ctx.beginPath(); ctx.moveTo(m.line[0].x, m.line[0].y); ctx.lineTo(m.line[1].x, m.line[1].y); ctx.stroke(); 
+                            if(m.circles.length === 2 && m.textPos) { 
+                                let ha_x = (m.circles[0].x + m.circles[1].x)/2; let ha_y = (m.circles[0].y + m.circles[1].y)/2; 
+                                let s1_x = (m.line[0].x + m.line[1].x)/2; let s1_y = (m.line[0].y + m.line[1].y)/2; 
+                                let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if(ss>90) ss=180-ss; 
+                                let pt_mag = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if(pt_mag>90) pt_mag=Math.abs(pt_mag-180); 
+                                
+                                let isAnterior = ((s1_x - ha_x) * gazeDirection) > 0;
+                                let pt = isAnterior ? -pt_mag : pt_mag;
+                                
+                                let pi = ss + pt; 
+                                window.currentResults['PI'] = pi; 
+                                window.currentResults['SS'] = ss;
+                                let text = `PI: ${pi.toFixed(0)}°\nPT: ${pt.toFixed(0)}°\nSS: ${ss.toFixed(0)}°`; 
+                                drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); 
+                            } 
+                        } 
+                    }
+                    else if (m.type === 'meyerding') {
+                        if (m.points.length === 2) {
+                            ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke();
+                            if (m.slipPoint && m.textPos) {
+                                let dotR = 4 / (baseScale * zoomScale);
+                                ctx.beginPath(); ctx.arc(m.slipPoint.x, m.slipPoint.y, dotR * 1.5, 0, 2*Math.PI); ctx.fill();
+                                let pA = m.points[0]; let pB = m.points[1]; let pPost, pAnt;
+                                if (gazeDirection === 1) { if (pA.x < pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } } else { if (pA.x > pB.x) { pPost = pA; pAnt = pB; } else { pPost = pB; pAnt = pA; } }
+                                ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(pPost.x, pPost.y, dotR, 0, 2*Math.PI); ctx.fill(); ctx.fillStyle = m.color;
+                                let dx = pAnt.x - pPost.x; let dy = pAnt.y - pPost.y; let L = Math.hypot(dx, dy);
+                                if (L > 0) {
+                                    let dot = (m.slipPoint.x - pPost.x)*dx + (m.slipPoint.y - pPost.y)*dy; let projDist = dot / L; let projX = pPost.x + (projDist / L) * dx; let projY = pPost.y + (projDist / L) * dy;
+                                    ctx.beginPath(); ctx.moveTo(m.slipPoint.x, m.slipPoint.y); ctx.lineTo(projX, projY); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(projX, projY, dotR * 0.8, 0, 2*Math.PI); ctx.fill();
+                                    let percent = (projDist / L) * 100; let absPercent = Math.abs(percent); let grade = "";
+                                    if (absPercent <= 25) grade = "I"; else if (absPercent <= 50) grade = "II"; else if (absPercent <= 75) grade = "III"; else if (absPercent <= 100) grade = "IV"; else grade = "V";
+                                    let tipo = percent > 0 ? "Anterolistesis" : "Retrolistesis"; if (Math.abs(percent) < 2) tipo = "Sin patología de listesis";
+                                    window.currentResults['Slip'] = absPercent; 
+                                    let text = `${tipo}\nDeslizamiento: ${absPercent.toFixed(0)}%\nMeyerding: Grado ${grade}`;
+                                    drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize);
+                                }
+                            }
+                        }
+                    }
+                    else if (m.type === 'vertebraLabel') {
+                        let sc = baseScale * zoomScale;
+                        ctx.font = `bold ${(m.fontSize + 6)/sc}px sans-serif`; 
+                        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                        ctx.fillStyle = m.color; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 8/sc;
+                        ctx.fillText(m.title, m.x, m.y); ctx.fillText(m.title, m.x, m.y); ctx.shadowBlur = 0;
+                    }
+                    else if (m.type === 'vertebraContour') {
+                        if (m.points.length > 0) {
+                            ctx.beginPath();
+                            ctx.moveTo(m.points[0].x, m.points[0].y);
+                            for (let i = 1; i < m.points.length; i++) ctx.lineTo(m.points[i].x, m.points[i].y);
+                            if (m.closed) {
+                                ctx.closePath(); ctx.fillStyle = m.color + '4D'; ctx.fill();
+                            } else if (m.tempPoint) {
+                                ctx.lineTo(m.tempPoint.x, m.tempPoint.y);
+                            }
+                            ctx.stroke();
+                            if (!m.closed) {
+                                ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 6/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill();
+                            }
+                        }
+                    }
+                    else if (m.type === 'thoracic') { if (m.points.length === 2) { ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); if(m.sternum && m.textPos) { ctx.beginPath(); ctx.arc(m.sternum.x, m.sternum.y, 4, 0, 2*Math.PI); ctx.fill(); let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2; ctx.beginPath(); ctx.moveTo(midX, midY); ctx.lineTo(m.sternum.x, m.sternum.y); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI); let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI); let tia = t1s + nt; let text = `T1S: ${t1s.toFixed(0)}°\nTIA: ${tia.toFixed(0)}°\nNT: ${nt.toFixed(0)}°`; drawText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize); } } }
+                    else if (m.type === 'cbva' && m.points.length === 2) { 
+                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(m.points[1].x, m.points[1].y); ctx.stroke(); 
+                        let dx = m.points[1].x - m.points[0].x; let dy = m.points[1].y - m.points[0].y; 
+                        let ang = -(Math.atan2(dx, dy) * 180 / Math.PI) * gazeDirection; 
+                        if(m.textPos) drawText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize); 
+                    }
+                    else if (m.type === 'sva') { 
+                        ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y - 800); ctx.lineTo(m.points[0].x, m.points[0].y + 1200); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); 
+                        ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill(); 
+                        ctx.beginPath(); ctx.arc(m.points[0].x, m.points[0].y, 8/(baseScale*zoomScale), 0, 2*Math.PI); ctx.stroke();
+                        
+                        let targetPoint = m.points.length > 1 ? m.points[1] : m.tempPoint;
+
+                        if (targetPoint) {
+                            ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, 4/(baseScale*zoomScale), 0, 2*Math.PI); ctx.fill();
+                            ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, 8/(baseScale*zoomScale), 0, 2*Math.PI); ctx.stroke();
+                            
+                            ctx.beginPath(); ctx.moveTo(targetPoint.x, targetPoint.y); ctx.lineTo(m.points[0].x, targetPoint.y); ctx.setLineDash([2,2]); ctx.stroke(); ctx.setLineDash([]);
+                            
+                            let rawDist = (m.points[0].x - targetPoint.x) * gazeDirection; 
+                            let realDist = rawDist * (window.mmPerPx || 1);
+                            let signStr = realDist >= 0 ? "+" : "-";
+                            let unit = window.mmPerPx ? ' mm' : ' px';
+                            
+                            if(m.textPos) {
+                                drawText(m.textPos.x, m.textPos.y, m.title, `${signStr}${Math.abs(realDist).toFixed(1)}${unit}`, m.color, m.fontSize);
+                            } else {
+                                drawText(targetPoint.x + 10, targetPoint.y + 10, null, `${signStr}${Math.abs(realDist).toFixed(1)}${unit}`, m.color, m.fontSize);
+                            }
+                        }
+                    }
+                    else if (m.type === 'sagittal') { let pelvic = measurements.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2); if (pelvic) { let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2; let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2; ctx.beginPath(); ctx.arc(ha_x, ha_y, 2, 0, 2*Math.PI); ctx.fillStyle = '#ef4444'; ctx.fill(); ctx.fillStyle = m.color; ctx.beginPath(); ctx.moveTo(m.points[0].x, m.points[0].y); ctx.lineTo(ha_x, ha_y); ctx.stroke(); let angle = 0; let signedAngle = 0; let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 = Math.hypot(v1.x, v1.y); if (m.subType === 'pa') { let s1_x = (pelvic.line[0].x + pelvic.line[1].x)/2; let s1_y = (pelvic.line[0].y + pelvic.line[1].y)/2; let v2 = {x: s1_x - ha_x, y: s1_y - ha_y}; let mag2 = Math.hypot(v2.x, v2.y); let dot = v1.x*v2.x + v1.y*v2.y; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let cross = v2.x * v1.y - v2.y * v1.x; let side = cross * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; if (m.title === 'L1-PA') val_L1PA = signedAngle; if (m.title === 'T4-PA') val_T4PA = signedAngle; } else if (m.subType === 'tilt') { let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y; let mag2 = 1; angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let side = v1.x * gazeDirection; signedAngle = side >= 0 ? angle : -angle; window.currentResults[m.title] = signedAngle; } drawText(m.textPos.x, m.textPos.y, m.title, `${signedAngle.toFixed(0)}°`, m.color, m.fontSize); } else drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize); }
+                });
+            } finally {
+                ctx.restore();
+            }
 
             let mmBox = document.getElementById('mismatch-box'); let mmVal = document.getElementById('mismatch-val');
             if(val_L1PA !== null && val_T4PA !== null) { let mismatch = val_T4PA - val_L1PA; let absMismatch = Math.abs(mismatch); let mColor = absMismatch <= 4 ? '#10b981' : '#f43f5e'; mmVal.innerText = `${mismatch.toFixed(0)}°`; mmVal.style.color = mColor; mmBox.style.borderColor = mColor; mmBox.classList.remove('hidden'); } else { mmBox.classList.add('hidden'); }
