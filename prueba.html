@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V58 - Estación Quirúrgica Completa</title>
+    <title>SpinePlan Pro V58 - Complete Surgical Station</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -28,13 +28,13 @@
     <!-- MODAL DATOS DEL PACIENTE -->
     <div id="patient-modal" class="hidden fixed inset-0 z-[200] bg-black/80 flex items-center justify-center backdrop-blur-sm">
         <div class="bg-gray-900 border border-gray-700 p-6 rounded-xl w-80 shadow-2xl">
-            <h3 class="text-emerald-400 font-bold mb-4">Datos del Paciente</h3>
-            <input type="text" id="pat-name" placeholder="Nombre y Apellido" class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-white mb-3 focus:outline-none focus:border-emerald-500">
-            <input type="text" id="pat-id" placeholder="Cédula de Identidad" class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-white mb-3 focus:outline-none focus:border-emerald-500">
-            <input type="text" id="pat-age" placeholder="Edad" class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-white mb-5 focus:outline-none focus:border-emerald-500">
+            <h3 class="text-emerald-400 font-bold mb-4" data-i18n="pat_modal_title">Patient Information</h3>
+            <input type="text" id="pat-name" data-i18n-ph="pat_name_ph" placeholder="Full Name" class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-white mb-3 focus:outline-none focus:border-emerald-500">
+            <input type="text" id="pat-id" data-i18n-ph="pat_id_ph" placeholder="Patient ID" class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-white mb-3 focus:outline-none focus:border-emerald-500">
+            <input type="text" id="pat-age" data-i18n-ph="pat_age_ph" placeholder="Age" class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-white mb-5 focus:outline-none focus:border-emerald-500">
             <div class="flex justify-end space-x-2">
-                <button onclick="closePatientModal()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded text-xs transition-colors">Cancelar</button>
-                <button onclick="savePatientData()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded text-xs transition-colors shadow-lg">Generar Ficha</button>
+                <button onclick="closePatientModal()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded text-xs transition-colors" data-i18n="btn_cancel">Cancel</button>
+                <button onclick="savePatientData()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded text-xs transition-colors shadow-lg" data-i18n="btn_generate">Generate Record</button>
             </div>
         </div>
     </div>
@@ -43,32 +43,32 @@
     <div id="save-modal" class="hidden fixed inset-0 z-[200] bg-black/80 flex items-center justify-center backdrop-blur-sm">
         <div class="bg-gray-900 border border-gray-700 p-6 rounded-xl w-96 max-w-[92vw] shadow-2xl">
             <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
-                <h3 class="text-purple-400 font-bold text-base">💾 Guardar y Exportar Estudio</h3>
-                <button onclick="closeSaveModal()" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs">&times; Cerrar</button>
+                <h3 class="text-purple-400 font-bold text-base" data-i18n="save_modal_title">💾 Save & Export Study</h3>
+                <button onclick="closeSaveModal()" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs" data-i18n="btn_close">&times; Close</button>
             </div>
 
             <div class="space-y-4">
                 <!-- OPCIÓN 1: IMÁGENES PNG ESTAMPADAS -->
                 <div class="bg-gray-800/60 border border-gray-700 rounded-lg p-3 space-y-2">
-                    <span class="text-[11px] text-emerald-400 font-bold uppercase tracking-wider block">1. Exportar Imagen Final (PNG para PC/Drive)</span>
-                    <p class="text-[11px] text-gray-400 leading-tight">Descarga una imagen con los trazos, ficha del paciente y tablas integradas.</p>
-                    <button onclick="exportCurrentStagePNG()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-3 rounded text-xs transition-colors shadow flex items-center justify-center">
-                        📸 Descargar Placa Actual Medida (PNG)
+                    <span class="text-[11px] text-emerald-400 font-bold uppercase tracking-wider block" data-i18n="save_sec1_title">1. Export Final Image (PNG for PC/Drive)</span>
+                    <p class="text-[11px] text-gray-400 leading-tight" data-i18n="save_sec1_desc">Download an image with measurements, patient record, and tables burned in.</p>
+                    <button onclick="exportCurrentStagePNG()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-3 rounded text-xs transition-colors shadow flex items-center justify-center" data-i18n="btn_exp_current">
+                        📸 Download Current Measured X-Ray (PNG)
                     </button>
-                    <button onclick="exportComparisonPNG()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 px-3 rounded text-xs transition-colors shadow flex items-center justify-center">
-                        🖼️ Descargar Reporte Comparativo Pre/Post (PNG)
+                    <button onclick="exportComparisonPNG()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 px-3 rounded text-xs transition-colors shadow flex items-center justify-center" data-i18n="btn_exp_comp">
+                        🖼️ Download Pre/Post Comparative Report (PNG)
                     </button>
                 </div>
 
                 <!-- OPCIÓN 2: ARCHIVO EDITABLE .SPINE -->
                 <div class="bg-gray-800/60 border border-gray-700 rounded-lg p-3 space-y-2">
-                    <span class="text-[11px] text-purple-400 font-bold uppercase tracking-wider block">2. Proyecto Editable (Para remodelar después)</span>
-                    <p class="text-[11px] text-gray-400 leading-tight">Guarda este archivo en tu PC o Google Drive. Al abrirlo recuperarás las placas Pre y Post con todas las mediciones editables.</p>
-                    <button onclick="downloadProjectFile()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-3 rounded text-xs transition-colors shadow flex items-center justify-center">
-                        💾 Descargar Estudio Editable (.spine)
+                    <span class="text-[11px] text-purple-400 font-bold uppercase tracking-wider block" data-i18n="save_sec2_title">2. Editable Project (Re-edit Later)</span>
+                    <p class="text-[11px] text-gray-400 leading-tight" data-i18n="save_sec2_desc">Save this file on your PC or Google Drive. Open it anytime to restore Pre and Post X-rays with editable measurements.</p>
+                    <button onclick="downloadProjectFile()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-3 rounded text-xs transition-colors shadow flex items-center justify-center" data-i18n="btn_dl_spine">
+                        💾 Download Editable Study (.spine)
                     </button>
                     <label class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 px-3 rounded text-xs transition-colors shadow flex items-center justify-center cursor-pointer">
-                        📂 Abrir Estudio Guardado (.spine)
+                        <span data-i18n="btn_open_spine">📂 Open Saved Study (.spine)</span>
                         <input type="file" id="projectLoader" class="hidden" accept=".spine,.json">
                     </label>
                 </div>
@@ -77,18 +77,24 @@
     </div>
 
     <div id="splash-screen" class="fixed inset-0 z-[100] bg-[#0f172a] flex items-center justify-center transition-opacity duration-700">
+        <div class="absolute top-6 left-6 z-[130]">
+            <select id="lang-select-splash" onchange="setLanguage(this.value)" class="bg-black/60 text-white border border-white/20 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm cursor-pointer focus:outline-none focus:border-emerald-500">
+                <option value="en">🇺🇸 English</option>
+                <option value="es">🇪🇸 Español</option>
+            </select>
+        </div>
         <video id="intro-video" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000" autoplay muted playsinline>
             <source src="intro_spine.mp4" type="video/mp4">
         </video>
-        <button id="skip-btn" onclick="showLogin()" class="absolute top-6 right-6 z-[110] bg-black/50 text-white/70 hover:text-white px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-sm border border-white/10 transition-colors">Saltar Intro</button>
+        <button id="skip-btn" onclick="showLogin()" class="absolute top-6 right-6 z-[110] bg-black/50 text-white/70 hover:text-white px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-sm border border-white/10 transition-colors" data-i18n="btn_skip">Skip Intro</button>
         <div id="login-container" class="relative z-[120] flex flex-col items-center opacity-0 pointer-events-none transition-all duration-700 translate-y-4">
             <img src="nuevo_logo.jpeg" alt="Logo" class="w-24 h-24 object-cover rounded-2xl shadow-[0_0_15px_rgba(16,185,129,0.3)] mb-6 border-2 border-emerald-500/50">
             <div class="bg-gray-900/60 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 shadow-2xl w-80 text-center">
                 <h2 class="text-2xl font-bold text-white mb-1">SpinePlan <span class="text-emerald-400 font-normal">Pro</span></h2>
-                <p class="text-gray-400 text-xs mb-6 uppercase tracking-wider">Acceso Restringido</p>
-                <input type="password" id="pass-input" placeholder="Contraseña Maestra" class="w-full bg-gray-950/50 border border-gray-600/50 text-white text-center rounded-lg px-4 py-3 mb-4 focus:outline-none focus:border-emerald-500 transition-colors">
-                <p id="login-error" class="text-red-400 text-xs mb-4 hidden">Contraseña incorrecta.</p>
-                <button onclick="checkPassword()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg shadow-lg transition-colors">Ingresar</button>
+                <p class="text-gray-400 text-xs mb-6 uppercase tracking-wider" data-i18n="login_sub">Restricted Access</p>
+                <input type="password" id="pass-input" data-i18n-ph="login_pass_ph" placeholder="Master Password" class="w-full bg-gray-950/50 border border-gray-600/50 text-white text-center rounded-lg px-4 py-3 mb-4 focus:outline-none focus:border-emerald-500 transition-colors">
+                <p id="login-error" class="text-red-400 text-xs mb-4 hidden" data-i18n="login_err">Incorrect password.</p>
+                <button onclick="checkPassword()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg shadow-lg transition-colors" data-i18n="login_btn">Enter</button>
             </div>
         </div>
     </div>
@@ -102,35 +108,50 @@
             <span class="hidden sm:inline">SpinePlan <span class="text-white text-sm font-normal">Pro</span></span>
         </div>
         
-        <div class="flex items-center space-x-1 md:space-x-2">
+        <div class="flex items-center space-x-1 md:space-x-1.5">
+            <!-- SELECTOR DE IDIOMA (INGLÉS POR DEFECTO) -->
+            <select id="lang-select-header" onchange="setLanguage(this.value)" class="bg-gray-800 text-gray-200 border border-gray-700 rounded px-1.5 py-1 text-xs font-bold cursor-pointer focus:outline-none focus:border-emerald-500">
+                <option value="en">🇺🇸 EN</option>
+                <option value="es">🇪🇸 ES</option>
+            </select>
+
             <!-- SELECTOR DE ETAPA PRE-QX / POST-QX / COMPARAR -->
-            <div class="flex bg-gray-800 p-0.5 rounded-lg border border-gray-700 mr-1">
-                <button id="btn-stage-pre" onclick="switchStage('pre')" class="px-2 md:px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-600 text-white transition-colors shadow">Pre-Qx</button>
-                <button id="btn-stage-post" onclick="switchStage('post')" class="px-2 md:px-2.5 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition-colors">Post-Qx</button>
-                <button id="btn-stage-comp" onclick="openCompareView()" class="px-2 md:px-2.5 py-1 rounded-md text-xs font-bold text-amber-400 hover:text-white transition-colors">⚖️ Comparar</button>
+            <div class="flex bg-gray-800 p-0.5 rounded-lg border border-gray-700">
+                <button id="btn-stage-pre" onclick="switchStage('pre')" class="px-2 md:px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-600 text-white transition-colors shadow" data-i18n="btn_pre">Pre-Op</button>
+                <button id="btn-stage-post" onclick="switchStage('post')" class="px-2 md:px-2.5 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition-colors" data-i18n="btn_post">Post-Op</button>
+                <button id="btn-stage-comp" onclick="openCompareView()" class="px-2 md:px-2.5 py-1 rounded-md text-xs font-bold text-amber-400 hover:text-white transition-colors" data-i18n="btn_comp">⚖️ Compare</button>
             </div>
 
-            <button onclick="openPatientModal()" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 px-2 py-1.5 md:px-3 rounded text-xs md:text-sm font-medium transition-colors border border-blue-500/50 flex items-center shadow-sm">
+            <button onclick="openPatientModal()" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 px-2 py-1.5 md:px-2.5 rounded text-xs font-medium transition-colors border border-blue-500/50 flex items-center shadow-sm">
                 <svg class="w-4 h-4 md:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                <span class="hidden md:inline">Paciente</span>
+                <span class="hidden lg:inline" data-i18n="btn_patient">Patient</span>
             </button>
 
-            <button onclick="toggleGaze()" id="gaze-btn" class="bg-gray-800 hover:bg-gray-700 text-emerald-400 border border-emerald-600/50 px-2 py-1.5 md:px-3 rounded text-xs font-semibold transition-colors flex items-center shadow-sm">
-                <span class="hidden md:inline mr-1">Mirada:</span>➡️
+            <button onclick="toggleGaze()" id="gaze-btn" class="bg-gray-800 hover:bg-gray-700 text-emerald-400 border border-emerald-600/50 px-2 py-1.5 md:px-2.5 rounded text-xs font-semibold transition-colors flex items-center shadow-sm">
+                <span class="hidden xl:inline mr-1" data-i18n="lbl_gaze">Gaze:</span>➡️
             </button>
-            <label class="bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1.5 md:px-3 rounded text-xs md:text-sm font-medium cursor-pointer flex items-center transition-colors">
+
+            <label class="bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1.5 md:px-2.5 rounded text-xs font-medium cursor-pointer flex items-center transition-colors">
                 <svg class="w-4 h-4 md:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                <span class="hidden lg:inline">Cargar Rx</span>
+                <span class="hidden lg:inline" data-i18n="btn_load_rx">Load X-Ray</span>
                 <input type="file" id="imageLoader" class="hidden" accept="image/*">
             </label>
+
             <!-- BOTÓN GUARDAR / EXPORTAR -->
-            <button onclick="openSaveModal()" class="bg-purple-600 hover:bg-purple-500 text-white px-2 py-1.5 md:px-3 rounded text-xs md:text-sm font-medium transition-colors border border-purple-500 flex items-center shadow-sm" title="Guardar o Abrir Estudio">
+            <button onclick="openSaveModal()" class="bg-purple-600 hover:bg-purple-500 text-white px-2 py-1.5 md:px-2.5 rounded text-xs font-medium transition-colors border border-purple-500 flex items-center shadow-sm">
                 <span class="mr-0.5 md:mr-1">💾</span>
-                <span class="hidden md:inline">Guardar</span>
+                <span class="hidden lg:inline" data-i18n="btn_save">Save</span>
             </button>
-            <button onclick="clearCanvas()" class="bg-gray-700 hover:bg-gray-600 text-white px-2 py-1.5 md:px-3 rounded text-xs md:text-sm font-medium transition-colors border border-gray-600" title="Limpiar Trazos">
-                <svg class="w-4 h-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                <span class="hidden md:inline">Limpiar</span>
+
+            <!-- BOTÓN LIMPIAR TRAZOS DE LA PLACA ACTUAL -->
+            <button onclick="clearCanvas()" class="bg-gray-700 hover:bg-gray-600 text-white px-2 py-1.5 md:px-2.5 rounded text-xs font-medium transition-colors border border-gray-600" title="Clear Current Traces">
+                <span data-i18n="btn_clear">Clear</span>
+            </button>
+
+            <!-- NUEVO BOTÓN: QUITAR TODO (REINICIO TOTAL DESDE CERO) -->
+            <button onclick="resetAllStudy()" class="bg-red-700/80 hover:bg-red-600 text-white px-2 py-1.5 md:px-2.5 rounded text-xs font-bold transition-colors border border-red-500 flex items-center shadow-sm" title="Remove All Images & Reset">
+                <span class="mr-0.5">🗑️</span>
+                <span class="hidden sm:inline" data-i18n="btn_reset_all">Reset All</span>
             </button>
         </div>
     </header>
@@ -141,7 +162,7 @@
         <aside id="sidebar" class="absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 w-72 md:w-80 bg-gray-900 border-r border-gray-800 flex flex-col shrink-0 z-50 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
             <div class="p-3 bg-gray-800 border-b border-gray-700 flex justify-between items-center">
                 <p id="status-bar" class="text-xs font-semibold text-emerald-400 flex items-center">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span> Sistema Listo
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span> System Ready
                 </p>
                 <button onclick="toggleMobileMenu()" class="md:hidden text-gray-400 hover:text-white p-1">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -152,31 +173,31 @@
                 
                 <!-- MÓDULO 1: HERRAMIENTAS BÁSICAS -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">1. Herramientas Básicas</div>
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white" data-i18n="mod_1">1. Basic Tools</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
-                        <button onclick="activateTool('calibrate', 'Calibrar Escala')" class="tool-btn col-span-2 border border-blue-700/50 bg-blue-900/20 rounded px-2 py-2 text-xs text-blue-300 hover:bg-blue-800/40 flex justify-center items-center font-bold">
-                            📏 Calibrar Escala (cm)
+                        <button onclick="activateTool('calibrate', 'Calibrar Escala')" class="tool-btn col-span-2 border border-blue-700/50 bg-blue-900/20 rounded px-2 py-2 text-xs text-blue-300 hover:bg-blue-800/40 flex justify-center items-center font-bold" data-i18n="btn_calibrate">
+                            📏 Calibrate Scale (cm)
                         </button>
-                        <button onclick="activateTool('line', 'Línea Simple')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">Línea Simple</button>
-                        <button onclick="activateTool('circle', 'Círculo')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">Círculo</button>
-                        <button onclick="activateTool('cobb', 'A. Cobb')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">Ángulo Cobb</button>
-                        <button onclick="activateTool('cobb', 'Tk')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">Tk (Cifosis)</button>
+                        <button onclick="activateTool('line', 'Line')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800" data-i18n="btn_line">Simple Line</button>
+                        <button onclick="activateTool('circle', 'Circle')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800" data-i18n="btn_circle">Circle</button>
+                        <button onclick="activateTool('cobb', 'Cobb')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800" data-i18n="btn_cobb">Cobb Angle</button>
+                        <button onclick="activateTool('cobb', 'Tk')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800" data-i18n="btn_tk">Tk (Kyphosis)</button>
                     </div>
                 </div>
 
                 <!-- MÓDULO 2: PARÁMETROS PÉLVICOS -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">2. Parámetros Pélvicos</div>
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white" data-i18n="mod_2">2. Pelvic Parameters</div>
                     <div class="p-3 bg-gray-900/50">
-                        <button onclick="activateTool('pelvic', 'Parámetros Pélvicos')" class="tool-btn w-full border border-gray-700 rounded px-2 py-2 text-xs text-gray-300 hover:bg-gray-800 flex justify-center items-center">
-                            Medir PI, PT y SS
+                        <button onclick="activateTool('pelvic', 'Pelvic Parameters')" class="tool-btn w-full border border-gray-700 rounded px-2 py-2 text-xs text-gray-300 hover:bg-gray-800 flex justify-center items-center" data-i18n="btn_pelvic">
+                            Measure PI, PT & SS
                         </button>
                     </div>
                 </div>
 
                 <!-- MÓDULO 3: BALANCE SAGITAL -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">3. Balance Sagital</div>
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white" data-i18n="mod_3">3. Sagittal Balance</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
                         <button onclick="activateTool('sagittal', 'L1-PA', 'pa')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">L1-PA</button>
                         <button onclick="activateTool('sagittal', 'L1 Tilt', 'tilt')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">L1 Tilt</button>
@@ -186,120 +207,120 @@
                         <button onclick="activateTool('sagittal', 'C7 Tilt', 'tilt')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C7 Tilt</button>
                         <button onclick="activateTool('sagittal', 'C2-PA', 'pa')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C2-PA</button>
                         <button onclick="activateTool('sagittal', 'C2 Tilt', 'tilt')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C2 Tilt</button>
-                        <button onclick="activateTool('sva', 'SVA')" class="tool-btn col-span-2 border border-emerald-700/50 bg-emerald-900/20 rounded px-2 py-1.5 text-xs text-emerald-300 hover:bg-emerald-800/40 flex justify-center items-center font-bold">📍 SVA (Plomada C7 a S1)</button>
+                        <button onclick="activateTool('sva', 'SVA')" class="tool-btn col-span-2 border border-emerald-700/50 bg-emerald-900/20 rounded px-2 py-1.5 text-xs text-emerald-300 hover:bg-emerald-800/40 flex justify-center items-center font-bold" data-i18n="btn_sva">📍 SVA (C7 Plumbline to S1)</button>
                     </div>
                 </div>
 
                 <!-- MÓDULO 4: MEDICIONES LUMBARES -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">4. Mediciones Lumbares</div>
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white" data-i18n="mod_4">4. Lumbar Measurements</div>
                     <div class="p-3 grid grid-cols-1 gap-2 bg-gray-900/50">
-                        <button onclick="activateTool('cobb', 'L1-S1')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">Lordosis Global (L1-S1)</button>
-                        <button onclick="activateTool('cobb', 'L4-S1')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">LL Baja (L4-S1)</button>
-                        <button onclick="activateTool('cobb', 'L4-L5')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">Segmentaria (L4-L5)</button>
+                        <button onclick="activateTool('cobb', 'L1-S1')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left" data-i18n="btn_l1s1">Global Lordosis (L1-S1)</button>
+                        <button onclick="activateTool('cobb', 'L4-S1')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left" data-i18n="btn_l4s1">Lower LL (L4-S1)</button>
+                        <button onclick="activateTool('cobb', 'L4-L5')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left" data-i18n="btn_l4l5">Segmental (L4-L5)</button>
                     </div>
                 </div>
 
                 <!-- MÓDULO 5: PERFIL TEÓRICO IDEAL -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">5. Perfil Teórico Ideal</div>
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400" data-i18n="mod_5">5. Ideal Theoretical Profile</div>
                     <div class="p-3 bg-gray-900/50">
-                        <button onclick="showTheoreticalProfile()" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-semibold rounded py-2 text-xs transition-colors border border-emerald-500 shadow-md">Calcular / Comparar Valores</button>
+                        <button onclick="showTheoreticalProfile()" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-semibold rounded py-2 text-xs transition-colors border border-emerald-500 shadow-md" data-i18n="btn_calc_theo">Calculate / Compare Values</button>
                     </div>
                 </div>
 
                 <!-- MÓDULO 6: PERFIL SAGITAL CERVICAL -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">6. Perfil Sagital Cervical</div>
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white" data-i18n="mod_6">6. Cervical Sagittal Profile</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
-                        <button onclick="activateTool('thoracic', 'Opérculo Torácico')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 flex justify-center">T1S, TIA, NT (Conjunto)</button>
-                        <button onclick="activateTool('horiz_angle', 'T1S')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">T1S (Aislado)</button>
+                        <button onclick="activateTool('thoracic', 'Thoracic Inlet')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 flex justify-center" data-i18n="btn_thoracic">T1S, TIA, NT (Combined)</button>
+                        <button onclick="activateTool('horiz_angle', 'T1S')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800" data-i18n="btn_t1s">T1S (Isolated)</button>
                         <button onclick="activateTool('cbva', 'CBVA')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">CBVA</button>
                         <button onclick="activateTool('cobb', 'C2-C7')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C2-C7</button>
                         <button onclick="activateTool('cobb', 'C0-C2')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C0-C2</button>
-                        <button onclick="activateTool('sva', 'SVA')" class="tool-btn col-span-2 border border-emerald-700/50 bg-emerald-900/20 rounded px-2 py-1.5 text-xs text-emerald-300 hover:bg-emerald-800/40 font-bold flex justify-center">📍 SVA (Plomada C7 a S1)</button>
+                        <button onclick="activateTool('sva', 'SVA')" class="tool-btn col-span-2 border border-emerald-700/50 bg-emerald-900/20 rounded px-2 py-1.5 text-xs text-emerald-300 hover:bg-emerald-800/40 font-bold flex justify-center" data-i18n="btn_sva">📍 SVA (C7 Plumbline to S1)</button>
                     </div>
                 </div>
 
                 <!-- MÓDULO 7: ROUSSOULY -->
                 <div class="border border-sky-700 rounded-lg overflow-hidden">
-                    <div class="bg-sky-900/40 px-3 py-2 text-sm font-semibold text-sky-400">7. Roussouly (2018)</div>
+                    <div class="bg-sky-900/40 px-3 py-2 text-sm font-semibold text-sky-400" data-i18n="mod_7">7. Roussouly (2018)</div>
                     <div class="p-3 bg-gray-900/50 space-y-2">
-                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block">1. Mide PI, SS (Pelvis), L1-S1 y L4-S1</span>
+                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block" data-i18n="rs_step1">1. Measure PI, SS, L1-S1 & L4-S1</span>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="activateTool('point_marker', 'Apex L', 'apex')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📍 Apex L</button>
-                            <button onclick="activateTool('point_marker', 'Inflexión', 'inflection')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📍 Inflexión</button>
+                            <button onclick="activateTool('point_marker', 'Apex L', 'apex')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800" data-i18n="btn_apex">📍 Apex L</button>
+                            <button onclick="activateTool('point_marker', 'Inflection', 'inflection')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800" data-i18n="btn_inflection">📍 Inflection</button>
                         </div>
-                        <button onclick="showRoussouly()" class="tool-btn w-full border border-sky-600 bg-sky-600/20 rounded px-2 py-2 text-xs font-bold text-sky-300 hover:bg-sky-600 hover:text-white transition-colors flex justify-center items-center shadow-lg mt-2">Calcular Morfotipo & Índices</button>
+                        <button onclick="showRoussouly()" class="tool-btn w-full border border-sky-600 bg-sky-600/20 rounded px-2 py-2 text-xs font-bold text-sky-300 hover:bg-sky-600 hover:text-white transition-colors flex justify-center items-center shadow-lg mt-2" data-i18n="btn_calc_rs">Calculate Morphotype & Indices</button>
                     </div>
                 </div>
 
                 <!-- MÓDULO 8: ABELIN-GENEVOIS -->
                 <div class="border border-orange-700 rounded-lg overflow-hidden">
-                    <div class="bg-orange-900/40 px-3 py-2 text-sm font-semibold text-orange-400">8. Abelin-Genevois (EIA)</div>
+                    <div class="bg-orange-900/40 px-3 py-2 text-sm font-semibold text-orange-400" data-i18n="mod_8">8. Abelin-Genevois (AIS)</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50 border-b border-gray-700">
-                        <button onclick="activateTool('cobb', 'Cobb TL (Cifosis)')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">📐 Ángulo Cobb TL</button>
-                        <button onclick="activateTool('horiz_angle', 'C7S')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">📐 Pendiente C7 (C7S)</button>
+                        <button onclick="activateTool('cobb', 'Cobb TL (Cifosis)')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left" data-i18n="btn_cobb_tl">📐 TL Cobb Angle (Kyphosis)</button>
+                        <button onclick="activateTool('horiz_angle', 'C7S')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left" data-i18n="btn_c7s">📐 C7 Slope (C7S)</button>
                     </div>
                     <div class="p-3 bg-gray-900/50 space-y-2">
-                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block">Adaptación Sagital Escoliosis</span>
-                        <button onclick="showAG()" class="tool-btn w-full border border-orange-600 bg-orange-600/20 rounded px-2 py-2 text-xs font-bold text-orange-300 hover:bg-orange-600 hover:text-white transition-colors flex justify-center items-center shadow-lg">Evaluar Abelin-Genevois</button>
+                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block" data-i18n="ag_sub">Sagittal Adaptation in Scoliosis</span>
+                        <button onclick="showAG()" class="tool-btn w-full border border-orange-600 bg-orange-600/20 rounded px-2 py-2 text-xs font-bold text-orange-300 hover:bg-orange-600 hover:text-white transition-colors flex justify-center items-center shadow-lg" data-i18n="btn_calc_ag">Evaluate Abelin-Genevois</button>
                     </div>
                 </div>
 
                 <!-- MÓDULO 9: PLANO CORONAL (INDEPENDIENTE) -->
                 <div class="border border-purple-800 rounded-lg overflow-hidden">
-                    <div class="bg-purple-900/40 px-3 py-2 text-sm font-semibold text-purple-400">9. Plano Coronal</div>
+                    <div class="bg-purple-900/40 px-3 py-2 text-sm font-semibold text-purple-400" data-i18n="mod_9">9. Coronal Plane</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
-                        <button onclick="activateTool('cobb_coronal', 'Cobb')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">Ángulo de Cobb</button>
+                        <button onclick="activateTool('cobb_coronal', 'Cobb')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800" data-i18n="btn_cobb">Cobb Angle</button>
                         <button onclick="activateTool('horiz_angle', 'C.A')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C.A</button>
                         <button onclick="activateTool('horiz_angle', 'Osborne')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">Osborne</button>
-                        <button onclick="activateTool('coronal_cf', 'CF')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">CF (Cefálicas Femorales)</button>
+                        <button onclick="activateTool('coronal_cf', 'CF')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800" data-i18n="btn_cf">CF (Femoral Heads)</button>
                     </div>
                 </div>
 
                 <!-- MÓDULO 10: CLASIFICACIÓN DE BAO (INDEPENDIENTE) -->
                 <div class="border border-purple-800 rounded-lg overflow-hidden mt-3">
-                    <div class="bg-purple-900/40 px-3 py-2 text-sm font-semibold text-purple-400">10. Clasificación de Bao (2016)</div>
+                    <div class="bg-purple-900/40 px-3 py-2 text-sm font-semibold text-purple-400" data-i18n="mod_10">10. Bao Classification (2016)</div>
                     <div class="p-3 bg-gray-900/50 space-y-2">
-                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block">Balance Coronal Global</span>
+                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block" data-i18n="bao_sub">Global Coronal Balance</span>
                         <div class="grid grid-cols-2 gap-2">
                             <button onclick="activateTool('point_marker', 'C7', 'bao_c7')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📍 C7</button>
                             <button onclick="activateTool('point_marker', 'S1', 'bao_s1')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📍 CSVL</button>
                         </div>
-                        <button onclick="showBao()" class="tool-btn w-full border border-purple-600 bg-purple-600/20 rounded px-2 py-2 text-xs font-bold text-purple-300 hover:bg-purple-600 hover:text-white transition-colors flex justify-center items-center shadow-lg mt-2">Evaluar Bao (Coronal)</button>
+                        <button onclick="showBao()" class="tool-btn w-full border border-purple-600 bg-purple-600/20 rounded px-2 py-2 text-xs font-bold text-purple-300 hover:bg-purple-600 hover:text-white transition-colors flex justify-center items-center shadow-lg mt-2" data-i18n="btn_calc_bao">Evaluate Bao (Coronal)</button>
                     </div>
                 </div>
 
                 <!-- MÓDULO 11: ESPONDILOLISTESIS Y AO -->
                 <div class="border border-indigo-700 rounded-lg overflow-hidden mt-3">
-                    <div class="bg-indigo-900/40 px-3 py-2 text-sm font-semibold text-indigo-400">11. Espondilolistesis y AO</div>
+                    <div class="bg-indigo-900/40 px-3 py-2 text-sm font-semibold text-indigo-400" data-i18n="mod_11">11. Spondylolisthesis & AO</div>
                     <div class="p-3 grid grid-cols-1 gap-2 bg-gray-900/50">
-                        <button onclick="activateTool('meyerding', 'Espondilolistesis')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">1. Medir Meyerding</button>
-                        <button onclick="showAO()" class="tool-btn border border-indigo-600 bg-indigo-600/20 rounded px-2 py-2 text-xs font-bold text-indigo-300 hover:bg-indigo-600 hover:text-white transition-colors flex justify-center items-center shadow-lg">2. Clasificación AO Spine</button>
+                        <button onclick="activateTool('meyerding', 'Spondylolisthesis')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800" data-i18n="btn_meyerding">1. Measure Meyerding</button>
+                        <button onclick="showAO()" class="tool-btn border border-indigo-600 bg-indigo-600/20 rounded px-2 py-2 text-xs font-bold text-indigo-300 hover:bg-indigo-600 hover:text-white transition-colors flex justify-center items-center shadow-lg" data-i18n="btn_calc_ao">2. AO Spine Classification</button>
                     </div>
                 </div>
 
                 <!-- MÓDULO 12: MAPEO VERTEBRAL -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden mt-3">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">12. Mapeo Vertebral</div>
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400" data-i18n="mod_12">12. Vertebral Mapping</div>
                     <div class="p-3 bg-gray-900/50 space-y-3">
                         <div>
-                            <span class="text-[10px] text-gray-400 uppercase tracking-wider mb-1 block">Etiquetas (Letra y Número)</span>
+                            <span class="text-[10px] text-gray-400 uppercase tracking-wider mb-1 block" data-i18n="map_labels">Labels (Letter & Number)</span>
                             <div class="grid grid-cols-4 gap-1">
                                 <button onclick="activateTool('vertebra', 'Cervical', 'C')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-sky-400 hover:bg-sky-900/30 font-bold">C</button>
-                                <button onclick="activateTool('vertebra', 'Torácica', 'T')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-amber-400 hover:bg-amber-900/30 font-bold">T</button>
+                                <button onclick="activateTool('vertebra', 'Thoracic', 'T')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-amber-400 hover:bg-amber-900/30 font-bold">T</button>
                                 <button onclick="activateTool('vertebra', 'Lumbar', 'L')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-purple-400 hover:bg-purple-900/30 font-bold">L</button>
-                                <button onclick="activateTool('vertebra', 'Sacro', 'S')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-emerald-400 hover:bg-emerald-900/30 font-bold">S</button>
+                                <button onclick="activateTool('vertebra', 'Sacrum', 'S')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-emerald-400 hover:bg-emerald-900/30 font-bold">S</button>
                             </div>
                         </div>
                         <div>
-                            <span class="text-[10px] text-gray-400 uppercase tracking-wider mb-1 block">Contornos (Bordes)</span>
+                            <span class="text-[10px] text-gray-400 uppercase tracking-wider mb-1 block" data-i18n="map_contours">Contours (Edges)</span>
                             <div class="grid grid-cols-4 gap-1">
-                                <button onclick="activateTool('vertebraContour', 'Contorno C', 'C')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-sky-400 hover:bg-sky-900/30 flex items-center justify-center">🎨 C</button>
-                                <button onclick="activateTool('vertebraContour', 'Contorno T', 'T')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-amber-400 hover:bg-amber-900/30 flex items-center justify-center">🎨 T</button>
-                                <button onclick="activateTool('vertebraContour', 'Contorno L', 'L')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-purple-400 hover:bg-purple-900/30 flex items-center justify-center">🎨 L</button>
-                                <button onclick="activateTool('vertebraContour', 'Contorno S', 'S')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-emerald-400 hover:bg-emerald-900/30 flex items-center justify-center">🎨 S</button>
+                                <button onclick="activateTool('vertebraContour', 'Contour C', 'C')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-sky-400 hover:bg-sky-900/30 flex items-center justify-center">🎨 C</button>
+                                <button onclick="activateTool('vertebraContour', 'Contour T', 'T')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-amber-400 hover:bg-amber-900/30 flex items-center justify-center">🎨 T</button>
+                                <button onclick="activateTool('vertebraContour', 'Contour L', 'L')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-purple-400 hover:bg-purple-900/30 flex items-center justify-center">🎨 L</button>
+                                <button onclick="activateTool('vertebraContour', 'Contour S', 'S')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-emerald-400 hover:bg-emerald-900/30 flex items-center justify-center">🎨 S</button>
                             </div>
                         </div>
                     </div>
@@ -309,23 +330,23 @@
         </aside>
 
         <main class="flex-1 relative bg-black flex items-center justify-center overflow-hidden" id="canvas-container">
-            <span id="placeholder-text" class="absolute text-gray-600 font-medium text-lg pointer-events-none px-4 text-center">Selecciona "Cargar Rx" para comenzar (Pre-Qx)</span>
+            <span id="placeholder-text" class="absolute text-gray-600 font-medium text-lg pointer-events-none px-4 text-center">Select "Load X-Ray" to begin (Pre-Op)</span>
             <canvas id="mainCanvas" class="absolute z-10"></canvas>
 
             <!-- VISTA DIVIDIDA: COMPARACIÓN LADO A LADO (ANTES Y DESPUÉS) -->
             <div id="compare-view" class="hidden absolute inset-0 z-20 bg-black flex flex-col md:flex-row">
                 <div id="comp-pre-wrapper" class="flex-1 relative border-b md:border-b-0 md:border-r border-gray-700 flex items-center justify-center overflow-hidden comp-bg cursor-grab">
-                    <div class="absolute top-3 left-3 z-30 bg-emerald-900/90 border border-emerald-500 text-emerald-300 px-3 py-1 rounded-full text-xs font-bold pointer-events-none shadow-lg">
-                        PRE-QUIRÚRGICO (ANTES)
+                    <div class="absolute top-3 left-3 z-30 bg-emerald-900/90 border border-emerald-500 text-emerald-300 px-3 py-1 rounded-full text-xs font-bold pointer-events-none shadow-lg" data-i18n="comp_pre_badge">
+                        PRE-OPERATIVE (BEFORE)
                     </div>
-                    <span id="comp-pre-empty" class="text-gray-500 text-sm font-medium pointer-events-none">Sin imagen Pre-Qx cargada</span>
+                    <span id="comp-pre-empty" class="text-gray-500 text-sm font-medium pointer-events-none" data-i18n="comp_pre_empty">No Pre-Op image loaded</span>
                     <canvas id="compPreCanvas" class="absolute inset-0"></canvas>
                 </div>
                 <div id="comp-post-wrapper" class="flex-1 relative flex items-center justify-center overflow-hidden comp-bg cursor-grab">
-                    <div class="absolute top-3 left-3 z-30 bg-sky-900/90 border border-sky-500 text-sky-300 px-3 py-1 rounded-full text-xs font-bold pointer-events-none shadow-lg">
-                        POST-QUIRÚRGICO (DESPUÉS)
+                    <div class="absolute top-3 left-3 z-30 bg-sky-900/90 border border-sky-500 text-sky-300 px-3 py-1 rounded-full text-xs font-bold pointer-events-none shadow-lg" data-i18n="comp_post_badge">
+                        POST-OPERATIVE (AFTER)
                     </div>
-                    <span id="comp-post-empty" class="text-gray-500 text-sm font-medium pointer-events-none">Sin imagen Post-Qx cargada</span>
+                    <span id="comp-post-empty" class="text-gray-500 text-sm font-medium pointer-events-none" data-i18n="comp_post_empty">No Post-Op image loaded</span>
                     <canvas id="compPostCanvas" class="absolute inset-0"></canvas>
                 </div>
             </div>
@@ -333,16 +354,16 @@
             <!-- TABLA COMPARATIVA: BASE VS IDEAL VS LOGRADO -->
             <div id="theoretical-table" class="hidden absolute top-4 left-4 bg-gray-900/95 border border-emerald-500 rounded-lg p-4 shadow-2xl z-30 backdrop-blur-md min-w-[330px] cursor-move select-none">
                 <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2 pointer-events-none">
-                    <h3 class="text-emerald-400 font-bold text-sm">Perfil Teórico & Comparación</h3>
-                    <button onclick="document.getElementById('theoretical-table').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto">&times; Cerrar</button>
+                    <h3 class="text-emerald-400 font-bold text-sm" data-i18n="theo_title">Theoretical Profile & Comparison</h3>
+                    <button onclick="document.getElementById('theoretical-table').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto" data-i18n="btn_close">&times; Close</button>
                 </div>
                 <table class="text-xs text-left w-full text-gray-200 pointer-events-none">
                     <thead>
                         <tr class="text-gray-400 border-b border-gray-700">
-                            <th class="pb-2 pr-2 font-semibold">Parámetro</th>
-                            <th class="pb-2 pr-2 font-semibold">Base</th>
-                            <th class="pb-2 pr-2 font-semibold text-emerald-400">Ideal</th>
-                            <th class="pb-2 font-semibold text-sky-400">Logrado</th>
+                            <th class="pb-2 pr-2 font-semibold" data-i18n="th_param">Parameter</th>
+                            <th class="pb-2 pr-2 font-semibold" data-i18n="th_base">Base</th>
+                            <th class="pb-2 pr-2 font-semibold text-emerald-400" data-i18n="th_ideal">Ideal</th>
+                            <th class="pb-2 font-semibold text-sky-400" data-i18n="th_achieved">Achieved</th>
                         </tr>
                     </thead>
                     <tbody id="theo-tbody">
@@ -353,18 +374,18 @@
             <!-- MODAL FLOTANTE: ABELIN-GENEVOIS -->
             <div id="ag-box" class="hidden absolute top-20 right-1/2 transform translate-x-1/4 bg-gray-900/95 border border-orange-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md cursor-move select-none w-[320px]">
                 <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2 pointer-events-none">
-                    <h3 class="text-orange-400 font-bold text-sm">Clasificación Abelin-Genevois</h3>
-                    <button onclick="document.getElementById('ag-box').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto">&times; Cerrar</button>
+                    <h3 class="text-orange-400 font-bold text-sm" data-i18n="ag_title">Abelin-Genevois Classification</h3>
+                    <button onclick="document.getElementById('ag-box').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto" data-i18n="btn_close">&times; Close</button>
                 </div>
                 <div class="pointer-events-auto text-xs text-gray-300">
                     <div class="grid grid-cols-3 gap-2 mb-3 border-b border-gray-700 pb-3 text-center">
-                        <div><span class="text-gray-400 block mb-1">Cifosis (Tk)</span> <span id="ag-tk" class="font-bold text-white text-sm"></span></div>
-                        <div><span class="text-gray-400 block mb-1">Unión TL</span> <span id="ag-tl" class="font-bold text-white text-sm"></span></div>
+                        <div><span class="text-gray-400 block mb-1">Kyphosis (Tk)</span> <span id="ag-tk" class="font-bold text-white text-sm"></span></div>
+                        <div><span class="text-gray-400 block mb-1">TL Junction</span> <span id="ag-tl" class="font-bold text-white text-sm"></span></div>
                         <div><span class="text-gray-400 block mb-1">C7 Slope</span> <span id="ag-c7s" class="font-bold text-white text-sm"></span></div>
                     </div>
 
                     <div id="ag-result-container" class="text-center mt-2">
-                        <div id="ag-type-badge" class="bg-orange-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md">Tipo 1</div>
+                        <div id="ag-type-badge" class="bg-orange-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md">Type 1</div>
                         <p id="ag-desc" class="text-[11px] text-gray-300 mb-1 leading-tight font-medium"></p>
                     </div>
                 </div>
@@ -373,21 +394,21 @@
             <!-- MODAL FLOTANTE: CLASIFICACIÓN BAO (2016) -->
             <div id="bao-box" class="hidden absolute top-20 left-1/2 transform -translate-x-1/2 bg-gray-900/95 border border-purple-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md cursor-move select-none w-[320px]">
                 <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2 pointer-events-none">
-                    <h3 class="text-purple-400 font-bold text-sm">Clasificación de Bao (2016)</h3>
-                    <button onclick="document.getElementById('bao-box').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto">&times; Cerrar</button>
+                    <h3 class="text-purple-400 font-bold text-sm" data-i18n="bao_title">Bao Classification (2016)</h3>
+                    <button onclick="document.getElementById('bao-box').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto" data-i18n="btn_close">&times; Close</button>
                 </div>
                 <div class="pointer-events-auto text-xs text-gray-300">
                     <div class="grid grid-cols-2 gap-2 mb-3 border-b border-gray-700 pb-3">
-                        <div><span class="text-gray-400">Desvío C7-CSVL:</span> <br><span id="bao-shift" class="font-bold text-white"></span></div>
-                        <div><span class="text-gray-400">Curva Lumbar:</span> <br><span id="bao-curve" class="font-bold text-white"></span></div>
+                        <div><span class="text-gray-400">C7-CSVL Shift:</span> <br><span id="bao-shift" class="font-bold text-white"></span></div>
+                        <div><span class="text-gray-400">Lumbar Curve:</span> <br><span id="bao-curve" class="font-bold text-white"></span></div>
                     </div>
                     
                     <div id="bao-result-container" class="text-center mt-2">
-                        <div id="bao-type-badge" class="bg-purple-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md">Tipo A</div>
+                        <div id="bao-type-badge" class="bg-purple-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md">Type A</div>
                         <p id="bao-desc" class="text-[11px] text-gray-300 mb-2 leading-tight font-medium"></p>
                         
-                        <div id="bao-alert" class="hidden bg-red-900/50 border border-red-500 text-red-300 p-2 rounded text-[10px] text-left">
-                            ⚠️ <span class="font-bold">Alerta Biomecánica:</span> Riesgo de empeorar el desbalance si solo se corrige la curva principal. Requiere nivelación de curva fraccional lumbosacra o osteotomía asimétrica en la base.
+                        <div id="bao-alert" class="hidden bg-red-900/50 border border-red-500 text-red-300 p-2 rounded text-[10px] text-left" data-i18n="bao_alert_txt">
+                            ⚠️ <span class="font-bold">Biomechanical Alert:</span> High risk of worsening coronal imbalance if only the main curve is corrected. Requires lumbosacral fractional curve leveling or asymmetric osteotomy at the base.
                         </div>
                     </div>
                 </div>
@@ -396,8 +417,8 @@
             <!-- MODAL FLOTANTE: ROUSSOULY -->
             <div id="roussouly-box" class="hidden absolute top-28 right-4 bg-gray-900/95 border border-sky-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md cursor-move select-none w-[320px]">
                 <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2 pointer-events-none">
-                    <h3 class="text-sky-400 font-bold text-sm">Clasificación Roussouly (2018)</h3>
-                    <button onclick="document.getElementById('roussouly-box').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto">&times; Cerrar</button>
+                    <h3 class="text-sky-400 font-bold text-sm" data-i18n="rs_title">Roussouly Classification (2018)</h3>
+                    <button onclick="document.getElementById('roussouly-box').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto" data-i18n="btn_close">&times; Close</button>
                 </div>
                 <div class="pointer-events-auto text-xs text-gray-300">
                     <div class="grid grid-cols-2 gap-2 mb-3 border-b border-gray-700 pb-3">
@@ -413,17 +434,17 @@
                             <span id="rs-mismatch" class="font-bold px-2 py-0.5 rounded bg-gray-800"></span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-gray-400">Proporción L4-S1:</span> 
+                            <span class="text-gray-400">L4-S1 Ratio:</span> 
                             <span id="rs-prop" class="font-bold px-2 py-0.5 rounded bg-gray-800"></span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-gray-400">Topografía:</span> 
-                            <span class="font-bold text-[10px] text-sky-300">Ápex e Inflexión Validados</span>
+                            <span class="text-gray-400">Topography:</span> 
+                            <span class="font-bold text-[10px] text-sky-300" data-i18n="rs_topo_ok">Apex & Inflection Validated</span>
                         </div>
                     </div>
 
                     <div id="rs-result-container" class="text-center mt-2">
-                        <div id="rs-type-badge" class="bg-sky-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md">Tipo 1</div>
+                        <div id="rs-type-badge" class="bg-sky-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md">Type 1</div>
                         <p id="rs-desc" class="text-[11px] text-gray-300 mb-1 leading-tight font-medium"></p>
                     </div>
                 </div>
@@ -431,25 +452,25 @@
 
             <div id="ao-box" class="hidden absolute top-28 right-4 bg-gray-900/95 border border-indigo-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md cursor-move select-none w-[280px]">
                 <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2 pointer-events-none">
-                    <h3 class="text-indigo-400 font-bold text-sm">Clasificación AO Spine</h3>
-                    <button onclick="document.getElementById('ao-box').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto">&times; Cerrar</button>
+                    <h3 class="text-indigo-400 font-bold text-sm" data-i18n="ao_title">AO Spine Classification</h3>
+                    <button onclick="document.getElementById('ao-box').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto" data-i18n="btn_close">&times; Close</button>
                 </div>
                 <div class="pointer-events-auto text-xs text-gray-300">
-                    <div class="flex justify-between mb-1"><span>Incidencia Pélvica (PI):</span> <span id="ao-pi" class="font-bold text-emerald-400"></span></div>
+                    <div class="flex justify-between mb-1"><span>Pelvic Incidence (PI):</span> <span id="ao-pi" class="font-bold text-emerald-400"></span></div>
                     <div class="flex justify-between mb-1"><span>Lordosis (L1-S1):</span> <span id="ao-l1s1" class="font-bold text-emerald-400"></span></div>
-                    <div class="flex justify-between mb-3 border-b border-gray-700 pb-2"><span>Desplazamiento:</span> <span id="ao-slip" class="font-bold text-emerald-400"></span></div>
+                    <div class="flex justify-between mb-3 border-b border-gray-700 pb-2"><span>Slippage:</span> <span id="ao-slip" class="font-bold text-emerald-400"></span></div>
                     
                     <div id="ao-result-container" class="text-center mt-2">
-                        <div id="ao-type-badge" class="bg-indigo-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md">Tipo 1</div>
+                        <div id="ao-type-badge" class="bg-indigo-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md">Type 1</div>
                         <p id="ao-desc" class="text-[11px] text-gray-300 mb-1 leading-tight font-medium"></p>
                     </div>
 
                     <div id="ao-high-grade-options" class="hidden mt-3 pt-3 border-t border-gray-700">
-                        <p class="text-[10px] text-indigo-300 mb-2 font-semibold">AJUSTE CLÍNICO (Grado Alto ≥50%):</p>
+                        <p class="text-[10px] text-indigo-300 mb-2 font-semibold">CLINICAL ADJUSTMENT (High Grade ≥50%):</p>
                         <select id="ao-selector" class="w-full bg-gray-800 border border-gray-600 rounded text-xs text-white p-1.5 focus:outline-none focus:border-indigo-500" onchange="updateAOHighGrade(this.value)">
-                            <option value="4">Tipo 4: Columna equilibrada, sin cifosis</option>
-                            <option value="5">Tipo 5: Pelvis retrovertida, col. equilibrada</option>
-                            <option value="6">Tipo 6: Pelvis retrovertida, col. desequilibrada (Cifosis franca)</option>
+                            <option value="4">Type 4: Balanced spine, no kyphosis</option>
+                            <option value="5">Type 5: Retroverted pelvis, balanced spine</option>
+                            <option value="6">Type 6: Retroverted pelvis, unbalanced spine (Frank kyphosis)</option>
                         </select>
                     </div>
                 </div>
@@ -457,43 +478,147 @@
 
             <!-- CUADRO 1: MISMATCH PRE-QX INDEPENDIENTE -->
             <div id="mismatch-box-pre" class="hidden absolute top-4 right-4 bg-gray-900/95 border border-emerald-500 rounded-lg px-3 py-2 shadow-2xl z-30 backdrop-blur-md cursor-move select-none">
-                <span class="text-gray-300 text-xs font-semibold mr-2 pointer-events-none">Mismatch Pre-Qx (T4PA-L1PA):</span>
+                <span class="text-gray-300 text-xs font-semibold mr-2 pointer-events-none" data-i18n="mm_pre_lbl">Pre-Op Mismatch (T4PA-L1PA):</span>
                 <span id="mismatch-val-pre" class="font-bold text-sm pointer-events-none"></span>
             </div>
 
             <!-- CUADRO 2: MISMATCH POST-QX INDEPENDIENTE -->
             <div id="mismatch-box-post" class="hidden absolute top-16 right-4 bg-gray-900/95 border border-sky-500 rounded-lg px-3 py-2 shadow-2xl z-30 backdrop-blur-md cursor-move select-none">
-                <span class="text-sky-300 text-xs font-semibold mr-2 pointer-events-none">Mismatch Post-Qx (T4PA-L1PA):</span>
+                <span class="text-sky-300 text-xs font-semibold mr-2 pointer-events-none" data-i18n="mm_post_lbl">Post-Op Mismatch (T4PA-L1PA):</span>
                 <span id="mismatch-val-post" class="font-bold text-sm pointer-events-none"></span>
             </div>
 
             <div id="patient-box" class="hidden absolute top-24 left-4 bg-gray-900/95 border border-blue-500/80 rounded-lg p-3 shadow-2xl z-30 backdrop-blur-md cursor-move select-none min-w-[220px]">
                 <div class="flex justify-between items-center mb-2 border-b border-gray-700 pb-1 pointer-events-none">
-                    <h3 class="text-blue-400 font-bold text-xs uppercase tracking-wider">Ficha Técnica</h3>
+                    <h3 class="text-blue-400 font-bold text-xs uppercase tracking-wider" data-i18n="pat_card_title">Patient Record</h3>
                     <button onclick="document.getElementById('patient-box').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-1.5 py-0.5 text-[10px] pointer-events-auto">&times;</button>
                 </div>
                 <div class="text-xs text-gray-300 space-y-1 pointer-events-none">
-                    <p><span class="font-semibold text-white">Paciente:</span> <span id="out-pat-name"></span></p>
-                    <p><span class="font-semibold text-white">C.I:</span> <span id="out-pat-id"></span></p>
-                    <p><span class="font-semibold text-white">Edad:</span> <span id="out-pat-age"></span></p>
+                    <p><span class="font-semibold text-white" data-i18n="pat_lbl_name">Patient:</span> <span id="out-pat-name"></span></p>
+                    <p><span class="font-semibold text-white" data-i18n="pat_lbl_id">ID:</span> <span id="out-pat-id"></span></p>
+                    <p><span class="font-semibold text-white" data-i18n="pat_lbl_age">Age:</span> <span id="out-pat-age"></span></p>
                 </div>
             </div>
 
             <div id="context-menu">
-                <label class="menu-label">Título/Nombre</label>
+                <label class="menu-label" data-i18n="ctx_title_lbl">Title/Name</label>
                 <input type="text" id="ctx-title" class="menu-input">
-                <label class="menu-label">Grosor de línea (<span id="ctx-width-val">1</span>px)</label>
+                <label class="menu-label"><span data-i18n="ctx_width_lbl">Line Width</span> (<span id="ctx-width-val">1</span>px)</label>
                 <input type="range" id="ctx-width" class="menu-slider" min="1" max="5" value="1">
-                <label class="menu-label">Tamaño de letra (<span id="ctx-size-val">11</span>px)</label>
+                <label class="menu-label"><span data-i18n="ctx_size_lbl">Font Size</span> (<span id="ctx-size-val">11</span>px)</label>
                 <input type="range" id="ctx-size" class="menu-slider" min="10" max="40" value="11">
-                <label class="menu-label">Color</label>
+                <label class="menu-label" data-i18n="ctx_color_lbl">Color</label>
                 <input type="color" id="ctx-color" class="w-full h-8 mb-3 rounded bg-transparent border-none cursor-pointer">
-                <button id="ctx-delete" class="w-full bg-red-600 hover:bg-red-700 text-white py-1.5 rounded text-xs font-semibold">Eliminar Medición</button>
+                <button id="ctx-delete" class="w-full bg-red-600 hover:bg-red-700 text-white py-1.5 rounded text-xs font-semibold" data-i18n="ctx_del_btn">Delete Measurement</button>
             </div>
         </main>
     </div>
 
 <script>
+    // DICCIONARIO BILINGÜE (INGLÉS POR DEFECTO, ESPAÑOL SELECCIONABLE)
+    let currentLang = 'en';
+    const I18N = {
+        en: {
+            btn_skip: "Skip Intro", login_sub: "Restricted Access", login_pass_ph: "Master Password", login_err: "Incorrect password.", login_btn: "Enter",
+            btn_pre: "Pre-Op", btn_post: "Post-Op", btn_comp: "⚖️ Compare", btn_patient: "Patient", lbl_gaze: "Gaze:", btn_load_rx: "Load X-Ray", btn_save: "Save", btn_clear: "Clear", btn_reset_all: "Reset All",
+            pat_modal_title: "Patient Information", pat_name_ph: "Full Name", pat_id_ph: "Patient ID", pat_age_ph: "Age", btn_cancel: "Cancel", btn_generate: "Generate Record",
+            save_modal_title: "💾 Save & Export Study", btn_close: "× Close",
+            save_sec1_title: "1. Export Final Image (PNG for PC/Drive)", save_sec1_desc: "Download an image with measurements, patient record, and tables burned in.",
+            btn_exp_current: "📸 Download Current Measured X-Ray (PNG)", btn_exp_comp: "🖼️ Download Pre/Post Comparative Report (PNG)",
+            save_sec2_title: "2. Editable Project (Re-edit Later)", save_sec2_desc: "Save this file on your PC or Google Drive. Open it anytime to restore Pre and Post X-rays with editable measurements.",
+            btn_dl_spine: "💾 Download Editable Study (.spine)", btn_open_spine: "📂 Open Saved Study (.spine)",
+            mod_1: "1. Basic Tools", btn_calibrate: "📏 Calibrate Scale (cm)", btn_line: "Simple Line", btn_circle: "Circle", btn_cobb: "Cobb Angle", btn_tk: "Tk (Kyphosis)",
+            mod_2: "2. Pelvic Parameters", btn_pelvic: "Measure PI, PT & SS",
+            mod_3: "3. Sagittal Balance", btn_sva: "📍 SVA (C7 Plumbline to S1)",
+            mod_4: "4. Lumbar Measurements", btn_l1s1: "Global Lordosis (L1-S1)", btn_l4s1: "Lower LL (L4-S1)", btn_l4l5: "Segmental (L4-L5)",
+            mod_5: "5. Ideal Theoretical Profile", btn_calc_theo: "Calculate / Compare Values",
+            mod_6: "6. Cervical Sagittal Profile", btn_thoracic: "T1S, TIA, NT (Combined)", btn_t1s: "T1S (Isolated)",
+            mod_7: "7. Roussouly (2018)", rs_step1: "1. Measure PI, SS, L1-S1 & L4-S1", btn_apex: "📍 Apex L", btn_inflection: "📍 Inflection", btn_calc_rs: "Calculate Morphotype & Indices",
+            mod_8: "8. Abelin-Genevois (AIS)", btn_cobb_tl: "📐 TL Cobb Angle (Kyphosis)", btn_c7s: "📐 C7 Slope (C7S)", ag_sub: "Sagittal Adaptation in Scoliosis", btn_calc_ag: "Evaluate Abelin-Genevois",
+            mod_9: "9. Coronal Plane", btn_cf: "CF (Femoral Heads)",
+            mod_10: "10. Bao Classification (2016)", bao_sub: "Global Coronal Balance", btn_calc_bao: "Evaluate Bao (Coronal)",
+            mod_11: "11. Spondylolisthesis & AO", btn_meyerding: "1. Measure Meyerding", btn_calc_ao: "2. AO Spine Classification",
+            mod_12: "12. Vertebral Mapping", map_labels: "Labels (Letter & Number)", map_contours: "Contours (Edges)",
+            comp_pre_badge: "PRE-OPERATIVE (BEFORE)", comp_pre_empty: "No Pre-Op image loaded",
+            comp_post_badge: "POST-OPERATIVE (AFTER)", comp_post_empty: "No Post-Op image loaded",
+            theo_title: "Theoretical Profile & Comparison", th_param: "Parameter", th_base: "Base", th_ideal: "Ideal", th_achieved: "Achieved",
+            ag_title: "Abelin-Genevois Classification", bao_title: "Bao Classification (2016)", rs_title: "Roussouly Classification (2018)", ao_title: "AO Spine Classification",
+            rs_topo_ok: "Apex & Inflection Validated",
+            bao_alert_txt: "⚠️ <span class='font-bold'>Biomechanical Alert:</span> High risk of worsening coronal imbalance if only the main curve is corrected. Requires lumbosacral fractional curve leveling or asymmetric osteotomy at the base.",
+            mm_pre_lbl: "Pre-Op Mismatch (T4PA-L1PA):", mm_post_lbl: "Post-Op Mismatch (T4PA-L1PA):",
+            pat_card_title: "Patient Record", pat_lbl_name: "Patient:", pat_lbl_id: "ID:", pat_lbl_age: "Age:",
+            ctx_title_lbl: "Title/Name", ctx_width_lbl: "Line Width", ctx_size_lbl: "Font Size", ctx_color_lbl: "Color", ctx_del_btn: "Delete Measurement",
+            st_ready: "System Ready", st_cleared: "Current traces cleared.", st_reset_all: "All images and measurements removed. Ready from zero.",
+            placeholder_pre: "Select \"Load X-Ray\" to begin (Pre-Op)", placeholder_post: "Select \"Load X-Ray\" to begin (Post-Op)",
+            prompt_cal: "Enter the real length of this line in centimeters (cm):",
+            req_pelvic: "Requires Pelvic", yrs: "years"
+        },
+        es: {
+            btn_skip: "Saltar Intro", login_sub: "Acceso Restringido", login_pass_ph: "Contraseña Maestra", login_err: "Contraseña incorrecta.", login_btn: "Ingresar",
+            btn_pre: "Pre-Qx", btn_post: "Post-Qx", btn_comp: "⚖️ Comparar", btn_patient: "Paciente", lbl_gaze: "Mirada:", btn_load_rx: "Cargar Rx", btn_save: "Guardar", btn_clear: "Limpiar", btn_reset_all: "Quitar Todo",
+            pat_modal_title: "Datos del Paciente", pat_name_ph: "Nombre y Apellido", pat_id_ph: "Cédula de Identidad", pat_age_ph: "Edad", btn_cancel: "Cancelar", btn_generate: "Generar Ficha",
+            save_modal_title: "💾 Guardar y Exportar Estudio", btn_close: "× Cerrar",
+            save_sec1_title: "1. Exportar Imagen Final (PNG para PC/Drive)", save_sec1_desc: "Descarga una imagen con los trazos, ficha del paciente y tablas integradas.",
+            btn_exp_current: "📸 Descargar Placa Actual Medida (PNG)", btn_exp_comp: "🖼️ Descargar Reporte Comparativo Pre/Post (PNG)",
+            save_sec2_title: "2. Proyecto Editable (Para remodelar después)", save_sec2_desc: "Guarda este archivo en tu PC o Google Drive. Al abrirlo recuperarás las placas Pre y Post con todas las mediciones editables.",
+            btn_dl_spine: "💾 Descargar Estudio Editable (.spine)", btn_open_spine: "📂 Abrir Estudio Guardado (.spine)",
+            mod_1: "1. Herramientas Básicas", btn_calibrate: "📏 Calibrar Escala (cm)", btn_line: "Línea Simple", btn_circle: "Círculo", btn_cobb: "Ángulo Cobb", btn_tk: "Tk (Cifosis)",
+            mod_2: "2. Parámetros Pélvicos", btn_pelvic: "Medir PI, PT y SS",
+            mod_3: "3. Balance Sagital", btn_sva: "📍 SVA (Plomada C7 a S1)",
+            mod_4: "4. Mediciones Lumbares", btn_l1s1: "Lordosis Global (L1-S1)", btn_l4s1: "LL Baja (L4-S1)", btn_l4l5: "Segmentaria (L4-L5)",
+            mod_5: "5. Perfil Teórico Ideal", btn_calc_theo: "Calcular / Comparar Valores",
+            mod_6: "6. Perfil Sagital Cervical", btn_thoracic: "T1S, TIA, NT (Conjunto)", btn_t1s: "T1S (Aislado)",
+            mod_7: "7. Roussouly (2018)", rs_step1: "1. Mide PI, SS (Pelvis), L1-S1 y L4-S1", btn_apex: "📍 Apex L", btn_inflection: "📍 Inflexión", btn_calc_rs: "Calcular Morfotipo & Índices",
+            mod_8: "8. Abelin-Genevois (EIA)", btn_cobb_tl: "📐 Ángulo Cobb TL", btn_c7s: "📐 Pendiente C7 (C7S)", ag_sub: "Adaptación Sagital Escoliosis", btn_calc_ag: "Evaluar Abelin-Genevois",
+            mod_9: "9. Plano Coronal", btn_cf: "CF (Cefálicas Femorales)",
+            mod_10: "10. Clasificación de Bao (2016)", bao_sub: "Balance Coronal Global", btn_calc_bao: "Evaluar Bao (Coronal)",
+            mod_11: "11. Espondilolistesis y AO", btn_meyerding: "1. Medir Meyerding", btn_calc_ao: "2. Clasificación AO Spine",
+            mod_12: "12. Mapeo Vertebral", map_labels: "Etiquetas (Letra y Número)", map_contours: "Contornos (Bordes)",
+            comp_pre_badge: "PRE-QUIRÚRGICO (ANTES)", comp_pre_empty: "Sin imagen Pre-Qx cargada",
+            comp_post_badge: "POST-QUIRÚRGICO (DESPUÉS)", comp_post_empty: "Sin imagen Post-Qx cargada",
+            theo_title: "Perfil Teórico & Comparación", th_param: "Parámetro", th_base: "Base", th_ideal: "Ideal", th_achieved: "Logrado",
+            ag_title: "Clasificación Abelin-Genevois", bao_title: "Clasificación de Bao (2016)", rs_title: "Clasificación Roussouly (2018)", ao_title: "Clasificación AO Spine",
+            rs_topo_ok: "Ápex e Inflexión Validados",
+            bao_alert_txt: "⚠️ <span class='font-bold'>Alerta Biomecánica:</span> Riesgo de empeorar el desbalance si solo se corrige la curva principal. Requiere nivelación de curva fraccional lumbosacra o osteotomía asimétrica en la base.",
+            mm_pre_lbl: "Mismatch Pre-Qx (T4PA-L1PA):", mm_post_lbl: "Mismatch Post-Qx (T4PA-L1PA):",
+            pat_card_title: "Ficha Técnica", pat_lbl_name: "Paciente:", pat_lbl_id: "C.I:", pat_lbl_age: "Edad:",
+            ctx_title_lbl: "Título/Nombre", ctx_width_lbl: "Grosor de línea", ctx_size_lbl: "Tamaño de letra", ctx_color_lbl: "Color", ctx_del_btn: "Eliminar Medición",
+            st_ready: "Sistema Listo", st_cleared: "Trazos actuales limpiados.", st_reset_all: "Todas las imágenes y mediciones fueron eliminadas. Listo desde cero.",
+            placeholder_pre: "Selecciona \"Cargar Rx\" para comenzar (Pre-Qx)", placeholder_post: "Selecciona \"Cargar Rx\" para comenzar (Post-Qx)",
+            prompt_cal: "Ingresa la medida real de esta línea en centímetros (cm):",
+            req_pelvic: "Requiere Pélvica", yrs: "años"
+        }
+    };
+
+    function t(key) {
+        return (I18N[currentLang] && I18N[currentLang][key]) ? I18N[currentLang][key] : key;
+    }
+
+    function setLanguage(lang) {
+        currentLang = lang === 'es' ? 'es' : 'en';
+        const s1 = document.getElementById('lang-select-splash');
+        const s2 = document.getElementById('lang-select-header');
+        if (s1) s1.value = currentLang;
+        if (s2) s2.value = currentLang;
+
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (I18N[currentLang][key]) el.innerHTML = I18N[currentLang][key];
+        });
+        document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+            const key = el.getAttribute('data-i18n-ph');
+            if (I18N[currentLang][key]) el.setAttribute('placeholder', I18N[currentLang][key]);
+        });
+
+        document.getElementById('gaze-btn').innerHTML = `<span class="hidden xl:inline mr-1" data-i18n="lbl_gaze">${t('lbl_gaze')}</span>${gazeDirection === 1 ? '➡️' : '⬅️'}`;
+
+        if (!bgImage && placeholder) {
+            placeholder.innerText = currentStage === 'pre' ? t('placeholder_pre') : t('placeholder_post');
+        }
+        updateStatus(t('st_ready'));
+        draw();
+    }
+
     let clickIntent = null; 
     window.cmPerPx = null; // Escala global de calibración en centímetros
 
@@ -523,7 +648,7 @@
         let name = document.getElementById('pat-name').value || '-';
         let id = document.getElementById('pat-id').value || '-';
         let ageVal = document.getElementById('pat-age').value.trim();
-        let age = ageVal ? (ageVal.toLowerCase().includes('año') ? ageVal : ageVal + ' años') : '-';
+        let age = ageVal ? (ageVal.toLowerCase().includes('año') || ageVal.toLowerCase().includes('yr') || ageVal.toLowerCase().includes('year') ? ageVal : ageVal + ' ' + t('yrs')) : '-';
         document.getElementById('out-pat-name').innerText = name; document.getElementById('out-pat-id').innerText = id; document.getElementById('out-pat-age').innerText = age;
         document.getElementById('patient-box').classList.remove('hidden'); closePatientModal();
     }
@@ -618,6 +743,18 @@
         panY = nextData.panY;
         colorIndex = nextData.colorIndex;
 
+        // Asegurar dimensiones reales del canvas para que nunca quede invisible al cargar .spine
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        if (bgImage && (!baseScale || baseScale <= 0)) {
+            const scX = canvas.width / bgImage.width;
+            const scY = canvas.height / bgImage.height;
+            baseScale = Math.min(scX, scY) * 0.95;
+            zoomScale = 1;
+            panX = (canvas.width - bgImage.width * baseScale) / 2;
+            panY = (canvas.height - bgImage.height * baseScale) / 2;
+        }
+
         // Actualizar UI de los botones Pre-Qx / Post-Qx / Comparar
         const btnPre = document.getElementById('btn-stage-pre');
         const btnPost = document.getElementById('btn-stage-post');
@@ -633,20 +770,19 @@
         }
 
         // Actualizar indicador de mirada
-        document.getElementById('gaze-btn').innerHTML = `<span class="hidden md:inline mr-1">Mirada:</span>${gazeDirection === 1 ? '➡️' : '⬅️'}`;
+        document.getElementById('gaze-btn').innerHTML = `<span class="hidden xl:inline mr-1" data-i18n="lbl_gaze">${t('lbl_gaze')}</span>${gazeDirection === 1 ? '➡️' : '⬅️'}`;
 
         // Actualizar texto de fondo si aún no hay imagen en esta etapa
         if (bgImage) {
             placeholder.style.display = 'none';
         } else {
             placeholder.style.display = 'block';
-            placeholder.innerText = `Selecciona "Cargar Rx" para comenzar (${currentStage === 'pre' ? 'Pre-Qx' : 'Post-Qx'})`;
+            placeholder.innerText = currentStage === 'pre' ? t('placeholder_pre') : t('placeholder_post');
         }
 
         document.getElementById('imageLoader').value = '';
 
         draw();
-        updateStatus(`Modo activo: ${currentStage === 'pre' ? 'Pre-Quirúrgico (Base)' : 'Post-Quirúrgico (Logrado)'}`);
     }
 
     // FUNCIÓN AUXILIAR PARA DIBUJAR CUALQUIER ETAPA EN UN CANVAS (USADA EN COMPARACIÓN Y EXPORTACIÓN PNG)
@@ -705,7 +841,7 @@
                     if (Math.abs(det) > 0.0001) {
                         let x_int = (B2*C1 - B1*C2) / det; let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
                         let isKyphosis = (x_int > spine_x && stageGaze === 1) || (x_int < spine_x && stageGaze === -1); let isLordosis = !isKyphosis;
-                        let title = m.title || ""; let isThoracic = title.includes('Tk') || title.includes('Cifosis') || title.includes('TL');
+                        let title = m.title || ""; let isThoracic = title.includes('Tk') || title.includes('Cifosis') || title.includes('Kyphosis') || title.includes('TL');
                         let isCervical = title.includes('C2-C7') || title.includes('C0-C2'); let isLumbar = title.includes('L1-S1') || title.includes('L4-S1') || title.includes('L4-L5') || title.includes('Lordosis');
                         let sign = 1; if (isThoracic) { sign = isKyphosis ? 1 : -1; } else if (isCervical || isLumbar) { sign = isLordosis ? 1 : -1; }
                         finalVal = diff * sign;
@@ -780,9 +916,9 @@
                         let dot = (m.slipPoint.x - pPost.x)*dx + (m.slipPoint.y - pPost.y)*dy; let projDist = dot / L;
                         let percent = (projDist / L) * 100; let absPercent = Math.abs(percent);
                         let grade = absPercent <= 25 ? "I" : absPercent <= 50 ? "II" : absPercent <= 75 ? "III" : absPercent <= 100 ? "IV" : "V";
-                        let tipo = percent > 0 ? "Anterolistesis" : "Retrolistesis"; if (Math.abs(percent) < 2) tipo = "Sin patología de listesis";
+                        let tipo = percent > 0 ? "Anterolisthesis" : "Retrolisthesis"; if (Math.abs(percent) < 2) tipo = "No listhesis";
                         computedResults['Slip'] = Number(fmtInt(absPercent));
-                        drawCompText(m.textPos.x, m.textPos.y, m.title, `${tipo}\nDeslizamiento: ${fmtInt(absPercent)}%\nMeyerding: Grado ${grade}`, m.color, m.fontSize);
+                        drawCompText(m.textPos.x, m.textPos.y, m.title, `${tipo}\nSlip: ${fmtInt(absPercent)}%\nMeyerding: Grade ${grade}`, m.color, m.fontSize);
                     }
                 }
             }
@@ -878,7 +1014,7 @@
         if (updateTheoreticalTableContent()) {
             document.getElementById('theoretical-table').classList.remove('hidden');
         }
-        updateStatus("Vista Comparativa: Pre-Qx (Izquierda) vs Post-Qx (Derecha).");
+        refreshBothMismatchBoxes();
     }
 
     function initCompareCanvases() {
@@ -962,7 +1098,7 @@
     // =========================================================================
 
     function getCleanFilenamePrefix() {
-        let name = (document.getElementById('pat-name').value || 'Paciente').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+        let name = (document.getElementById('pat-name').value || 'Patient').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
         let id = (document.getElementById('pat-id').value || '').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
         return id ? `SpinePlan_${name}_${id}` : `SpinePlan_${name}`;
     }
@@ -971,7 +1107,7 @@
     function downloadProjectFile() {
         if (!isCompareMode) saveCurrentStageState();
         if (!stageData.pre.bgImage && !stageData.post.bgImage) {
-            updateStatus("⚠️ No hay radiografías cargadas para guardar.", true);
+            updateStatus("⚠️ No X-rays loaded to save.", true);
             closeSaveModal();
             return;
         }
@@ -1013,7 +1149,7 @@
         URL.revokeObjectURL(url);
 
         closeSaveModal();
-        updateStatus("✅ Archivo editable (.spine) descargado en tu dispositivo.");
+        updateStatus("✅ Editable study (.spine) downloaded.");
     }
 
     // 2. ABRIR PROYECTO EDITABLE (.SPINE) DESDE PC O GOOGLE DRIVE
@@ -1024,9 +1160,12 @@
             try {
                 const data = JSON.parse(event.target.result);
                 if (!data || (!data.pre && !data.post)) {
-                    updateStatus("⚠️ El archivo seleccionado no es válido.", true);
+                    updateStatus("⚠️ Invalid study file.", true);
                     return;
                 }
+
+                // Limpiar estudio previo antes de cargar el nuevo archivo .spine
+                resetAllStudy(true);
 
                 // Restaurar ficha del paciente
                 if (data.patient) {
@@ -1038,7 +1177,10 @@
                     }
                 }
 
-                // Función para cargar cada etapa (Pre y Post)
+                // Asegurar dimensiones reales del contenedor antes de escalar las imágenes
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+
                 const loadStageImage = (stageKey, stObj) => {
                     return new Promise((resolve) => {
                         stageData[stageKey].measurements = stObj.measurements || [];
@@ -1072,30 +1214,35 @@
                     loadStageImage('pre', data.pre || {}),
                     loadStageImage('post', data.post || {})
                 ]).then(() => {
-                    // Recalcular resultados de ambas etapas y sus cuadros de Mismatch
                     let offCanvas = document.createElement('canvas');
                     offCanvas.width = 100; offCanvas.height = 100;
                     let offCtx = offCanvas.getContext('2d');
                     if (stageData.pre.bgImage) {
                         stageData.pre.results = renderStageOnContext(offCtx, stageData.pre, 0, 0, 1);
+                    } else {
+                        stageData.pre.results = {};
                     }
                     if (stageData.post.bgImage) {
                         stageData.post.results = renderStageOnContext(offCtx, stageData.post, 0, 0, 1);
+                    } else {
+                        stageData.post.results = {};
                     }
-                    refreshBothMismatchBoxes();
 
                     let targetStage = stageData.pre.bgImage ? 'pre' : 'post';
-                    isCompareMode = true; // Forzar recarga limpia en switchStage
+                    isCompareMode = true; // Forzar carga limpia en switchStage
                     switchStage(targetStage);
+                    resetView(); // Garantiza visualización inmediata en pantalla
+                    refreshBothMismatchBoxes();
+
                     if (updateTheoreticalTableContent()) {
                         document.getElementById('theoretical-table').classList.remove('hidden');
                     }
                     closeSaveModal();
-                    updateStatus("✅ Estudio cargado con éxito. Todas las mediciones son editables.");
+                    updateStatus("✅ Study loaded and ready to edit.");
                 });
 
             } catch (err) {
-                updateStatus("⚠️ Error al leer el archivo del estudio.", true);
+                updateStatus("⚠️ Error reading study file.", true);
             }
         };
         reader.readAsText(e.target.files[0]);
@@ -1104,12 +1251,14 @@
 
     function refreshBothMismatchBoxes() {
         ['pre', 'post'].forEach(stKey => {
-            let res = stageData[stKey].results || {};
+            let sData = stageData[stKey];
+            let hasImage = sData && sData.bgImage;
+            let res = (hasImage && sData.results) ? sData.results : {};
             let l1pa = res['L1-PA'];
             let t4pa = res['T4-PA'];
             let box = document.getElementById(stKey === 'pre' ? 'mismatch-box-pre' : 'mismatch-box-post');
             let valSpan = document.getElementById(stKey === 'pre' ? 'mismatch-val-pre' : 'mismatch-val-post');
-            if (l1pa !== undefined && t4pa !== undefined) {
+            if (hasImage && l1pa !== undefined && t4pa !== undefined) {
                 let mm = Number(fmtInt(t4pa)) - Number(fmtInt(l1pa));
                 let mColor = Math.abs(mm) <= 4 ? '#10b981' : '#f43f5e';
                 valSpan.innerText = `${fmtInt(mm)}°`;
@@ -1127,7 +1276,7 @@
         if (!isCompareMode) saveCurrentStageState();
         let sData = stageData[currentStage];
         if (!sData || !sData.bgImage) {
-            updateStatus("⚠️ No hay radiografía cargada en la etapa actual.", true);
+            updateStatus("⚠️ No X-ray loaded in current stage.", true);
             closeSaveModal();
             return;
         }
@@ -1137,25 +1286,22 @@
         outCanvas.height = 1400;
         const outCtx = outCanvas.getContext('2d');
 
-        // Fondo oscuro clínico
         outCtx.fillStyle = '#0f172a';
         outCtx.fillRect(0, 0, outCanvas.width, outCanvas.height);
 
-        // Encabezado con Ficha del Paciente
         outCtx.fillStyle = '#1e293b';
         outCtx.fillRect(0, 0, outCanvas.width, 80);
         outCtx.fillStyle = '#10b981';
         outCtx.font = 'bold 24px sans-serif';
-        outCtx.fillText(`SpinePlan Pro - Estudio ${currentStage === 'pre' ? 'PRE-QUIRÚRGICO' : 'POST-QUIRÚRGICO'}`, 30, 35);
+        outCtx.fillText(`SpinePlan Pro - ${currentStage === 'pre' ? 'PRE-OPERATIVE' : 'POST-OPERATIVE'} STUDY`, 30, 35);
 
         let patName = document.getElementById('out-pat-name').innerText || document.getElementById('pat-name').value || '-';
         let patId = document.getElementById('out-pat-id').innerText || document.getElementById('pat-id').value || '-';
         let patAge = document.getElementById('out-pat-age').innerText || document.getElementById('pat-age').value || '-';
         outCtx.fillStyle = '#e2e8f0';
         outCtx.font = '16px sans-serif';
-        outCtx.fillText(`Paciente: ${patName}   |   C.I: ${patId}   |   Edad: ${patAge}`, 30, 62);
+        outCtx.fillText(`Patient: ${patName}   |   ID: ${patId}   |   Age: ${patAge}`, 30, 62);
 
-        // Dibujar Radiografía y trazos centrados
         let availW = outCanvas.width - 60;
         let availH = outCanvas.height - 120;
         let sc = Math.min(availW / sData.bgImage.width, availH / sData.bgImage.height) * 0.95;
@@ -1164,7 +1310,6 @@
 
         let res = renderStageOnContext(outCtx, sData, px, py, sc);
 
-        // Estampar Mismatch si existe
         if (res['L1-PA'] !== undefined && res['T4-PA'] !== undefined) {
             let mm = Number(fmtInt(res['T4-PA'])) - Number(fmtInt(res['L1-PA']));
             outCtx.fillStyle = '#0f172a';
@@ -1183,14 +1328,14 @@
         link.click();
 
         closeSaveModal();
-        updateStatus("✅ Imagen PNG descargada con éxito.");
+        updateStatus("✅ PNG image downloaded.");
     }
 
     // 4. EXPORTAR REPORTE COMPARATIVO COMPLETO (PRE-QX + POST-QX + TABLA + MISMATCHES) EN PNG
     function exportComparisonPNG() {
         if (!isCompareMode) saveCurrentStageState();
         if (!stageData.pre.bgImage && !stageData.post.bgImage) {
-            updateStatus("⚠️ Carga al menos una radiografía para exportar el reporte.", true);
+            updateStatus("⚠️ Load at least one X-ray to export.", true);
             closeSaveModal();
             return;
         }
@@ -1200,25 +1345,22 @@
         outCanvas.height = 1450;
         const outCtx = outCanvas.getContext('2d');
 
-        // Fondo general
         outCtx.fillStyle = '#0f172a';
         outCtx.fillRect(0, 0, outCanvas.width, outCanvas.height);
 
-        // Barra Superior: Ficha Técnica
         outCtx.fillStyle = '#1e293b';
         outCtx.fillRect(0, 0, outCanvas.width, 90);
         outCtx.fillStyle = '#10b981';
         outCtx.font = 'bold 26px sans-serif';
-        outCtx.fillText('SpinePlan Pro - Reporte Comparativo Pre-Qx vs. Post-Qx', 35, 38);
+        outCtx.fillText('SpinePlan Pro - Pre-Op vs. Post-Op Comparative Report', 35, 38);
 
         let patName = document.getElementById('out-pat-name').innerText || document.getElementById('pat-name').value || '-';
         let patId = document.getElementById('out-pat-id').innerText || document.getElementById('pat-id').value || '-';
         let patAge = document.getElementById('out-pat-age').innerText || document.getElementById('pat-age').value || '-';
         outCtx.fillStyle = '#f8fafc';
         outCtx.font = 'bold 18px sans-serif';
-        outCtx.fillText(`Paciente: ${patName}     |     C.I: ${patId}     |     Edad: ${patAge}`, 35, 70);
+        outCtx.fillText(`Patient: ${patName}     |     ID: ${patId}     |     Age: ${patAge}`, 35, 70);
 
-        // Mitad Izquierda: PRE-QX y Mitad Derecha: POST-QX
         const panelW = 1060;
         const panelH = 980;
         const topY = 110;
@@ -1240,22 +1382,19 @@
             } else {
                 outCtx.fillStyle = '#64748b';
                 outCtx.font = '20px sans-serif';
-                outCtx.fillText(`Sin imagen ${stKey === 'pre' ? 'Pre-Qx' : 'Post-Qx'}`, boxX + panelW/2 - 90, topY + panelH/2);
+                outCtx.fillText(`No ${stKey === 'pre' ? 'Pre-Op' : 'Post-Op'} Image`, boxX + panelW/2 - 90, topY + panelH/2);
             }
 
-            // Etiqueta superior de cada panel
             outCtx.fillStyle = idx === 0 ? '#065f46' : '#075985';
             outCtx.fillRect(boxX + 15, topY + 15, 290, 36);
             outCtx.fillStyle = '#ffffff';
             outCtx.font = 'bold 16px sans-serif';
-            outCtx.fillText(idx === 0 ? 'PRE-QUIRÚRGICO (ANTES)' : 'POST-QUIRÚRGICO (DESPUÉS)', boxX + 30, topY + 39);
+            outCtx.fillText(idx === 0 ? 'PRE-OPERATIVE (BEFORE)' : 'POST-OPERATIVE (AFTER)', boxX + 30, topY + 39);
         });
 
-        // Panel Inferior: Mismatch Pre-Qx, Mismatch Post-Qx y Tabla Comparativa (Base | Ideal | Logrado)
-        let preRes = stageData.pre.results || {};
-        let postRes = stageData.post.results || {};
+        let preRes = (stageData.pre.bgImage && stageData.pre.results) ? stageData.pre.results : {};
+        let postRes = (stageData.post.bgImage && stageData.post.results) ? stageData.post.results : {};
 
-        // Mismatch Boxes en el encabezado derecho
         if (preRes['L1-PA'] !== undefined && preRes['T4-PA'] !== undefined) {
             let mmPre = Number(fmtInt(preRes['T4-PA'])) - Number(fmtInt(preRes['L1-PA']));
             outCtx.fillStyle = '#0f172a';
@@ -1265,7 +1404,7 @@
             outCtx.strokeRect(1420, 20, 360, 50);
             outCtx.fillStyle = '#e2e8f0';
             outCtx.font = 'bold 17px sans-serif';
-            outCtx.fillText(`Mismatch Pre-Qx (T4-L1): ${fmtInt(mmPre)}°`, 1440, 51);
+            outCtx.fillText(`Pre-Op Mismatch (T4-L1): ${fmtInt(mmPre)}°`, 1440, 51);
         }
         if (postRes['L1-PA'] !== undefined && postRes['T4-PA'] !== undefined) {
             let mmPost = Number(fmtInt(postRes['T4-PA'])) - Number(fmtInt(postRes['L1-PA']));
@@ -1276,10 +1415,9 @@
             outCtx.strokeRect(1800, 20, 370, 50);
             outCtx.fillStyle = '#38bdf8';
             outCtx.font = 'bold 17px sans-serif';
-            outCtx.fillText(`Mismatch Post-Qx (T4-L1): ${fmtInt(mmPost)}°`, 1820, 51);
+            outCtx.fillText(`Post-Op Mismatch (T4-L1): ${fmtInt(mmPost)}°`, 1820, 51);
         }
 
-        // Tabla Comparativa en la franja inferior
         let tableY = 1115;
         outCtx.fillStyle = '#1e293b';
         outCtx.strokeStyle = '#10b981';
@@ -1294,43 +1432,39 @@
 
         outCtx.fillStyle = '#10b981';
         outCtx.font = 'bold 20px sans-serif';
-        outCtx.fillText('TABLA COMPARATIVA: PERFIL SAGITAL (BASE vs. IDEAL vs. LOGRADO)', 60, tableY + 38);
+        outCtx.fillText('COMPARATIVE TABLE: SAGITTAL PROFILE (BASE vs. IDEAL vs. ACHIEVED)', 60, tableY + 38);
 
-        const cols = ['Parámetro', 'PI', 'L1-S1', 'L4-S1', 'L1-PA', 'T4-PA', 'C2 Tilt'];
-        const rowBase = ['Base (Pre-Qx)', fVal(preRes['PI']), fVal(preRes['L1-S1']), fVal(preRes['L4-S1']), fVal(preRes['L1-PA']), fVal(preRes['T4-PA']), fVal(preRes['C2 Tilt'])];
-        const rowIdeal = ['Ideal Teórico', pi !== undefined ? fmtInt(pi)+'°' : '-', ideal_L1S1, '35° a 40°', ideal_PA, ideal_PA, '1° a -3°'];
-        const rowPost = ['Logrado (Post-Qx)', fVal(postRes['PI']), fVal(postRes['L1-S1']), fVal(postRes['L4-S1']), fVal(postRes['L1-PA']), fVal(postRes['T4-PA']), fVal(postRes['C2 Tilt'])];
+        const cols = [t('th_param'), 'PI', 'L1-S1', 'L4-S1', 'L1-PA', 'T4-PA', 'C2 Tilt'];
+        const rowBase = [t('th_base') + ' (Pre-Op)', fVal(preRes['PI']), fVal(preRes['L1-S1']), fVal(preRes['L4-S1']), fVal(preRes['L1-PA']), fVal(preRes['T4-PA']), fVal(preRes['C2 Tilt'])];
+        const rowIdeal = [t('th_ideal'), pi !== undefined ? fmtInt(pi)+'°' : '-', ideal_L1S1, '35° - 40°', ideal_PA, ideal_PA, '1° to -3°'];
+        const rowPost = [t('th_achieved') + ' (Post-Op)', fVal(postRes['PI']), fVal(postRes['L1-S1']), fVal(postRes['L4-S1']), fVal(postRes['L1-PA']), fVal(postRes['T4-PA']), fVal(postRes['C2 Tilt'])];
 
         const colX = [60, 420, 710, 1000, 1290, 1580, 1870];
 
-        // Encabezados de columna
         outCtx.fillStyle = '#94a3b8';
         outCtx.font = 'bold 18px sans-serif';
         cols.forEach((c, i) => outCtx.fillText(c, colX[i], tableY + 85));
 
-        // Fila Base
         outCtx.fillStyle = '#e2e8f0';
         outCtx.font = 'bold 19px sans-serif';
         rowBase.forEach((val, i) => outCtx.fillText(val, colX[i], tableY + 140));
 
-        // Fila Ideal
         outCtx.fillStyle = '#10b981';
         rowIdeal.forEach((val, i) => outCtx.fillText(val, colX[i], tableY + 195));
 
-        // Fila Logrado
         outCtx.fillStyle = '#38bdf8';
         rowPost.forEach((val, i) => outCtx.fillText(val, colX[i], tableY + 250));
 
         const link = document.createElement('a');
-        link.download = `${getCleanFilenamePrefix()}_COMPARATIVA_PRE_POST.png`;
+        link.download = `${getCleanFilenamePrefix()}_COMPARISON_PRE_POST.png`;
         link.href = outCanvas.toDataURL('image/png');
         link.click();
 
         closeSaveModal();
-        updateStatus("✅ Reporte Comparativo PNG descargado con éxito.");
+        updateStatus("✅ Comparative PNG report downloaded.");
     }
 
-    function toggleGaze() { gazeDirection *= -1; document.getElementById('gaze-btn').innerHTML = `<span class="hidden md:inline mr-1">Mirada:</span>${gazeDirection === 1 ? '➡️' : '⬅️'}`; draw(); }
+    function toggleGaze() { gazeDirection *= -1; document.getElementById('gaze-btn').innerHTML = `<span class="hidden xl:inline mr-1" data-i18n="lbl_gaze">${t('lbl_gaze')}</span>${gazeDirection === 1 ? '➡️' : '⬅️'}`; draw(); }
     function getNextColor() { let c = COLORS[colorIndex]; colorIndex = (colorIndex + 1) % COLORS.length; return c; }
 
     document.getElementById('imageLoader').addEventListener('change', function(e) { 
@@ -1341,7 +1475,14 @@
             bgImage = new Image(); 
             bgImage.onload = function() { 
                 placeholder.style.display = 'none'; 
+                // Al subir una nueva radiografía en la etapa actual, limpiamos trazos previos de esa etapa
+                measurements = [];
+                window.currentResults = {};
+                window.cmPerPx = null;
                 stageData[currentStage].bgImage = bgImage;
+                stageData[currentStage].measurements = [];
+                stageData[currentStage].results = {};
+                stageData[currentStage].cmPerPx = null;
                 resetView(); 
             }; 
             bgImage.src = event.target.result; 
@@ -1353,28 +1494,97 @@
         if (isCompareMode) initCompareCanvases();
         else if (bgImage) resetView(); 
     });
-    function resetView() { canvas.width = container.clientWidth; canvas.height = container.clientHeight; const scaleX = canvas.width / bgImage.width; const scaleY = canvas.height / bgImage.height; baseScale = Math.min(scaleX, scaleY) * 0.95; zoomScale = 1; panX = (canvas.width - bgImage.width * baseScale) / 2; panY = (canvas.height - bgImage.height * baseScale) / 2; draw(); }
+    function resetView() { 
+        canvas.width = container.clientWidth; 
+        canvas.height = container.clientHeight; 
+        if (!bgImage) { draw(); return; }
+        const scaleX = canvas.width / bgImage.width; 
+        const scaleY = canvas.height / bgImage.height; 
+        baseScale = Math.min(scaleX, scaleY) * 0.95; 
+        zoomScale = 1; 
+        panX = (canvas.width - bgImage.width * baseScale) / 2; 
+        panY = (canvas.height - bgImage.height * baseScale) / 2; 
+        stageData[currentStage].baseScale = baseScale;
+        stageData[currentStage].zoomScale = zoomScale;
+        stageData[currentStage].panX = panX;
+        stageData[currentStage].panY = panY;
+        draw(); 
+    }
     container.addEventListener('wheel', (e) => { if (!bgImage || isCompareMode) return; e.preventDefault(); const rect = canvas.getBoundingClientRect(); const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top; const zoomIntensity = 0.1; const wheel = e.deltaY < 0 ? 1 : -1; const zoomFactor = Math.exp(wheel * zoomIntensity); const newZoomScale = zoomScale * zoomFactor; if (newZoomScale < 0.5 || newZoomScale > 10) return; panX = mouseX - (mouseX - panX) * zoomFactor; panY = mouseY - (mouseY - panY) * zoomFactor; zoomScale = newZoomScale; draw(); });
     function getLogicalPos(evt) { const rect = canvas.getBoundingClientRect(); return { x: (evt.clientX - rect.left - panX) / (baseScale * zoomScale), y: (evt.clientY - rect.top - panY) / (baseScale * zoomScale) }; }
 
+    // BOTÓN LIMPIAR: Limpia únicamente los trazos de la radiografía activa manteniendo la imagen
     function clearCanvas() {
         measurements = []; currentMeasurement = null; colorIndex = 0; window.currentResults = {}; clickIntent = null;
-        window.cmPerPx = null; // Reiniciar calibración de la etapa actual
+        window.cmPerPx = null;
         stageData[currentStage].measurements = [];
         stageData[currentStage].results = {};
         stageData[currentStage].cmPerPx = null;
 
-        if (currentStage === 'pre') {
-            document.getElementById('mismatch-box-pre').classList.add('hidden');
-        } else {
-            document.getElementById('mismatch-box-post').classList.add('hidden');
-        }
         document.getElementById('ao-box').classList.add('hidden'); 
         document.getElementById('roussouly-box').classList.add('hidden'); 
         document.getElementById('bao-box').classList.add('hidden'); 
         document.getElementById('ag-box').classList.add('hidden'); 
-        updateStatus(`Trazos de ${currentStage === 'pre' ? 'Pre-Qx' : 'Post-Qx'} limpiados.`);
+        refreshBothMismatchBoxes();
+        updateStatus(t('st_cleared'));
         draw();
+    }
+
+    // NUEVO BOTÓN: QUITAR TODO (REINICIO TOTAL DESDE CERO: IMÁGENES PRE/POST, TRAZOS, TABLAS Y MISMATCHES)
+    function resetAllStudy(silent = false) {
+        deactivateTool();
+        hideContextMenu();
+        isCompareMode = false;
+        document.getElementById('compare-view').classList.add('hidden');
+
+        bgImage = null;
+        measurements = [];
+        currentMeasurement = null;
+        colorIndex = 0;
+        window.currentResults = {};
+        window.cmPerPx = null;
+        gazeDirection = 1;
+        clickIntent = null;
+
+        stageData = {
+            pre: { bgImage: null, measurements: [], results: {}, cmPerPx: null, gazeDirection: 1, baseScale: 1, zoomScale: 1, panX: 0, panY: 0, colorIndex: 0 },
+            post: { bgImage: null, measurements: [], results: {}, cmPerPx: null, gazeDirection: 1, baseScale: 1, zoomScale: 1, panX: 0, panY: 0, colorIndex: 0 }
+        };
+
+        currentStage = 'pre';
+        const btnPre = document.getElementById('btn-stage-pre');
+        const btnPost = document.getElementById('btn-stage-post');
+        const btnComp = document.getElementById('btn-stage-comp');
+        btnPre.className = "px-2 md:px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-600 text-white transition-colors shadow";
+        btnPost.className = "px-2 md:px-2.5 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition-colors";
+        btnComp.className = "px-2 md:px-2.5 py-1 rounded-md text-xs font-bold text-amber-400 hover:text-white transition-colors";
+
+        document.getElementById('gaze-btn').innerHTML = `<span class="hidden xl:inline mr-1" data-i18n="lbl_gaze">${t('lbl_gaze')}</span>➡️`;
+
+        // Ocultar todos los cuadros flotantes y limpiar datos del paciente
+        document.getElementById('theoretical-table').classList.add('hidden');
+        document.getElementById('mismatch-box-pre').classList.add('hidden');
+        document.getElementById('mismatch-box-post').classList.add('hidden');
+        document.getElementById('patient-box').classList.add('hidden');
+        document.getElementById('ao-box').classList.add('hidden');
+        document.getElementById('roussouly-box').classList.add('hidden');
+        document.getElementById('bao-box').classList.add('hidden');
+        document.getElementById('ag-box').classList.add('hidden');
+
+        document.getElementById('pat-name').value = '';
+        document.getElementById('pat-id').value = '';
+        document.getElementById('pat-age').value = '';
+        document.getElementById('out-pat-name').innerText = '';
+        document.getElementById('out-pat-id').innerText = '';
+        document.getElementById('out-pat-age').innerText = '';
+        document.getElementById('imageLoader').value = '';
+        document.getElementById('projectLoader').value = '';
+
+        placeholder.style.display = 'block';
+        placeholder.innerText = t('placeholder_pre');
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (!silent) updateStatus(t('st_reset_all'));
     }
 
     function activateTool(type, title, subType = null) {
@@ -1387,32 +1597,10 @@
         document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); event.currentTarget.classList.add('active');
         activeTool = type; activeTitle = title; activeSubType = subType; currentMeasurement = null; stepCount = 0; clickIntent = null;
         
-        if (type === 'calibrate') updateStatus(`Traza una línea sobre un marcador de medida conocida (Clic y arrastrar)`);
-        else if (type === 'pelvic') updateStatus(`Traza la Primera Cabeza Femoral`);
-        else if (type === 'sagittal') updateStatus(`Haz clic sobre la vértebra ${title}`);
-        else if (type === 'sva') updateStatus(`Haz 1 CLIC en el centro de C7 para soltar la plomada`);
-        else if (type === 'cbva') updateStatus(`Haz clic en el Mentón`);
-        else if (type === 'thoracic') updateStatus(`Traza el platillo de T1 (Clic y Arrastrar)`);
-        else if (type === 'meyerding') updateStatus(`Traza el platillo de la vértebra inferior (Línea)`);
-        else if (type === 'cobb_coronal') updateStatus(`Haz clic y arrastra para el primer platillo de la curva`);
-        else if (type === 'horiz_angle') updateStatus(`Traza la línea de un extremo al otro`);
-        else if (type === 'coronal_cf') updateStatus(`Traza la Primera Cefálica Femoral (Clic y arrastrar)`);
-        else if (type === 'point_marker') updateStatus(`Haz clic sobre la radiografía para marcar ${title}`);
-        else if (type === 'vertebra') {
-            activeVertebraRegion = subType; 
-            currentVIndex = 1;
-            updateStatus(`Haz clic para poner etiqueta ${activeVertebraRegion}${currentVIndex}. (Arrastra para mover la imagen)`);
-        }
-        else if (type === 'vertebraContour') {
-            activeVertebraRegion = subType;
-            updateStatus(`Toca los bordes de la vértebra. Toca el punto rojo para cerrar. (Arrastra para mover la imagen)`);
-        }
-        else updateStatus(`Herramienta: ${title}. Traza la línea.`);
-        
         if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
     }
 
-    function deactivateTool() { document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); activeTool = null; activeSubType = null; currentMeasurement = null; stepCount = 0; clickIntent = null; updateStatus("Sistema Listo."); }
+    function deactivateTool() { document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); activeTool = null; activeSubType = null; currentMeasurement = null; stepCount = 0; clickIntent = null; updateStatus(t('st_ready')); }
     function updateStatus(text, isError = false) { let colorClass = isError ? 'bg-red-500' : 'bg-emerald-500'; let textClass = isError ? 'text-red-400' : 'text-emerald-400'; statusBar.className = `text-xs font-semibold flex items-center ${textClass}`; statusBar.innerHTML = `<span class="w-2 h-2 rounded-full ${colorClass} mr-2 ${!isError ? 'animate-pulse' : ''}"></span> ${text}`; }
 
     // FUNCIONES ABELIN-GENEVOIS
@@ -1422,7 +1610,7 @@
         let c7s = window.currentResults['C7S'];
         
         if (tk === undefined || tl === undefined || c7s === undefined) {
-            updateStatus("⚠️ Debes medir Tk, Cobb TL y C7S primero.", true);
+            updateStatus("⚠️ Measure Tk, TL Cobb & C7S first.", true);
             return;
         }
 
@@ -1434,27 +1622,26 @@
         let descBox = document.getElementById('ag-desc');
 
         if (tl < -5) { 
-            typeBox.innerText = 'Tipo 3 (Lordosis TL)';
+            typeBox.innerText = currentLang === 'es' ? 'Tipo 3 (Lordosis TL)' : 'Type 3 (TL Lordosis)';
             typeBox.className = "bg-orange-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md";
-            descBox.innerText = "Lordosis Toracolumbar con cifosis cervicodorsal compensatoria. El punto de inflexión se desplaza proximalmente.";
+            descBox.innerText = currentLang === 'es' ? "Lordosis Toracolumbar con cifosis cervicodorsal compensatoria." : "Thoracolumbar lordosis with compensatory cervicothoracic kyphosis.";
         } else if (tk < 20) {
             if (tl > 5) {
-                typeBox.innerText = 'Tipo 2b (Espalda Hueca)';
+                typeBox.innerText = currentLang === 'es' ? 'Tipo 2b (Espalda Hueca)' : 'Type 2b (Hollow Back)';
                 typeBox.className = "bg-yellow-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md";
-                descBox.innerText = "Hipocifosis torácica (Tk < 20°) con Cifosis Toracolumbar (patrón de 4 curvas alternas).";
+                descBox.innerText = currentLang === 'es' ? "Hipocifosis torácica (Tk < 20°) con Cifosis Toracolumbar." : "Thoracic hypokyphosis (Tk < 20°) with Thoracolumbar Kyphosis.";
             } else {
-                typeBox.innerText = 'Tipo 2a (Espalda Plana)';
+                typeBox.innerText = currentLang === 'es' ? 'Tipo 2a (Espalda Plana)' : 'Type 2a (Flat Back)';
                 typeBox.className = "bg-blue-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md";
-                descBox.innerText = "Hipocifosis torácica (Tk < 20°) con cifosis cervical. Forma patológica más frecuente en AIS.";
+                descBox.innerText = currentLang === 'es' ? "Hipocifosis torácica (Tk < 20°) con cifosis cervical." : "Thoracic hypokyphosis (Tk < 20°) with cervical kyphosis.";
             }
         } else {
-            typeBox.innerText = 'Tipo 1 (Armonioso)';
+            typeBox.innerText = currentLang === 'es' ? 'Tipo 1 (Armonioso)' : 'Type 1 (Harmonious)';
             typeBox.className = "bg-green-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md";
-            descBox.innerText = "Cifosis torácica conservada (Tk > 20°). Mantiene las 3 curvas sagitales armónicas.";
+            descBox.innerText = currentLang === 'es' ? "Cifosis torácica conservada (Tk > 20°). Perfil sagital armónico." : "Preserved thoracic kyphosis (Tk > 20°). Harmonious sagittal profile.";
         }
         
         document.getElementById('ag-box').classList.remove('hidden');
-        updateStatus("Clasificación de Abelin-Genevois evaluada.");
         if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
     }
 
@@ -1465,18 +1652,18 @@
         let convexity = window.currentResults['CoronalConvexity'];
         
         if (c7x === undefined || s1x === undefined || convexity === undefined) {
-            updateStatus("⚠️ Debes medir Cobb Coronal, Centro C7 y Centro S1 primero.", true);
+            updateStatus("⚠️ Measure Coronal Cobb, C7 & CSVL first.", true);
             return;
         }
 
         let shift_px = c7x - s1x;
         let shift_cm = shift_px * (window.cmPerPx || 1); 
         let abs_shift = Math.abs(shift_cm);
-        let shiftDir = shift_cm > 0 ? "Derecha" : "Izquierda";
+        let shiftDir = shift_cm > 0 ? "Right" : "Left";
         let unit = window.cmPerPx ? ' cm' : ' px';
         
         document.getElementById('bao-shift').innerText = fmtInt(abs_shift) + unit + ' (' + shiftDir + ')';
-        document.getElementById('bao-curve').innerText = "Convexidad " + convexity;
+        document.getElementById('bao-curve').innerText = "Convexity: " + convexity;
 
         let typeBox = document.getElementById('bao-type-badge');
         let descBox = document.getElementById('bao-desc');
@@ -1484,29 +1671,27 @@
         
         alertBox.classList.add('hidden');
 
-        // Si está calibrado, el umbral es 3 cm. Si no, usamos 30 px por defecto como fallback visual
         let threshold = window.cmPerPx ? 3 : 30;
 
         if (abs_shift < threshold) {
-            typeBox.innerText = 'Tipo A';
+            typeBox.innerText = 'Type A';
             typeBox.className = "bg-green-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md";
-            descBox.innerText = "Desvío C7-CSVL < 3 cm. Tronco equilibrado en el plano coronal. Bajo riesgo de desbalance postoperatorio.";
+            descBox.innerText = currentLang === 'es' ? "Desvío C7-CSVL < 3 cm. Tronco equilibrado en el plano coronal." : "C7-CSVL shift < 3 cm. Balanced coronal trunk. Low postoperative risk.";
         } else {
-            let concavityDir = convexity === "Derecha" ? "Izquierda" : "Derecha";
+            let concavityDir = convexity === "Right" ? "Left" : "Right";
             if (shiftDir === concavityDir) {
-                typeBox.innerText = 'Tipo B';
+                typeBox.innerText = 'Type B';
                 typeBox.className = "bg-blue-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md";
-                descBox.innerText = "Desvío > 3 cm hacia la CONCAVIDAD. El tronco se compensa hacia el hueco de la curva. Al corregir la curva principal, el tronco suele centrarse.";
+                descBox.innerText = currentLang === 'es' ? "Desvío > 3 cm hacia la CONCAVIDAD." : "Shift > 3 cm toward CONCAVITY.";
             } else {
-                typeBox.innerText = 'Tipo C';
+                typeBox.innerText = 'Type C';
                 typeBox.className = "bg-red-600 text-white font-bold py-1 px-4 rounded-full mb-2 inline-block text-sm shadow-md";
-                descBox.innerText = "Desvío > 3 cm hacia la CONVEXIDAD. El tronco se aleja de la curva (Desbalance maligno).";
+                descBox.innerText = currentLang === 'es' ? "Desvío > 3 cm hacia la CONVEXIDAD." : "Shift > 3 cm toward CONVEXITY.";
                 alertBox.classList.remove('hidden');
             }
         }
         
         document.getElementById('bao-box').classList.remove('hidden');
-        updateStatus("Clasificación de Bao calculada exitosamente.");
         if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
     }
 
@@ -1520,7 +1705,7 @@
         let infY = window.currentResults['Inflection_Y'];
         
         if (pi === undefined || ss === undefined || ll === undefined || apexY === undefined || infY === undefined) {
-            updateStatus("⚠️ Faltan pasos: Mide PI, SS, L1-S1, y marca físicamente el Apex L y la Inflexión.", true);
+            updateStatus("⚠️ Measure PI, SS, L1-S1, Apex L & Inflection first.", true);
             return;
         }
 
@@ -1528,13 +1713,11 @@
         document.getElementById('rs-ss').innerText = fmtInt(ss) + '°';
         document.getElementById('rs-ll').innerText = fmtInt(Math.abs(ll)) + '°';
         
-        // Mismatch PI - LL
         let mismatch = pi - Math.abs(ll);
         let mmBox = document.getElementById('rs-mismatch');
         mmBox.innerText = fmtInt(mismatch) + '°';
         mmBox.style.color = Math.abs(mismatch) <= 10 ? '#10b981' : '#f43f5e'; 
 
-        // Proporcion L4-S1
         let pBox = document.getElementById('rs-prop');
         if (l4s1 !== undefined && ll !== 0) {
             document.getElementById('rs-l4s1').innerText = fmtInt(Math.abs(l4s1)) + '°';
@@ -1543,30 +1726,28 @@
             pBox.style.color = (prop >= 60 && prop <= 75) ? '#10b981' : '#f59e0b'; 
         } else {
             document.getElementById('rs-l4s1').innerText = "-";
-            pBox.innerText = "Falta L4-S1";
+            pBox.innerText = "Missing L4-S1";
             pBox.style.color = "#94a3b8";
         }
 
         let typeBox = document.getElementById('rs-type-badge');
         let descBox = document.getElementById('rs-desc');
 
-        // Lenguaje puramente predictivo y biomecánico
         if (pi < 50 && ss > 35) {
-            typeBox.innerText = 'Morfotipo: Tipo 3 AP (Anteverted Pelvis)'; 
-            descBox.innerText = "Teórico: PI baja (< 50°) con pelvis antevertida (SS > 35°).\nClínica: Alta reserva, pero altísimo riesgo de fracaso si se sobrecorrige la lordosis.";
+            typeBox.innerText = 'Type 3 AP (Anteverted Pelvis)'; 
+            descBox.innerText = currentLang === 'es' ? "PI baja (< 50°) con pelvis antevertida (SS > 35°)." : "Low PI (< 50°) with anteverted pelvis (SS > 35°).";
         } else if (pi < 45) {
-            typeBox.innerText = 'Morfotipo Teórico: Tipo 1 o 2'; 
-            descBox.innerText = "Teórico: PI baja (< 45°). Su anatomía original exige lordosis corta y ápex bajo.\nClínica: Toleran mal la hipolordosis iatrogénica.";
+            typeBox.innerText = 'Type 1 or 2'; 
+            descBox.innerText = currentLang === 'es' ? "PI baja (< 45°). Exige lordosis corta y ápex bajo." : "Low PI (< 45°). Demands short lordosis and low apex.";
         } else if (pi >= 45 && pi <= 60) {
-            typeBox.innerText = 'Morfotipo Teórico: Tipo 3'; 
-            descBox.innerText = "Teórico: PI media (45° - 60°). Perfil armónico estándar.\nClínica: Su lordosis actual debe coincidir con la PI para un equilibrio sano.";
+            typeBox.innerText = 'Type 3'; 
+            descBox.innerText = currentLang === 'es' ? "PI media (45° - 60°). Perfil armónico estándar." : "Average PI (45° - 60°). Standard harmonious profile.";
         } else {
-            typeBox.innerText = 'Morfotipo Teórico: Tipo 4'; 
-            descBox.innerText = "Teórico: PI alta (> 60°). Su anatomía original demanda lordosis larga y ápex alto.\nClínica: Verifique sus marcadores y el mismatch para confirmar colapso.";
+            typeBox.innerText = 'Type 4'; 
+            descBox.innerText = currentLang === 'es' ? "PI alta (> 60°). Demanda lordosis larga y ápex alto." : "High PI (> 60°). Demands long lordosis and high apex.";
         }
         
         document.getElementById('roussouly-box').classList.remove('hidden');
-        updateStatus("Clasificación de Roussouly validada exitosamente.");
         if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
     }
 
@@ -1577,13 +1758,13 @@
         let l1s1 = window.currentResults['L1-S1'];
         
         if (pi === undefined || slip === undefined || l1s1 === undefined) {
-            updateStatus("⚠️ Debes medir PI, Meyerding y L1-S1 (Lordosis) primero.", true);
+            updateStatus("⚠️ Measure PI, Meyerding & L1-S1 first.", true);
             return;
         }
 
         document.getElementById('ao-pi').innerText = fmtInt(pi) + '°';
         document.getElementById('ao-slip').innerText = fmtInt(slip) + '%';
-        document.getElementById('ao-l1s1').innerText = fmtInt(l1s1) + '° (' + (l1s1 >= 0 ? 'Lordosis' : 'Cifosis') + ')';
+        document.getElementById('ao-l1s1').innerText = fmtInt(l1s1) + '°';
 
         let typeBox = document.getElementById('ao-type-badge');
         let descBox = document.getElementById('ao-desc');
@@ -1592,11 +1773,11 @@
         if (slip < 50) {
             hgOptions.classList.add('hidden');
             if (pi < 45) { 
-                typeBox.innerText = 'Tipo 1'; descBox.innerText = "PI baja (<45°), pelvis y columna equilibradas, sin cifosis lumbosacra."; 
+                typeBox.innerText = 'Type 1'; descBox.innerText = "Low PI (<45°), balanced spine and pelvis."; 
             } else if (pi < 60) { 
-                typeBox.innerText = 'Tipo 2'; descBox.innerText = "PI normal (45°-60°), columna equilibrada y sin cifosis lumbosacra."; 
+                typeBox.innerText = 'Type 2'; descBox.innerText = "Normal PI (45°-60°), balanced spine."; 
             } else { 
-                typeBox.innerText = 'Tipo 3'; descBox.innerText = "PI alta (≥60°), columna equilibrada y sem cifosis lumbosacra."; 
+                typeBox.innerText = 'Type 3'; descBox.innerText = "High PI (≥60°), balanced spine."; 
             }
         } else {
             hgOptions.classList.remove('hidden');
@@ -1606,7 +1787,6 @@
         }
         
         document.getElementById('ao-box').classList.remove('hidden');
-        updateStatus("Clasificación AO Spine calculada.");
         if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
     }
 
@@ -1615,11 +1795,11 @@
         let descBox = document.getElementById('ao-desc');
         
         if (val === "4") {
-            typeBox.innerText = 'Tipo 4'; descBox.innerText = "PI alta (≥60°), columna equilibrada y sin cifosis lumbosacra."; 
+            typeBox.innerText = 'Type 4'; descBox.innerText = "High PI (≥60°), balanced spine, no lumbosacral kyphosis."; 
         } else if (val === "5") {
-            typeBox.innerText = 'Tipo 5'; descBox.innerText = "PI alta (≥60°), pelvis retrovertida, columna equilibrada, posible cifosis lumbosacra."; 
+            typeBox.innerText = 'Type 5'; descBox.innerText = "High PI (≥60°), retroverted pelvis, balanced spine."; 
         } else if (val === "6") {
-            typeBox.innerText = 'Tipo 6'; descBox.innerText = "PI alta (≥60°), pelvis retrovertida, columna desequilibrada, cifosis lumbosacra franca que requiere reducción."; 
+            typeBox.innerText = 'Type 6'; descBox.innerText = "High PI (≥60°), retroverted pelvis, unbalanced spine, frank kyphosis."; 
         }
     }
 
@@ -1628,8 +1808,8 @@
         if (!isCompareMode) {
             stageData[currentStage].results = { ...window.currentResults };
         }
-        let preRes = stageData.pre.results || {};
-        let postRes = stageData.post.results || {};
+        let preRes = (stageData.pre.bgImage && stageData.pre.results) ? stageData.pre.results : {};
+        let postRes = (stageData.post.bgImage && stageData.post.results) ? stageData.post.results : {};
         let pi = preRes['PI'] !== undefined ? preRes['PI'] : postRes['PI'];
         if (pi === undefined) return false;
 
@@ -1655,23 +1835,22 @@
         tbody.innerHTML = `
             <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-2 font-medium text-emerald-400">PI</td><td class="py-2 pr-2 text-gray-300">${base_PI}</td><td class="py-2 pr-2 font-bold text-emerald-400">${fmtInt(pi)}°</td><td class="py-2 font-bold text-sky-400">${post_PI}</td></tr>
             <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-2 font-medium text-white">L1-S1</td><td class="py-2 pr-2 text-gray-300">${base_L1S1}</td><td class="py-2 pr-2 font-bold text-emerald-400">${fmtInt(ideal_L1S1)}°</td><td class="py-2 font-bold text-sky-400">${post_L1S1}</td></tr>
-            <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-2 font-medium text-white">L4-S1</td><td class="py-2 pr-2 text-gray-300">${base_L4S1}</td><td class="py-2 pr-2 font-bold text-emerald-400">35° a 40°</td><td class="py-2 font-bold text-sky-400">${post_L4S1}</td></tr>
+            <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-2 font-medium text-white">L4-S1</td><td class="py-2 pr-2 text-gray-300">${base_L4S1}</td><td class="py-2 pr-2 font-bold text-emerald-400">35° - 40°</td><td class="py-2 font-bold text-sky-400">${post_L4S1}</td></tr>
             <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-2 font-medium text-white">L1-PA</td><td class="py-2 pr-2 text-gray-300">${base_L1PA}</td><td class="py-2 pr-2 font-bold text-emerald-400">${fmtInt(ideal_PA)}°</td><td class="py-2 font-bold text-sky-400">${post_L1PA}</td></tr>
             <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-2 font-medium text-white">T4-PA</td><td class="py-2 pr-2 text-gray-300">${base_T4PA}</td><td class="py-2 pr-2 font-bold text-emerald-400">${fmtInt(ideal_PA)}°</td><td class="py-2 font-bold text-sky-400">${post_T4PA}</td></tr>
-            <tr class="hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-2 font-medium text-white">C2 Tilt</td><td class="py-2 pr-2 text-gray-300">${base_C2Tilt}</td><td class="py-2 pr-2 font-bold text-emerald-400">1° a -3°</td><td class="py-2 font-bold text-sky-400">${post_C2Tilt}</td></tr>
+            <tr class="hover:bg-gray-800/50 transition-colors"><td class="py-2 pr-2 font-medium text-white">C2 Tilt</td><td class="py-2 pr-2 text-gray-300">${base_C2Tilt}</td><td class="py-2 pr-2 font-bold text-emerald-400">1° / -3°</td><td class="py-2 font-bold text-sky-400">${post_C2Tilt}</td></tr>
         `;
         return true;
     }
 
     function showTheoreticalProfile() {
         if (!updateTheoreticalTableContent()) { 
-            updateStatus("⚠️ Debes medir los Parámetros Pélvicos (PI) primero.", true); 
+            updateStatus("⚠️ Measure Pelvic Parameters (PI) first.", true); 
             document.getElementById('theoretical-table').classList.add('hidden'); 
             return; 
         }
         document.getElementById('theoretical-table').classList.remove('hidden'); 
         if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu(); 
-        updateStatus("Perfil Teórico y Comparación actualizados.");
     }
 
     canvas.addEventListener('mousedown', function(e) {
@@ -1696,7 +1875,6 @@
             else if (activeTool === 'pelvic') { if (stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'pelvic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, circles: [ {x: pos.x, y: pos.y, r: 0} ], line: [], textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) currentMeasurement.circles.push({x: pos.x, y: pos.y, r: 0}); else if (stepCount === 2) currentMeasurement.line = [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}]; }
             else if (activeTool === 'sagittal') { currentMeasurement = { id: Date.now(), type: 'sagittal', title: activeTitle, subType: activeSubType, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: {x: pos.x + 20, y: pos.y - 20} }; measurements.push(currentMeasurement); deactivateTool(); }
             
-            // SVA ACTUALIZADO A 2 CLICS
             else if (activeTool === 'sva') { 
                 if (stepCount === 0) {
                     currentMeasurement = { 
@@ -1705,7 +1883,6 @@
                     }; 
                     measurements.push(currentMeasurement);
                     stepCount = 1; 
-                    updateStatus(`Plomada trazada. Ahora haz 1 CLIC en el borde posterior de S1`);
                 } else if (stepCount === 1) {
                     currentMeasurement.points.push({x: pos.x, y: pos.y});
                     currentMeasurement.textPos = {x: currentMeasurement.points[0].x + 20, y: pos.y - 20};
@@ -1714,7 +1891,7 @@
                 }
             }
 
-            else if (activeTool === 'cbva') { if(!currentMeasurement) { currentMeasurement = { id: Date.now(), type: 'cbva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: null }; measurements.push(currentMeasurement); stepCount = 1; updateStatus(`Haz clic en la Ceja`); } else { currentMeasurement.points.push({x: pos.x, y: pos.y}); currentMeasurement.textPos = {x: pos.x + 20, y: pos.y + 20}; deactivateTool(); } }
+            else if (activeTool === 'cbva') { if(!currentMeasurement) { currentMeasurement = { id: Date.now(), type: 'cbva', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}], textPos: null }; measurements.push(currentMeasurement); stepCount = 1; } else { currentMeasurement.points.push({x: pos.x, y: pos.y}); currentMeasurement.textPos = {x: pos.x + 20, y: pos.y + 20}; deactivateTool(); } }
             else if (activeTool === 'thoracic') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'thoracic', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], sternum: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.sternum = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 20}; deactivateTool(); } }
             else if (activeTool === 'meyerding') { if(stepCount === 0) { currentMeasurement = { id: Date.now(), type: 'meyerding', title: activeTitle, color: color, width: DEFAULT_LINE_WIDTH, fontSize: DEFAULT_FONT_SIZE, points: [{x: pos.x, y: pos.y}, {x: pos.x, y: pos.y}], slipPoint: null, textPos: null }; measurements.push(currentMeasurement); } else if (stepCount === 1) { currentMeasurement.slipPoint = {x: pos.x, y: pos.y}; currentMeasurement.textPos = {x: pos.x + 20, y: pos.y - 40}; deactivateTool(); } }
             else if (activeTool === 'point_marker') { 
@@ -1798,7 +1975,6 @@
                         x: clickIntent.logX, y: clickIntent.logY 
                     });
                     currentVIndex++; 
-                    updateStatus(`Etiqueta ${activeVertebraRegion}${currentVIndex} lista.`);
                 } 
                 else if (clickIntent.tool === 'vertebraContour') {
                     if (!currentMeasurement) {
@@ -1810,7 +1986,6 @@
                         if (currentMeasurement.points.length > 2 && d < (25 / (baseScale * zoomScale))) {
                             currentMeasurement.closed = true;
                             deactivateTool();
-                            updateStatus("Contorno cerrado con éxito.");
                         } else {
                             currentMeasurement.points.push({x: clickIntent.logX, y: clickIntent.logY});
                         }
@@ -1828,31 +2003,27 @@
             if (activeTool === 'calibrate') {
                 let dist = Math.hypot(currentMeasurement.points[1].x - currentMeasurement.points[0].x, currentMeasurement.points[1].y - currentMeasurement.points[0].y);
                 if (dist > 5) {
-                    let input = prompt("Ingresa la medida real de esta línea en centímetros (cm):");
+                    let input = prompt(t('prompt_cal'));
                     if (input !== null) {
                         let realCm = parseFloat(input.replace(',','.'));
                         if (!isNaN(realCm) && realCm > 0) {
                             window.cmPerPx = realCm / dist;
                             stageData[currentStage].cmPerPx = window.cmPerPx;
-                            updateStatus("✅ Escala calibrada correctamente (" + fmtInt(realCm) + " cm).");
-                        } else {
-                            updateStatus("⚠️ Valor inválido. Calibración cancelada.", true);
+                            updateStatus("✅ Scale calibrated (" + fmtInt(realCm) + " cm).");
                         }
-                    } else {
-                        updateStatus("⚠️ Calibración cancelada.", true);
                     }
                 }
-                measurements.pop(); // Esto elimina la línea de calibración del lienzo para no manchar la imagen
+                measurements.pop();
                 deactivateTool();
             }
             else if (activeTool === 'line' || activeTool === 'circle' || activeTool === 'angle') deactivateTool();
-            else if (activeTool === 'cobb') { if (currentMeasurement.points.length === 2) updateStatus(`Traza el Segundo Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
-            else if (activeTool === 'cobb_coronal') { if (currentMeasurement.points.length === 2) updateStatus(`Traza el Segundo Platillo`); else if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
+            else if (activeTool === 'cobb') { if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
+            else if (activeTool === 'cobb_coronal') { if (currentMeasurement.points.length === 4) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.points[2].x + 20, y: currentMeasurement.points[2].y + 20}; deactivateTool(); } } 
             else if (activeTool === 'horiz_angle') { deactivateTool(); }
-            else if (activeTool === 'pelvic') { if(stepCount === 0) { stepCount = 1; updateStatus(`Traza la Segunda Cabeza Femoral`); } else if(stepCount === 1) { stepCount = 2; updateStatus(`Traza el Platillo de S1`); } else if(stepCount === 2) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.line[0].x + 40, y: currentMeasurement.line[0].y - 20}; deactivateTool(); } } 
-            else if (activeTool === 'coronal_cf') { if(stepCount === 0) { stepCount = 1; updateStatus(`Traza la Segunda Cefálica Femoral`); } else if(stepCount === 1) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.circles[0].x + 40, y: currentMeasurement.circles[0].y - 20}; deactivateTool(); } } 
-            else if (activeTool === 'thoracic') { if(stepCount === 0) { stepCount = 1; updateStatus(`Haz clic en el Manubrio del Esternón`); } }
-            else if (activeTool === 'meyerding') { if(stepCount === 0) { stepCount = 1; updateStatus(`Haz clic en la esquina postero-inferior de la vértebra desplazada`); } }
+            else if (activeTool === 'pelvic') { if(stepCount === 0) { stepCount = 1; } else if(stepCount === 1) { stepCount = 2; } else if(stepCount === 2) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.line[0].x + 40, y: currentMeasurement.line[0].y - 20}; deactivateTool(); } } 
+            else if (activeTool === 'coronal_cf') { if(stepCount === 0) { stepCount = 1; } else if(stepCount === 1) { if(!currentMeasurement.textPos) currentMeasurement.textPos = {x: currentMeasurement.circles[0].x + 40, y: currentMeasurement.circles[0].y - 20}; deactivateTool(); } } 
+            else if (activeTool === 'thoracic') { if(stepCount === 0) { stepCount = 1; } }
+            else if (activeTool === 'meyerding') { if(stepCount === 0) { stepCount = 1; } }
         }
         draw();
     });
@@ -1891,7 +2062,14 @@
     document.getElementById('ctx-width').addEventListener('input', e => { if(selectedForContext){ selectedForContext.width = parseInt(e.target.value); document.getElementById('ctx-width-val').innerText = e.target.value; draw(); }});
     document.getElementById('ctx-size').addEventListener('input', e => { if(selectedForContext){ selectedForContext.fontSize = parseInt(e.target.value); document.getElementById('ctx-size-val').innerText = e.target.value; draw(); }});
     document.getElementById('ctx-color').addEventListener('input', e => { if(selectedForContext){ selectedForContext.color = e.target.value; draw(); }});
-    document.getElementById('ctx-delete').addEventListener('click', () => { if(selectedForContext) { measurements = measurements.filter(m => m.id !== selectedForContext.id); stageData[currentStage].measurements = measurements; hideContextMenu(); draw(); }});
+    document.getElementById('ctx-delete').addEventListener('click', () => { 
+        if(selectedForContext) { 
+            measurements = measurements.filter(m => m.id !== selectedForContext.id); 
+            stageData[currentStage].measurements = measurements; 
+            hideContextMenu(); 
+            draw(); 
+        }
+    });
 
     function checkHit(x, y) {
         const baseRadius = 15 / (baseScale * zoomScale); 
@@ -1936,7 +2114,6 @@
     function draw() {
         ctx.clearRect(0,0, canvas.width, canvas.height); window.currentResults = {}; 
         if (bgImage) {
-            let val_L1PA = null; let val_T4PA = null;
             ctx.save(); 
             ctx.translate(panX, panY); ctx.scale(baseScale * zoomScale, baseScale * zoomScale); ctx.drawImage(bgImage, 0, 0);
 
@@ -1961,7 +2138,7 @@
                         if (Math.abs(det) > 0.0001) {
                             let x_int = (B2*C1 - B1*C2) / det; let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
                             let isKyphosis = (x_int > spine_x && gazeDirection === 1) || (x_int < spine_x && gazeDirection === -1); let isLordosis = !isKyphosis;
-                            let title = m.title || ""; let isThoracic = title.includes('Tk') || title.includes('Cifosis') || title.includes('TL'); let isCervical = title.includes('C2-C7') || title.includes('C0-C2'); let isLumbar = title.includes('L1-S1') || title.includes('L4-S1') || title.includes('L4-L5') || title.includes('Lordosis');
+                            let title = m.title || ""; let isThoracic = title.includes('Tk') || title.includes('Cifosis') || title.includes('Kyphosis') || title.includes('TL'); let isCervical = title.includes('C2-C7') || title.includes('C0-C2'); let isLumbar = title.includes('L1-S1') || title.includes('L4-S1') || title.includes('L4-L5') || title.includes('Lordosis');
                             let sign = 1; if (isThoracic) { sign = isKyphosis ? 1 : -1; } else if (isCervical || isLumbar) { sign = isLordosis ? 1 : -1; }
                             finalVal = diff * sign;
                         }
@@ -1986,7 +2163,7 @@
                         if (Math.abs(det) > 0.0001) {
                             let x_int = (B2*C1 - B1*C2) / det; 
                             let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
-                            let convexity = x_int > spine_x ? "Izquierda" : "Derecha";
+                            let convexity = x_int > spine_x ? "Left" : "Right";
                             window.currentResults['CoronalConvexity'] = convexity;
                         }
                     }
@@ -2077,9 +2254,9 @@
                                 ctx.beginPath(); ctx.moveTo(m.slipPoint.x, m.slipPoint.y); ctx.lineTo(projX, projY); ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(projX, projY, dotR * 0.8, 0, 2*Math.PI); ctx.fill();
                                 let percent = (projDist / L) * 100; let absPercent = Math.abs(percent); let grade = "";
                                 if (absPercent <= 25) grade = "I"; else if (absPercent <= 50) grade = "II"; else if (absPercent <= 75) grade = "III"; else if (absPercent <= 100) grade = "IV"; else grade = "V";
-                                let tipo = percent > 0 ? "Anterolistesis" : "Retrolistesis"; if (Math.abs(percent) < 2) tipo = "Sin patología de listesis";
+                                let tipo = percent > 0 ? "Anterolisthesis" : "Retrolisthesis"; if (Math.abs(percent) < 2) tipo = "No listhesis";
                                 window.currentResults['Slip'] = Number(fmtInt(absPercent)); 
-                                let text = `${tipo}\nDeslizamiento: ${fmtInt(absPercent)}%\nMeyerding: Grado ${grade}`;
+                                let text = `${tipo}\nSlip: ${fmtInt(absPercent)}%\nMeyerding: Grade ${grade}`;
                                 drawText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize);
                             }
                         }
@@ -2156,8 +2333,6 @@
                             let cross = v2.x * v1.y - v2.y * v1.x; let side = cross * gazeDirection; signedAngle = side >= 0 ? angle : -angle; 
                             let cleanAngle = Number(fmtInt(signedAngle));
                             window.currentResults[m.title] = cleanAngle; 
-                            if (m.title === 'L1-PA') val_L1PA = cleanAngle; 
-                            if (m.title === 'T4-PA') val_T4PA = cleanAngle; 
                         } else if (m.subType === 'tilt') { 
                             let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y; let mag2 = 1; 
                             angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI; let side = v1.x * gazeDirection; 
@@ -2165,37 +2340,20 @@
                             window.currentResults[m.title] = Number(fmtInt(signedAngle)); 
                         } 
                         drawText(m.textPos.x, m.textPos.y, m.title, `${fmtInt(signedAngle)}°`, m.color, m.fontSize); 
-                    } else drawText(m.textPos.x, m.textPos.y, m.title, "Requiere Pélvica", m.color, m.fontSize); 
+                    } else drawText(m.textPos.x, m.textPos.y, m.title, t('req_pelvic'), m.color, m.fontSize); 
                 }
             });
             
             ctx.restore();
 
-            // Guardar resultados de la etapa activa
             stageData[currentStage].results = { ...window.currentResults };
             if (!document.getElementById('theoretical-table').classList.contains('hidden')) {
                 updateTheoreticalTableContent();
             }
-
-            // ACTUALIZAR CUADROS DE MISMATCH PRE-QX Y POST-QX DE FORMA INDEPENDIENTE
-            let activeMmBox = document.getElementById(currentStage === 'pre' ? 'mismatch-box-pre' : 'mismatch-box-post');
-            let activeMmVal = document.getElementById(currentStage === 'pre' ? 'mismatch-val-pre' : 'mismatch-val-post');
-
-            if(val_L1PA !== null && val_T4PA !== null) { 
-                let mismatch = val_T4PA - val_L1PA; 
-                let absMismatch = Math.abs(mismatch); 
-                let mColor = absMismatch <= 4 ? '#10b981' : '#f43f5e'; 
-                activeMmVal.innerText = `${fmtInt(mismatch)}°`; 
-                activeMmVal.style.color = mColor; 
-                activeMmBox.style.borderColor = mColor; 
-                activeMmBox.classList.remove('hidden'); 
-            } else { 
-                activeMmBox.classList.add('hidden'); 
-            }
+            refreshBothMismatchBoxes();
         } else {
             stageData[currentStage].results = {};
-            let activeMmBox = document.getElementById(currentStage === 'pre' ? 'mismatch-box-pre' : 'mismatch-box-post');
-            activeMmBox.classList.add('hidden');
+            refreshBothMismatchBoxes();
             if (!document.getElementById('theoretical-table').classList.contains('hidden')) {
                 updateTheoreticalTableContent();
             }
@@ -2211,6 +2369,7 @@
         canvas.addEventListener('touchend', function(e) { clearTimeout(longPressTimer); if(e.changedTouches.length === 1 && e.touches.length === 0) { e.preventDefault(); let touch = e.changedTouches[0]; canvas.dispatchEvent(new MouseEvent('mouseup', { clientX: touch.clientX, clientY: touch.clientY, button: 0, buttons: 0 })); } if (e.touches.length < 2) { lastPinchDistance = null; lastPinchCenter = null; } }, {passive: false});
     }
     initTouch();
+    setLanguage('en'); // Inicia en Inglés por defecto
 </script>
 </body>
 </html>
