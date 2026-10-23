@@ -98,6 +98,8 @@
             </div>
             
             <div class="flex-1 overflow-y-auto scrollable-panel p-3 space-y-3 pb-24">
+                
+                <!-- MÓDULO 1: HERRAMIENTAS BÁSICAS -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
                     <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">1. Herramientas Básicas</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
@@ -111,6 +113,7 @@
                     </div>
                 </div>
 
+                <!-- MÓDULO 2: PARÁMETROS PÉLVICOS -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
                     <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">2. Parámetros Pélvicos</div>
                     <div class="p-3 bg-gray-900/50">
@@ -136,34 +139,9 @@
                     </div>
                 </div>
 
-                <!-- MÓDULO 4: ROUSSOULY -->
-                <div class="border border-sky-700 rounded-lg overflow-hidden">
-                    <div class="bg-sky-900/40 px-3 py-2 text-sm font-semibold text-sky-400">4. Roussouly (2018)</div>
-                    <div class="p-3 bg-gray-900/50 space-y-2">
-                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block">1. Mide PI, SS (Pelvis), L1-S1 y L4-S1</span>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="activateTool('point_marker', 'Apex L', 'apex')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📍 Apex L</button>
-                            <button onclick="activateTool('point_marker', 'Inflexión', 'inflection')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📍 Inflexión</button>
-                        </div>
-                        <button onclick="showRoussouly()" class="tool-btn w-full border border-sky-600 bg-sky-600/20 rounded px-2 py-2 text-xs font-bold text-sky-300 hover:bg-sky-600 hover:text-white transition-colors flex justify-center items-center shadow-lg mt-2">Calcular Morfotipo & Índices</button>
-                    </div>
-                </div>
-
-                <!-- MÓDULO 5: ABELIN-GENEVOIS -->
-                <div class="border border-orange-700 rounded-lg overflow-hidden">
-                    <div class="bg-orange-900/40 px-3 py-2 text-sm font-semibold text-orange-400">5. Abelin-Genevois (EIA)</div>
-                    <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50 border-b border-gray-700">
-                        <button onclick="activateTool('cobb', 'Cobb TL (Cifosis)')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">📐 Ángulo Cobb TL</button>
-                        <button onclick="activateTool('horiz_angle', 'C7S')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">📐 Pendiente C7 (C7S)</button>
-                    </div>
-                    <div class="p-3 bg-gray-900/50 space-y-2">
-                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block">Adaptación Sagital Escoliosis</span>
-                        <button onclick="showAG()" class="tool-btn w-full border border-orange-600 bg-orange-600/20 rounded px-2 py-2 text-xs font-bold text-orange-300 hover:bg-orange-600 hover:text-white transition-colors flex justify-center items-center shadow-lg">Evaluar Abelin-Genevois</button>
-                    </div>
-                </div>
-
+                <!-- MÓDULO 4: MEDICIONES LUMBARES -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">6. Mediciones Lumbares</div>
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">4. Mediciones Lumbares</div>
                     <div class="p-3 grid grid-cols-1 gap-2 bg-gray-900/50">
                         <button onclick="activateTool('cobb', 'L1-S1')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">Lordosis Global (L1-S1)</button>
                         <button onclick="activateTool('cobb', 'L4-S1')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">LL Baja (L4-S1)</button>
@@ -171,15 +149,17 @@
                     </div>
                 </div>
 
+                <!-- MÓDULO 5: PERFIL TEÓRICO IDEAL -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">7. Perfil Teórico Ideal</div>
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">5. Perfil Teórico Ideal</div>
                     <div class="p-3 bg-gray-900/50">
                         <button onclick="showTheoreticalProfile()" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-semibold rounded py-2 text-xs transition-colors border border-emerald-500 shadow-md">Calcular Valores</button>
                     </div>
                 </div>
 
+                <!-- MÓDULO 6: PERFIL SAGITAL CERVICAL -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">8. Perfil Sagital Cervical</div>
+                    <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white">6. Perfil Sagital Cervical</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
                         <button onclick="activateTool('thoracic', 'Opérculo Torácico')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 flex justify-center">T1S, TIA, NT (Conjunto)</button>
                         <button onclick="activateTool('horiz_angle', 'T1S')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">T1S (Aislado)</button>
@@ -190,6 +170,33 @@
                     </div>
                 </div>
 
+                <!-- MÓDULO 7: ROUSSOULY -->
+                <div class="border border-sky-700 rounded-lg overflow-hidden">
+                    <div class="bg-sky-900/40 px-3 py-2 text-sm font-semibold text-sky-400">7. Roussouly (2018)</div>
+                    <div class="p-3 bg-gray-900/50 space-y-2">
+                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block">1. Mide PI, SS (Pelvis), L1-S1 y L4-S1</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="activateTool('point_marker', 'Apex L', 'apex')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📍 Apex L</button>
+                            <button onclick="activateTool('point_marker', 'Inflexión', 'inflection')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📍 Inflexión</button>
+                        </div>
+                        <button onclick="showRoussouly()" class="tool-btn w-full border border-sky-600 bg-sky-600/20 rounded px-2 py-2 text-xs font-bold text-sky-300 hover:bg-sky-600 hover:text-white transition-colors flex justify-center items-center shadow-lg mt-2">Calcular Morfotipo & Índices</button>
+                    </div>
+                </div>
+
+                <!-- MÓDULO 8: ABELIN-GENEVOIS -->
+                <div class="border border-orange-700 rounded-lg overflow-hidden">
+                    <div class="bg-orange-900/40 px-3 py-2 text-sm font-semibold text-orange-400">8. Abelin-Genevois (EIA)</div>
+                    <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50 border-b border-gray-700">
+                        <button onclick="activateTool('cobb', 'Cobb TL (Cifosis)')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">📐 Ángulo Cobb TL</button>
+                        <button onclick="activateTool('horiz_angle', 'C7S')" class="tool-btn col-span-2 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800 text-left">📐 Pendiente C7 (C7S)</button>
+                    </div>
+                    <div class="p-3 bg-gray-900/50 space-y-2">
+                        <span class="text-[10px] text-gray-400 uppercase tracking-wider block">Adaptación Sagital Escoliosis</span>
+                        <button onclick="showAG()" class="tool-btn w-full border border-orange-600 bg-orange-600/20 rounded px-2 py-2 text-xs font-bold text-orange-300 hover:bg-orange-600 hover:text-white transition-colors flex justify-center items-center shadow-lg">Evaluar Abelin-Genevois</button>
+                    </div>
+                </div>
+
+                <!-- MÓDULO 9: PLANO CORONAL Y BAO -->
                 <div class="border border-purple-800 rounded-lg overflow-hidden">
                     <div class="bg-purple-900/40 px-3 py-2 text-sm font-semibold text-purple-400">9. Plano Coronal y Bao</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50 border-b border-gray-700">
@@ -208,6 +215,7 @@
                     </div>
                 </div>
 
+                <!-- MÓDULO 10: ESPONDILOLISTESIS Y AO -->
                 <div class="border border-indigo-700 rounded-lg overflow-hidden mt-3">
                     <div class="bg-indigo-900/40 px-3 py-2 text-sm font-semibold text-indigo-400">10. Espondilolistesis y AO</div>
                     <div class="p-3 grid grid-cols-1 gap-2 bg-gray-900/50">
@@ -216,6 +224,7 @@
                     </div>
                 </div>
 
+                <!-- MÓDULO 11: MAPEO VERTEBRAL -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden mt-3">
                     <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400">11. Mapeo Vertebral</div>
                     <div class="p-3 bg-gray-900/50 space-y-3">
