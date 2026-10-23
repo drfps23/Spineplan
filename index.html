@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpinePlan Pro V58 - Comparación Pre/Post-Qx</title>
+    <title>SpinePlan Pro V58 - Estación Quirúrgica Completa</title>
     <link rel="apple-touch-icon" href="nuevo_logo.jpeg">
     <link rel="icon" href="nuevo_logo.jpeg" type="image/jpeg">
     
@@ -25,6 +25,7 @@
 </head>
 <body class="h-screen flex flex-col overscroll-none relative">
 
+    <!-- MODAL DATOS DEL PACIENTE -->
     <div id="patient-modal" class="hidden fixed inset-0 z-[200] bg-black/80 flex items-center justify-center backdrop-blur-sm">
         <div class="bg-gray-900 border border-gray-700 p-6 rounded-xl w-80 shadow-2xl">
             <h3 class="text-emerald-400 font-bold mb-4">Datos del Paciente</h3>
@@ -34,6 +35,43 @@
             <div class="flex justify-end space-x-2">
                 <button onclick="closePatientModal()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded text-xs transition-colors">Cancelar</button>
                 <button onclick="savePatientData()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded text-xs transition-colors shadow-lg">Generar Ficha</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GUARDAR / EXPORTAR / CARGAR ESTUDIO -->
+    <div id="save-modal" class="hidden fixed inset-0 z-[200] bg-black/80 flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-gray-900 border border-gray-700 p-6 rounded-xl w-96 max-w-[92vw] shadow-2xl">
+            <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
+                <h3 class="text-purple-400 font-bold text-base">💾 Guardar y Exportar Estudio</h3>
+                <button onclick="closeSaveModal()" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs">&times; Cerrar</button>
+            </div>
+
+            <div class="space-y-4">
+                <!-- OPCIÓN 1: IMÁGENES PNG ESTAMPADAS -->
+                <div class="bg-gray-800/60 border border-gray-700 rounded-lg p-3 space-y-2">
+                    <span class="text-[11px] text-emerald-400 font-bold uppercase tracking-wider block">1. Exportar Imagen Final (PNG para PC/Drive)</span>
+                    <p class="text-[11px] text-gray-400 leading-tight">Descarga una imagen con los trazos, ficha del paciente y tablas integradas.</p>
+                    <button onclick="exportCurrentStagePNG()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-3 rounded text-xs transition-colors shadow flex items-center justify-center">
+                        📸 Descargar Placa Actual Medida (PNG)
+                    </button>
+                    <button onclick="exportComparisonPNG()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 px-3 rounded text-xs transition-colors shadow flex items-center justify-center">
+                        🖼️ Descargar Reporte Comparativo Pre/Post (PNG)
+                    </button>
+                </div>
+
+                <!-- OPCIÓN 2: ARCHIVO EDITABLE .SPINE -->
+                <div class="bg-gray-800/60 border border-gray-700 rounded-lg p-3 space-y-2">
+                    <span class="text-[11px] text-purple-400 font-bold uppercase tracking-wider block">2. Proyecto Editable (Para remodelar después)</span>
+                    <p class="text-[11px] text-gray-400 leading-tight">Guarda este archivo en tu PC o Google Drive. Al abrirlo recuperarás las placas Pre y Post con todas las mediciones editables.</p>
+                    <button onclick="downloadProjectFile()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-3 rounded text-xs transition-colors shadow flex items-center justify-center">
+                        💾 Descargar Estudio Editable (.spine)
+                    </button>
+                    <label class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 px-3 rounded text-xs transition-colors shadow flex items-center justify-center cursor-pointer">
+                        📂 Abrir Estudio Guardado (.spine)
+                        <input type="file" id="projectLoader" class="hidden" accept=".spine,.json">
+                    </label>
+                </div>
             </div>
         </div>
     </div>
@@ -64,7 +102,7 @@
             <span class="hidden sm:inline">SpinePlan <span class="text-white text-sm font-normal">Pro</span></span>
         </div>
         
-        <div class="flex items-center space-x-1.5 md:space-x-2">
+        <div class="flex items-center space-x-1 md:space-x-2">
             <!-- SELECTOR DE ETAPA PRE-QX / POST-QX / COMPARAR -->
             <div class="flex bg-gray-800 p-0.5 rounded-lg border border-gray-700 mr-1">
                 <button id="btn-stage-pre" onclick="switchStage('pre')" class="px-2 md:px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-600 text-white transition-colors shadow">Pre-Qx</button>
@@ -77,7 +115,7 @@
                 <span class="hidden md:inline">Paciente</span>
             </button>
 
-            <button onclick="toggleGaze()" id="gaze-btn" class="bg-gray-800 hover:bg-gray-700 text-emerald-400 border border-emerald-600/50 px-2 py-1.5 md:px-3 rounded text-xs font-semibold transition-colors flex items-center shadow-sm ml-2">
+            <button onclick="toggleGaze()" id="gaze-btn" class="bg-gray-800 hover:bg-gray-700 text-emerald-400 border border-emerald-600/50 px-2 py-1.5 md:px-3 rounded text-xs font-semibold transition-colors flex items-center shadow-sm">
                 <span class="hidden md:inline mr-1">Mirada:</span>➡️
             </button>
             <label class="bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1.5 md:px-3 rounded text-xs md:text-sm font-medium cursor-pointer flex items-center transition-colors">
@@ -85,6 +123,11 @@
                 <span class="hidden lg:inline">Cargar Rx</span>
                 <input type="file" id="imageLoader" class="hidden" accept="image/*">
             </label>
+            <!-- BOTÓN GUARDAR / EXPORTAR -->
+            <button onclick="openSaveModal()" class="bg-purple-600 hover:bg-purple-500 text-white px-2 py-1.5 md:px-3 rounded text-xs md:text-sm font-medium transition-colors border border-purple-500 flex items-center shadow-sm" title="Guardar o Abrir Estudio">
+                <span class="mr-0.5 md:mr-1">💾</span>
+                <span class="hidden md:inline">Guardar</span>
+            </button>
             <button onclick="clearCanvas()" class="bg-gray-700 hover:bg-gray-600 text-white px-2 py-1.5 md:px-3 rounded text-xs md:text-sm font-medium transition-colors border border-gray-600" title="Limpiar Trazos">
                 <svg class="w-4 h-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 <span class="hidden md:inline">Limpiar</span>
@@ -468,9 +511,18 @@
     function savePatientData() {
         let name = document.getElementById('pat-name').value || '-';
         let id = document.getElementById('pat-id').value || '-';
-        let age = document.getElementById('pat-age').value ? document.getElementById('pat-age').value + ' años' : '-';
+        let ageVal = document.getElementById('pat-age').value.trim();
+        let age = ageVal ? (ageVal.toLowerCase().includes('año') ? ageVal : ageVal + ' años') : '-';
         document.getElementById('out-pat-name').innerText = name; document.getElementById('out-pat-id').innerText = id; document.getElementById('out-pat-age').innerText = age;
         document.getElementById('patient-box').classList.remove('hidden'); closePatientModal();
+    }
+
+    function openSaveModal() {
+        if (!isCompareMode) saveCurrentStageState();
+        document.getElementById('save-modal').classList.remove('hidden');
+    }
+    function closeSaveModal() {
+        document.getElementById('save-modal').classList.add('hidden');
     }
 
     function makeInteractivePanel(el) {
@@ -586,6 +638,209 @@
         updateStatus(`Modo activo: ${currentStage === 'pre' ? 'Pre-Quirúrgico (Base)' : 'Post-Quirúrgico (Logrado)'}`);
     }
 
+    // FUNCIÓN AUXILIAR PARA DIBUJAR CUALQUIER ETAPA EN UN CANVAS (USADA EN COMPARACIÓN Y EXPORTACIÓN PNG)
+    function renderStageOnContext(cCtx, sData, panXVal, panYVal, sc) {
+        if (!sData || !sData.bgImage) return {};
+        let stageGaze = sData.gazeDirection;
+        let stageCm = sData.cmPerPx;
+        let stageMeas = sData.measurements;
+        let computedResults = {};
+
+        cCtx.save();
+        cCtx.translate(panXVal, panYVal);
+        cCtx.scale(sc, sc);
+        cCtx.drawImage(sData.bgImage, 0, 0);
+
+        function drawCompText(x, y, title, text, color, fontSize) {
+            cCtx.font = `bold ${fontSize/sc}px sans-serif`;
+            cCtx.textAlign = 'left';
+            cCtx.textBaseline = 'top';
+            cCtx.fillStyle = color;
+            cCtx.shadowColor = 'rgba(0,0,0,0.9)';
+            cCtx.shadowBlur = 4/sc;
+            let curY = y;
+            if (title) { cCtx.fillText(title, x, curY); curY += (fontSize + 4)/sc; }
+            let lines = text.split('\n');
+            lines.forEach(l => { cCtx.fillText(l, x, curY); curY += (fontSize + 2)/sc; });
+            cCtx.shadowBlur = 0;
+        }
+
+        stageMeas.forEach(m => {
+            cCtx.strokeStyle = m.color; cCtx.fillStyle = m.color; cCtx.lineWidth = m.width / sc; cCtx.lineCap = 'round';
+            if (m.type === 'line' || m.type === 'angle') {
+                cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[1].x, m.points[1].y); cCtx.stroke();
+                let rawDist = Math.hypot(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y);
+                let realDist = rawDist * (stageCm || 1); let unit = stageCm ? ' cm' : ' px';
+                let text = m.type === 'line' ? `${realDist.toFixed(1)}${unit}` : 'WIP';
+                drawCompText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize);
+            }
+            else if (m.type === 'circle') {
+                cCtx.beginPath(); cCtx.arc(m.points[0].x, m.points[0].y, m.radius, 0, 2*Math.PI); cCtx.stroke();
+                let dotR = 4 / sc; cCtx.beginPath(); cCtx.arc(m.points[0].x, m.points[0].y, dotR * 1.2, 0, 2*Math.PI); cCtx.fill();
+                let realRad = m.radius * (stageCm || 1); let unit = stageCm ? ' cm' : ' px';
+                drawCompText(m.textPos.x, m.textPos.y, m.title, `${realRad.toFixed(1)}${unit}`, m.color, m.fontSize);
+            }
+            else if (m.type === 'cobb') {
+                if (m.points.length >= 2) { cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[1].x, m.points[1].y); cCtx.stroke(); }
+                if (m.points.length === 4) {
+                    cCtx.beginPath(); cCtx.moveTo(m.points[2].x, m.points[2].y); cCtx.lineTo(m.points[3].x, m.points[3].y); cCtx.stroke();
+                    let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x);
+                    let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
+                    let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
+                    let finalVal = diff;
+                    let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
+                    let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y;
+                    let det = A1*B2 - A2*B1;
+                    if (Math.abs(det) > 0.0001) {
+                        let x_int = (B2*C1 - B1*C2) / det; let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
+                        let isKyphosis = (x_int > spine_x && stageGaze === 1) || (x_int < spine_x && stageGaze === -1); let isLordosis = !isKyphosis;
+                        let title = m.title || ""; let isThoracic = title.includes('Tk') || title.includes('Cifosis') || title.includes('TL');
+                        let isCervical = title.includes('C2-C7') || title.includes('C0-C2'); let isLumbar = title.includes('L1-S1') || title.includes('L4-S1') || title.includes('L4-L5') || title.includes('Lordosis');
+                        let sign = 1; if (isThoracic) { sign = isKyphosis ? 1 : -1; } else if (isCervical || isLumbar) { sign = isLordosis ? 1 : -1; }
+                        finalVal = diff * sign;
+                    }
+                    if (isNaN(finalVal)) finalVal = 0;
+                    computedResults[m.title] = finalVal;
+                    if (m.textPos) drawCompText(m.textPos.x, m.textPos.y, m.title, `${finalVal.toFixed(0)}°`, m.color, m.fontSize);
+                }
+            }
+            else if (m.type === 'cobb_coronal') {
+                if (m.points.length >= 2) { cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[1].x, m.points[1].y); cCtx.stroke(); }
+                if (m.points.length === 4) {
+                    cCtx.beginPath(); cCtx.moveTo(m.points[2].x, m.points[2].y); cCtx.lineTo(m.points[3].x, m.points[3].y); cCtx.stroke();
+                    let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x);
+                    let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
+                    let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
+                    if (isNaN(diff)) diff = 0;
+                    if (m.textPos) drawCompText(m.textPos.x, m.textPos.y, m.title, `${diff.toFixed(0)}°`, m.color, m.fontSize);
+                }
+            }
+            else if (m.type === 'point_marker') {
+                cCtx.beginPath(); cCtx.arc(m.points[0].x, m.points[0].y, 4 / sc, 0, 2*Math.PI); cCtx.fill();
+                cCtx.beginPath(); cCtx.arc(m.points[0].x, m.points[0].y, 8 / sc, 0, 2*Math.PI); cCtx.stroke();
+                if (m.textPos) drawCompText(m.textPos.x, m.textPos.y, m.title, "", m.color, m.fontSize);
+                if (m.subType === 'bao_c7') { cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[0].x, m.points[0].y + 800); cCtx.setLineDash([5,5]); cCtx.stroke(); cCtx.setLineDash([]); computedResults['BaoC7_X'] = m.points[0].x; }
+                if (m.subType === 'bao_s1') { cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[0].x, m.points[0].y - 800); cCtx.setLineDash([2,4]); cCtx.stroke(); cCtx.setLineDash([]); computedResults['BaoS1_X'] = m.points[0].x; }
+                if (m.subType === 'apex') computedResults['ApexL_Y'] = m.points[0].y;
+                if (m.subType === 'inflection') computedResults['Inflection_Y'] = m.points[0].y;
+            }
+            else if (m.type === 'horiz_angle' && m.points.length === 2) {
+                cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[1].x, m.points[1].y); cCtx.stroke();
+                let hp = m.points[0].y < m.points[1].y ? m.points[0] : m.points[1];
+                let lp = m.points[0].y < m.points[1].y ? m.points[1] : m.points[0];
+                let dx = Math.abs(lp.x - hp.x); let dy = lp.y - hp.y;
+                let ang = Math.atan2(dy, dx) * 180 / Math.PI;
+                let dirX = lp.x >= hp.x ? 1 : -1;
+                let lineLen = Math.max(80 / sc, dx + 30 / sc);
+                cCtx.beginPath(); cCtx.moveTo(hp.x, hp.y); cCtx.lineTo(hp.x + lineLen * dirX, hp.y); cCtx.setLineDash([5,5]); cCtx.stroke(); cCtx.setLineDash([]);
+                computedResults[m.title] = ang;
+                if (m.textPos) drawCompText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize);
+            }
+            else if (m.type === 'coronal_cf') {
+                m.circles.forEach(c => { cCtx.beginPath(); cCtx.arc(c.x, c.y, c.r, 0, 2*Math.PI); cCtx.stroke(); });
+                if (m.circles.length === 2 && m.textPos) drawCompText(m.textPos.x, m.textPos.y, null, m.title, m.color, m.fontSize);
+            }
+            else if (m.type === 'pelvic') {
+                m.circles.forEach(c => { cCtx.beginPath(); cCtx.arc(c.x, c.y, c.r, 0, 2*Math.PI); cCtx.stroke(); });
+                if (m.line && m.line.length === 2) {
+                    cCtx.beginPath(); cCtx.moveTo(m.line[0].x, m.line[0].y); cCtx.lineTo(m.line[1].x, m.line[1].y); cCtx.stroke();
+                    if (m.circles.length === 2 && m.textPos) {
+                        let ha_x = (m.circles[0].x + m.circles[1].x)/2; let ha_y = (m.circles[0].y + m.circles[1].y)/2;
+                        let s1_x = (m.line[0].x + m.line[1].x)/2; let s1_y = (m.line[0].y + m.line[1].y)/2;
+                        let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if (ss>90) ss=180-ss;
+                        let pt_mag = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if (pt_mag>90) pt_mag=Math.abs(pt_mag-180);
+                        let isAnterior = ((s1_x - ha_x) * stageGaze) > 0;
+                        let pt = isAnterior ? -pt_mag : pt_mag;
+                        let pi = ss + pt;
+                        computedResults['PI'] = pi; computedResults['SS'] = ss;
+                        let text = `PI: ${pi.toFixed(0)}°\nPT: ${pt.toFixed(0)}°\nSS: ${ss.toFixed(0)}°`;
+                        drawCompText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize);
+                    }
+                }
+            }
+            else if (m.type === 'meyerding' && m.points.length === 2) {
+                cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[1].x, m.points[1].y); cCtx.stroke();
+                if (m.slipPoint && m.textPos) {
+                    let dotR = 4 / sc; cCtx.beginPath(); cCtx.arc(m.slipPoint.x, m.slipPoint.y, dotR * 1.5, 0, 2*Math.PI); cCtx.fill();
+                    let pA = m.points[0]; let pB = m.points[1]; let pPost = (stageGaze === 1 ? (pA.x < pB.x ? pA : pB) : (pA.x > pB.x ? pA : pB));
+                    let pAnt = (pPost === pA ? pB : pA);
+                    let dx = pAnt.x - pPost.x; let dy = pAnt.y - pPost.y; let L = Math.hypot(dx, dy);
+                    if (L > 0) {
+                        let dot = (m.slipPoint.x - pPost.x)*dx + (m.slipPoint.y - pPost.y)*dy; let projDist = dot / L;
+                        let percent = (projDist / L) * 100; let absPercent = Math.abs(percent);
+                        let grade = absPercent <= 25 ? "I" : absPercent <= 50 ? "II" : absPercent <= 75 ? "III" : absPercent <= 100 ? "IV" : "V";
+                        let tipo = percent > 0 ? "Anterolistesis" : "Retrolistesis"; if (Math.abs(percent) < 2) tipo = "Sin patología de listesis";
+                        computedResults['Slip'] = absPercent;
+                        drawCompText(m.textPos.x, m.textPos.y, m.title, `${tipo}\nDeslizamiento: ${absPercent.toFixed(0)}%\nMeyerding: Grado ${grade}`, m.color, m.fontSize);
+                    }
+                }
+            }
+            else if (m.type === 'vertebraLabel') {
+                cCtx.font = `bold ${(m.fontSize + 6)/sc}px sans-serif`; cCtx.textAlign = 'center'; cCtx.textBaseline = 'middle';
+                cCtx.fillStyle = m.color; cCtx.shadowColor = 'rgba(0,0,0,1)'; cCtx.shadowBlur = 8/sc;
+                cCtx.fillText(m.title, m.x, m.y); cCtx.shadowBlur = 0;
+            }
+            else if (m.type === 'vertebraContour' && m.points.length > 0) {
+                cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y);
+                for (let i = 1; i < m.points.length; i++) cCtx.lineTo(m.points[i].x, m.points[i].y);
+                if (m.closed) { cCtx.closePath(); cCtx.fillStyle = m.color + '4D'; cCtx.fill(); }
+                cCtx.stroke();
+            }
+            else if (m.type === 'thoracic' && m.points.length === 2) {
+                cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[1].x, m.points[1].y); cCtx.stroke();
+                if (m.sternum && m.textPos) {
+                    let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2;
+                    cCtx.beginPath(); cCtx.moveTo(midX, midY); cCtx.lineTo(m.sternum.x, m.sternum.y); cCtx.setLineDash([5,5]); cCtx.stroke(); cCtx.setLineDash([]);
+                    let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI);
+                    let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI);
+                    let tia = t1s + nt;
+                    drawCompText(m.textPos.x, m.textPos.y, null, `T1S: ${t1s.toFixed(0)}°\nTIA: ${tia.toFixed(0)}°\nNT: ${nt.toFixed(0)}°`, m.color, m.fontSize);
+                }
+            }
+            else if (m.type === 'cbva' && m.points.length === 2) {
+                cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[1].x, m.points[1].y); cCtx.stroke();
+                let dx = m.points[1].x - m.points[0].x; let dy = m.points[1].y - m.points[0].y;
+                let ang = -(Math.atan2(dx, dy) * 180 / Math.PI) * stageGaze;
+                if (m.textPos) drawCompText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize);
+            }
+            else if (m.type === 'sva') {
+                cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y - 800); cCtx.lineTo(m.points[0].x, m.points[0].y + 1200); cCtx.setLineDash([5,5]); cCtx.stroke(); cCtx.setLineDash([]);
+                if (m.points.length > 1) {
+                    let targetPoint = m.points[1];
+                    cCtx.beginPath(); cCtx.moveTo(targetPoint.x, targetPoint.y); cCtx.lineTo(m.points[0].x, targetPoint.y); cCtx.setLineDash([2,2]); cCtx.stroke(); cCtx.setLineDash([]);
+                    let rawDist = (m.points[0].x - targetPoint.x) * stageGaze;
+                    let realDist = rawDist * (stageCm || 1);
+                    let signStr = realDist >= 0 ? "+" : "-"; let unit = stageCm ? ' cm' : ' px';
+                    if (m.textPos) drawCompText(m.textPos.x, m.textPos.y, m.title, `${signStr}${Math.abs(realDist).toFixed(1)}${unit}`, m.color, m.fontSize);
+                }
+            }
+            else if (m.type === 'sagittal') {
+                let pelvic = stageMeas.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2);
+                if (pelvic) {
+                    let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2; let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2;
+                    cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(ha_x, ha_y); cCtx.stroke();
+                    let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 = Math.hypot(v1.x, v1.y);
+                    let signedAngle = 0;
+                    if (m.subType === 'pa') {
+                        let s1_x = (pelvic.line[0].x + pelvic.line[1].x)/2; let s1_y = (pelvic.line[0].y + pelvic.line[1].y)/2;
+                        let v2 = {x: s1_x - ha_x, y: s1_y - ha_y}; let mag2 = Math.hypot(v2.x, v2.y); let dot = v1.x*v2.x + v1.y*v2.y;
+                        let angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI;
+                        let cross = v2.x * v1.y - v2.y * v1.x; signedAngle = (cross * stageGaze) >= 0 ? angle : -angle;
+                    } else if (m.subType === 'tilt') {
+                        let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y;
+                        let angle = Math.acos(Math.max(-1, Math.min(1, dot / mag1))) * 180 / Math.PI;
+                        signedAngle = (v1.x * stageGaze) >= 0 ? angle : -angle;
+                    }
+                    computedResults[m.title] = signedAngle;
+                    if (m.textPos) drawCompText(m.textPos.x, m.textPos.y, m.title, `${signedAngle.toFixed(0)}°`, m.color, m.fontSize);
+                }
+            }
+        });
+
+        cCtx.restore();
+        return computedResults;
+    }
+
     // FUNCIÓN PARA ABRIR LA PANTALLA DIVIDIDA (COMPARAR ANTES Y DESPUÉS)
     function openCompareView() {
         deactivateTool();
@@ -648,195 +903,7 @@
 
             let vState = compViewState[stageKey];
             let sc = vState.baseScale * vState.zoomScale;
-            let stageGaze = sData.gazeDirection;
-            let stageCm = sData.cmPerPx;
-            let stageMeas = sData.measurements;
-
-            cCtx.save();
-            cCtx.translate(vState.panX, vState.panY);
-            cCtx.scale(sc, sc);
-            cCtx.drawImage(sData.bgImage, 0, 0);
-
-            function drawCompText(x, y, title, text, color, fontSize) {
-                cCtx.font = `bold ${fontSize/sc}px sans-serif`;
-                cCtx.textAlign = 'left';
-                cCtx.textBaseline = 'top';
-                cCtx.fillStyle = color;
-                cCtx.shadowColor = 'rgba(0,0,0,0.9)';
-                cCtx.shadowBlur = 4/sc;
-                let curY = y;
-                if (title) { cCtx.fillText(title, x, curY); curY += (fontSize + 4)/sc; }
-                let lines = text.split('\n');
-                lines.forEach(l => { cCtx.fillText(l, x, curY); curY += (fontSize + 2)/sc; });
-                cCtx.shadowBlur = 0;
-            }
-
-            stageMeas.forEach(m => {
-                cCtx.strokeStyle = m.color; cCtx.fillStyle = m.color; cCtx.lineWidth = m.width / sc; cCtx.lineCap = 'round';
-                if (m.type === 'line' || m.type === 'angle') {
-                    cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[1].x, m.points[1].y); cCtx.stroke();
-                    let rawDist = Math.hypot(m.points[1].x - m.points[0].x, m.points[1].y - m.points[0].y);
-                    let realDist = rawDist * (stageCm || 1); let unit = stageCm ? ' cm' : ' px';
-                    let text = m.type === 'line' ? `${realDist.toFixed(1)}${unit}` : 'WIP';
-                    drawCompText(m.textPos.x, m.textPos.y, m.title, text, m.color, m.fontSize);
-                }
-                else if (m.type === 'circle') {
-                    cCtx.beginPath(); cCtx.arc(m.points[0].x, m.points[0].y, m.radius, 0, 2*Math.PI); cCtx.stroke();
-                    let dotR = 4 / sc; cCtx.beginPath(); cCtx.arc(m.points[0].x, m.points[0].y, dotR * 1.2, 0, 2*Math.PI); cCtx.fill();
-                    let realRad = m.radius * (stageCm || 1); let unit = stageCm ? ' cm' : ' px';
-                    drawCompText(m.textPos.x, m.textPos.y, m.title, `${realRad.toFixed(1)}${unit}`, m.color, m.fontSize);
-                }
-                else if (m.type === 'cobb') {
-                    if (m.points.length >= 2) { cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[1].x, m.points[1].y); cCtx.stroke(); }
-                    if (m.points.length === 4) {
-                        cCtx.beginPath(); cCtx.moveTo(m.points[2].x, m.points[2].y); cCtx.lineTo(m.points[3].x, m.points[3].y); cCtx.stroke();
-                        let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x);
-                        let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
-                        let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
-                        let finalVal = diff;
-                        let A1 = m.points[1].y - m.points[0].y; let B1 = m.points[0].x - m.points[1].x; let C1 = A1*m.points[0].x + B1*m.points[0].y;
-                        let A2 = m.points[3].y - m.points[2].y; let B2 = m.points[2].x - m.points[3].x; let C2 = A2*m.points[2].x + B2*m.points[2].y;
-                        let det = A1*B2 - A2*B1;
-                        if (Math.abs(det) > 0.0001) {
-                            let x_int = (B2*C1 - B1*C2) / det; let spine_x = (m.points[0].x + m.points[1].x + m.points[2].x + m.points[3].x) / 4;
-                            let isKyphosis = (x_int > spine_x && stageGaze === 1) || (x_int < spine_x && stageGaze === -1); let isLordosis = !isKyphosis;
-                            let title = m.title || ""; let isThoracic = title.includes('Tk') || title.includes('Cifosis') || title.includes('TL');
-                            let isCervical = title.includes('C2-C7') || title.includes('C0-C2'); let isLumbar = title.includes('L1-S1') || title.includes('L4-S1') || title.includes('L4-L5') || title.includes('Lordosis');
-                            let sign = 1; if (isThoracic) { sign = isKyphosis ? 1 : -1; } else if (isCervical || isLumbar) { sign = isLordosis ? 1 : -1; }
-                            finalVal = diff * sign;
-                        }
-                        if (isNaN(finalVal)) finalVal = 0;
-                        if (m.textPos) drawCompText(m.textPos.x, m.textPos.y, m.title, `${finalVal.toFixed(0)}°`, m.color, m.fontSize);
-                    }
-                }
-                else if (m.type === 'cobb_coronal') {
-                    if (m.points.length >= 2) { cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[1].x, m.points[1].y); cCtx.stroke(); }
-                    if (m.points.length === 4) {
-                        cCtx.beginPath(); cCtx.moveTo(m.points[2].x, m.points[2].y); cCtx.lineTo(m.points[3].x, m.points[3].y); cCtx.stroke();
-                        let a1 = Math.atan2(m.points[1].y - m.points[0].y, m.points[1].x - m.points[0].x);
-                        let a2 = Math.atan2(m.points[3].y - m.points[2].y, m.points[3].x - m.points[2].x);
-                        let diff = Math.abs((a1 - a2) * 180 / Math.PI); if (diff > 90) diff = 180 - diff;
-                        if (isNaN(diff)) diff = 0;
-                        if (m.textPos) drawCompText(m.textPos.x, m.textPos.y, m.title, `${diff.toFixed(0)}°`, m.color, m.fontSize);
-                    }
-                }
-                else if (m.type === 'point_marker') {
-                    cCtx.beginPath(); cCtx.arc(m.points[0].x, m.points[0].y, 4 / sc, 0, 2*Math.PI); cCtx.fill();
-                    cCtx.beginPath(); cCtx.arc(m.points[0].x, m.points[0].y, 8 / sc, 0, 2*Math.PI); cCtx.stroke();
-                    if (m.textPos) drawCompText(m.textPos.x, m.textPos.y, m.title, "", m.color, m.fontSize);
-                    if (m.subType === 'bao_c7') { cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[0].x, m.points[0].y + 800); cCtx.setLineDash([5,5]); cCtx.stroke(); cCtx.setLineDash([]); }
-                    if (m.subType === 'bao_s1') { cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[0].x, m.points[0].y - 800); cCtx.setLineDash([2,4]); cCtx.stroke(); cCtx.setLineDash([]); }
-                }
-                else if (m.type === 'horiz_angle' && m.points.length === 2) {
-                    cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[1].x, m.points[1].y); cCtx.stroke();
-                    let hp = m.points[0].y < m.points[1].y ? m.points[0] : m.points[1];
-                    let lp = m.points[0].y < m.points[1].y ? m.points[1] : m.points[0];
-                    let dx = Math.abs(lp.x - hp.x); let dy = lp.y - hp.y;
-                    let ang = Math.atan2(dy, dx) * 180 / Math.PI;
-                    let dirX = lp.x >= hp.x ? 1 : -1;
-                    let lineLen = Math.max(80 / sc, dx + 30 / sc);
-                    cCtx.beginPath(); cCtx.moveTo(hp.x, hp.y); cCtx.lineTo(hp.x + lineLen * dirX, hp.y); cCtx.setLineDash([5,5]); cCtx.stroke(); cCtx.setLineDash([]);
-                    if (m.textPos) drawCompText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize);
-                }
-                else if (m.type === 'coronal_cf') {
-                    m.circles.forEach(c => { cCtx.beginPath(); cCtx.arc(c.x, c.y, c.r, 0, 2*Math.PI); cCtx.stroke(); });
-                    if (m.circles.length === 2 && m.textPos) drawCompText(m.textPos.x, m.textPos.y, null, m.title, m.color, m.fontSize);
-                }
-                else if (m.type === 'pelvic') {
-                    m.circles.forEach(c => { cCtx.beginPath(); cCtx.arc(c.x, c.y, c.r, 0, 2*Math.PI); cCtx.stroke(); });
-                    if (m.line && m.line.length === 2) {
-                        cCtx.beginPath(); cCtx.moveTo(m.line[0].x, m.line[0].y); cCtx.lineTo(m.line[1].x, m.line[1].y); cCtx.stroke();
-                        if (m.circles.length === 2 && m.textPos) {
-                            let ha_x = (m.circles[0].x + m.circles[1].x)/2; let ha_y = (m.circles[0].y + m.circles[1].y)/2;
-                            let s1_x = (m.line[0].x + m.line[1].x)/2; let s1_y = (m.line[0].y + m.line[1].y)/2;
-                            let ss = Math.abs(Math.atan2(m.line[1].y-m.line[0].y, m.line[1].x-m.line[0].x)*180/Math.PI); if (ss>90) ss=180-ss;
-                            let pt_mag = Math.abs(Math.atan2(s1_y-ha_y, s1_x-ha_x)*180/Math.PI - 90); if (pt_mag>90) pt_mag=Math.abs(pt_mag-180);
-                            let isAnterior = ((s1_x - ha_x) * stageGaze) > 0;
-                            let pt = isAnterior ? -pt_mag : pt_mag;
-                            let pi = ss + pt;
-                            let text = `PI: ${pi.toFixed(0)}°\nPT: ${pt.toFixed(0)}°\nSS: ${ss.toFixed(0)}°`;
-                            drawCompText(m.textPos.x, m.textPos.y, null, text, m.color, m.fontSize);
-                        }
-                    }
-                }
-                else if (m.type === 'meyerding' && m.points.length === 2) {
-                    cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[1].x, m.points[1].y); cCtx.stroke();
-                    if (m.slipPoint && m.textPos) {
-                        let dotR = 4 / sc; cCtx.beginPath(); cCtx.arc(m.slipPoint.x, m.slipPoint.y, dotR * 1.5, 0, 2*Math.PI); cCtx.fill();
-                        let pA = m.points[0]; let pB = m.points[1]; let pPost = (stageGaze === 1 ? (pA.x < pB.x ? pA : pB) : (pA.x > pB.x ? pA : pB));
-                        let pAnt = (pPost === pA ? pB : pA);
-                        let dx = pAnt.x - pPost.x; let dy = pAnt.y - pPost.y; let L = Math.hypot(dx, dy);
-                        if (L > 0) {
-                            let dot = (m.slipPoint.x - pPost.x)*dx + (m.slipPoint.y - pPost.y)*dy; let projDist = dot / L;
-                            let percent = (projDist / L) * 100; let absPercent = Math.abs(percent);
-                            let grade = absPercent <= 25 ? "I" : absPercent <= 50 ? "II" : absPercent <= 75 ? "III" : absPercent <= 100 ? "IV" : "V";
-                            let tipo = percent > 0 ? "Anterolistesis" : "Retrolistesis"; if (Math.abs(percent) < 2) tipo = "Sin patología de listesis";
-                            drawCompText(m.textPos.x, m.textPos.y, m.title, `${tipo}\nDeslizamiento: ${absPercent.toFixed(0)}%\nMeyerding: Grado ${grade}`, m.color, m.fontSize);
-                        }
-                    }
-                }
-                else if (m.type === 'vertebraLabel') {
-                    cCtx.font = `bold ${(m.fontSize + 6)/sc}px sans-serif`; cCtx.textAlign = 'center'; cCtx.textBaseline = 'middle';
-                    cCtx.fillStyle = m.color; cCtx.shadowColor = 'rgba(0,0,0,1)'; cCtx.shadowBlur = 8/sc;
-                    cCtx.fillText(m.title, m.x, m.y); cCtx.shadowBlur = 0;
-                }
-                else if (m.type === 'vertebraContour' && m.points.length > 0) {
-                    cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y);
-                    for (let i = 1; i < m.points.length; i++) cCtx.lineTo(m.points[i].x, m.points[i].y);
-                    if (m.closed) { cCtx.closePath(); cCtx.fillStyle = m.color + '4D'; cCtx.fill(); }
-                    cCtx.stroke();
-                }
-                else if (m.type === 'thoracic' && m.points.length === 2) {
-                    cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[1].x, m.points[1].y); cCtx.stroke();
-                    if (m.sternum && m.textPos) {
-                        let midX = (m.points[0].x + m.points[1].x)/2; let midY = (m.points[0].y + m.points[1].y)/2;
-                        cCtx.beginPath(); cCtx.moveTo(midX, midY); cCtx.lineTo(m.sternum.x, m.sternum.y); cCtx.setLineDash([5,5]); cCtx.stroke(); cCtx.setLineDash([]);
-                        let t1s = Math.abs(Math.atan2(m.points[1].y-m.points[0].y, m.points[1].x-m.points[0].x)*180/Math.PI);
-                        let nt = Math.abs(Math.atan2(m.sternum.x-midX, m.sternum.y-midY)*180/Math.PI);
-                        let tia = t1s + nt;
-                        drawCompText(m.textPos.x, m.textPos.y, null, `T1S: ${t1s.toFixed(0)}°\nTIA: ${tia.toFixed(0)}°\nNT: ${nt.toFixed(0)}°`, m.color, m.fontSize);
-                    }
-                }
-                else if (m.type === 'cbva' && m.points.length === 2) {
-                    cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(m.points[1].x, m.points[1].y); cCtx.stroke();
-                    let dx = m.points[1].x - m.points[0].x; let dy = m.points[1].y - m.points[0].y;
-                    let ang = -(Math.atan2(dx, dy) * 180 / Math.PI) * stageGaze;
-                    if (m.textPos) drawCompText(m.textPos.x, m.textPos.y, m.title, `${ang.toFixed(0)}°`, m.color, m.fontSize);
-                }
-                else if (m.type === 'sva') {
-                    cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y - 800); cCtx.lineTo(m.points[0].x, m.points[0].y + 1200); cCtx.setLineDash([5,5]); cCtx.stroke(); cCtx.setLineDash([]);
-                    if (m.points.length > 1) {
-                        let targetPoint = m.points[1];
-                        cCtx.beginPath(); cCtx.moveTo(targetPoint.x, targetPoint.y); cCtx.lineTo(m.points[0].x, targetPoint.y); cCtx.setLineDash([2,2]); cCtx.stroke(); cCtx.setLineDash([]);
-                        let rawDist = (m.points[0].x - targetPoint.x) * stageGaze;
-                        let realDist = rawDist * (stageCm || 1);
-                        let signStr = realDist >= 0 ? "+" : "-"; let unit = stageCm ? ' cm' : ' px';
-                        if (m.textPos) drawCompText(m.textPos.x, m.textPos.y, m.title, `${signStr}${Math.abs(realDist).toFixed(1)}${unit}`, m.color, m.fontSize);
-                    }
-                }
-                else if (m.type === 'sagittal') {
-                    let pelvic = stageMeas.find(meas => meas.type === 'pelvic' && meas.circles.length === 2 && meas.line && meas.line.length === 2);
-                    if (pelvic) {
-                        let ha_x = (pelvic.circles[0].x + pelvic.circles[1].x) / 2; let ha_y = (pelvic.circles[0].y + pelvic.circles[1].y) / 2;
-                        cCtx.beginPath(); cCtx.moveTo(m.points[0].x, m.points[0].y); cCtx.lineTo(ha_x, ha_y); cCtx.stroke();
-                        let v1 = {x: m.points[0].x - ha_x, y: m.points[0].y - ha_y}; let mag1 = Math.hypot(v1.x, v1.y);
-                        let signedAngle = 0;
-                        if (m.subType === 'pa') {
-                            let s1_x = (pelvic.line[0].x + pelvic.line[1].x)/2; let s1_y = (pelvic.line[0].y + pelvic.line[1].y)/2;
-                            let v2 = {x: s1_x - ha_x, y: s1_y - ha_y}; let mag2 = Math.hypot(v2.x, v2.y); let dot = v1.x*v2.x + v1.y*v2.y;
-                            let angle = Math.acos(Math.max(-1, Math.min(1, dot / (mag1*mag2)))) * 180 / Math.PI;
-                            let cross = v2.x * v1.y - v2.y * v1.x; signedAngle = (cross * stageGaze) >= 0 ? angle : -angle;
-                        } else if (m.subType === 'tilt') {
-                            let v2 = {x: 0, y: -1}; let dot = v1.x*v2.x + v1.y*v2.y;
-                            let angle = Math.acos(Math.max(-1, Math.min(1, dot / mag1))) * 180 / Math.PI;
-                            signedAngle = (v1.x * stageGaze) >= 0 ? angle : -angle;
-                        }
-                        if (m.textPos) drawCompText(m.textPos.x, m.textPos.y, m.title, `${signedAngle.toFixed(0)}°`, m.color, m.fontSize);
-                    }
-                }
-            });
-
-            cCtx.restore();
+            renderStageOnContext(cCtx, sData, vState.panX, vState.panY, sc);
         });
     }
 
@@ -875,6 +942,379 @@
         });
         window.addEventListener('mouseup', () => { isDraggingComp = false; });
     });
+
+    // =========================================================================
+    // PASO 2: FUNCIONES DE GUARDADO Y EXPORTACIÓN (PNG + ARCHIVO EDITABLE .SPINE)
+    // =========================================================================
+
+    function getCleanFilenamePrefix() {
+        let name = (document.getElementById('pat-name').value || 'Paciente').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+        let id = (document.getElementById('pat-id').value || '').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+        return id ? `SpinePlan_${name}_${id}` : `SpinePlan_${name}`;
+    }
+
+    // 1. DESCARGAR PROYECTO EDITABLE (.SPINE) PARA GUARDAR EN PC O GOOGLE DRIVE
+    function downloadProjectFile() {
+        if (!isCompareMode) saveCurrentStageState();
+        if (!stageData.pre.bgImage && !stageData.post.bgImage) {
+            updateStatus("⚠️ No hay radiografías cargadas para guardar.", true);
+            closeSaveModal();
+            return;
+        }
+
+        const projectPayload = {
+            version: "V58_PRO",
+            timestamp: new Date().toISOString(),
+            patient: {
+                name: document.getElementById('pat-name').value || '',
+                id: document.getElementById('pat-id').value || '',
+                age: document.getElementById('pat-age').value || ''
+            },
+            pre: {
+                imageSrc: stageData.pre.bgImage ? stageData.pre.bgImage.src : null,
+                measurements: stageData.pre.measurements || [],
+                results: stageData.pre.results || {},
+                cmPerPx: stageData.pre.cmPerPx,
+                gazeDirection: stageData.pre.gazeDirection || 1,
+                colorIndex: stageData.pre.colorIndex || 0
+            },
+            post: {
+                imageSrc: stageData.post.bgImage ? stageData.post.bgImage.src : null,
+                measurements: stageData.post.measurements || [],
+                results: stageData.post.results || {},
+                cmPerPx: stageData.post.cmPerPx,
+                gazeDirection: stageData.post.gazeDirection || 1,
+                colorIndex: stageData.post.colorIndex || 0
+            }
+        };
+
+        const blob = new Blob([JSON.stringify(projectPayload)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${getCleanFilenamePrefix()}.spine`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        closeSaveModal();
+        updateStatus("✅ Archivo editable (.spine) descargado en tu dispositivo.");
+    }
+
+    // 2. ABRIR PROYECTO EDITABLE (.SPINE) DESDE PC O GOOGLE DRIVE
+    document.getElementById('projectLoader').addEventListener('change', function(e) {
+        if (!e.target.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                const data = JSON.parse(event.target.result);
+                if (!data || (!data.pre && !data.post)) {
+                    updateStatus("⚠️ El archivo seleccionado no es válido.", true);
+                    return;
+                }
+
+                // Restaurar ficha del paciente
+                if (data.patient) {
+                    document.getElementById('pat-name').value = data.patient.name || '';
+                    document.getElementById('pat-id').value = data.patient.id || '';
+                    document.getElementById('pat-age').value = data.patient.age || '';
+                    if (data.patient.name || data.patient.id || data.patient.age) {
+                        savePatientData();
+                    }
+                }
+
+                // Función para cargar cada etapa (Pre y Post)
+                const loadStageImage = (stageKey, stObj) => {
+                    return new Promise((resolve) => {
+                        stageData[stageKey].measurements = stObj.measurements || [];
+                        stageData[stageKey].results = stObj.results || {};
+                        stageData[stageKey].cmPerPx = stObj.cmPerPx || null;
+                        stageData[stageKey].gazeDirection = stObj.gazeDirection || 1;
+                        stageData[stageKey].colorIndex = stObj.colorIndex || 0;
+
+                        if (stObj.imageSrc) {
+                            let img = new Image();
+                            img.onload = () => {
+                                stageData[stageKey].bgImage = img;
+                                const scX = container.clientWidth / img.width;
+                                const scY = container.clientHeight / img.height;
+                                stageData[stageKey].baseScale = Math.min(scX, scY) * 0.95;
+                                stageData[stageKey].zoomScale = 1;
+                                stageData[stageKey].panX = (container.clientWidth - img.width * stageData[stageKey].baseScale) / 2;
+                                stageData[stageKey].panY = (container.clientHeight - img.height * stageData[stageKey].baseScale) / 2;
+                                resolve();
+                            };
+                            img.onerror = () => { stageData[stageKey].bgImage = null; resolve(); };
+                            img.src = stObj.imageSrc;
+                        } else {
+                            stageData[stageKey].bgImage = null;
+                            resolve();
+                        }
+                    });
+                };
+
+                Promise.all([
+                    loadStageImage('pre', data.pre || {}),
+                    loadStageImage('post', data.post || {})
+                ]).then(() => {
+                    // Recalcular resultados de ambas etapas y sus cuadros de Mismatch
+                    let offCanvas = document.createElement('canvas');
+                    offCanvas.width = 100; offCanvas.height = 100;
+                    let offCtx = offCanvas.getContext('2d');
+                    if (stageData.pre.bgImage) {
+                        stageData.pre.results = renderStageOnContext(offCtx, stageData.pre, 0, 0, 1);
+                    }
+                    if (stageData.post.bgImage) {
+                        stageData.post.results = renderStageOnContext(offCtx, stageData.post, 0, 0, 1);
+                    }
+                    refreshBothMismatchBoxes();
+
+                    let targetStage = stageData.pre.bgImage ? 'pre' : 'post';
+                    isCompareMode = true; // Forzar recarga limpia en switchStage
+                    switchStage(targetStage);
+                    if (updateTheoreticalTableContent()) {
+                        document.getElementById('theoretical-table').classList.remove('hidden');
+                    }
+                    closeSaveModal();
+                    updateStatus("✅ Estudio cargado con éxito. Todas las mediciones son editables.");
+                });
+
+            } catch (err) {
+                updateStatus("⚠️ Error al leer el archivo del estudio.", true);
+            }
+        };
+        reader.readAsText(e.target.files[0]);
+        e.target.value = '';
+    });
+
+    function refreshBothMismatchBoxes() {
+        ['pre', 'post'].forEach(stKey => {
+            let res = stageData[stKey].results || {};
+            let l1pa = res['L1-PA'];
+            let t4pa = res['T4-PA'];
+            let box = document.getElementById(stKey === 'pre' ? 'mismatch-box-pre' : 'mismatch-box-post');
+            let valSpan = document.getElementById(stKey === 'pre' ? 'mismatch-val-pre' : 'mismatch-val-post');
+            if (l1pa !== undefined && t4pa !== undefined) {
+                let mm = t4pa - l1pa;
+                let mColor = Math.abs(mm) <= 4 ? '#10b981' : '#f43f5e';
+                valSpan.innerText = `${mm.toFixed(0)}°`;
+                valSpan.style.color = mColor;
+                box.style.borderColor = mColor;
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
+            }
+        });
+    }
+
+    // 3. EXPORTAR PLACA ACTUAL MEDIDA COMO IMAGEN PNG
+    function exportCurrentStagePNG() {
+        if (!isCompareMode) saveCurrentStageState();
+        let sData = stageData[currentStage];
+        if (!sData || !sData.bgImage) {
+            updateStatus("⚠️ No hay radiografía cargada en la etapa actual.", true);
+            closeSaveModal();
+            return;
+        }
+
+        const outCanvas = document.createElement('canvas');
+        outCanvas.width = 1600;
+        outCanvas.height = 1400;
+        const outCtx = outCanvas.getContext('2d');
+
+        // Fondo oscuro clínico
+        outCtx.fillStyle = '#0f172a';
+        outCtx.fillRect(0, 0, outCanvas.width, outCanvas.height);
+
+        // Encabezado con Ficha del Paciente
+        outCtx.fillStyle = '#1e293b';
+        outCtx.fillRect(0, 0, outCanvas.width, 80);
+        outCtx.fillStyle = '#10b981';
+        outCtx.font = 'bold 24px sans-serif';
+        outCtx.fillText(`SpinePlan Pro - Estudio ${currentStage === 'pre' ? 'PRE-QUIRÚRGICO' : 'POST-QUIRÚRGICO'}`, 30, 35);
+
+        let patName = document.getElementById('out-pat-name').innerText || document.getElementById('pat-name').value || '-';
+        let patId = document.getElementById('out-pat-id').innerText || document.getElementById('pat-id').value || '-';
+        let patAge = document.getElementById('out-pat-age').innerText || document.getElementById('pat-age').value || '-';
+        outCtx.fillStyle = '#e2e8f0';
+        outCtx.font = '16px sans-serif';
+        outCtx.fillText(`Paciente: ${patName}   |   C.I: ${patId}   |   Edad: ${patAge}`, 30, 62);
+
+        // Dibujar Radiografía y trazos centrados
+        let availW = outCanvas.width - 60;
+        let availH = outCanvas.height - 120;
+        let sc = Math.min(availW / sData.bgImage.width, availH / sData.bgImage.height) * 0.95;
+        let px = 30 + (availW - sData.bgImage.width * sc) / 2;
+        let py = 95 + (availH - sData.bgImage.height * sc) / 2;
+
+        let res = renderStageOnContext(outCtx, sData, px, py, sc);
+
+        // Estampar Mismatch si existe
+        if (res['L1-PA'] !== undefined && res['T4-PA'] !== undefined) {
+            let mm = res['T4-PA'] - res['L1-PA'];
+            outCtx.fillStyle = '#0f172a';
+            outCtx.strokeStyle = Math.abs(mm) <= 4 ? '#10b981' : '#f43f5e';
+            outCtx.lineWidth = 2;
+            outCtx.fillRect(outCanvas.width - 360, 18, 330, 44);
+            outCtx.strokeRect(outCanvas.width - 360, 18, 330, 44);
+            outCtx.fillStyle = '#cbd5e1';
+            outCtx.font = 'bold 16px sans-serif';
+            outCtx.fillText(`Mismatch (T4PA-L1PA): ${mm.toFixed(0)}°`, outCanvas.width - 340, 46);
+        }
+
+        const link = document.createElement('a');
+        link.download = `${getCleanFilenamePrefix()}_${currentStage.toUpperCase()}.png`;
+        link.href = outCanvas.toDataURL('image/png');
+        link.click();
+
+        closeSaveModal();
+        updateStatus("✅ Imagen PNG descargada con éxito.");
+    }
+
+    // 4. EXPORTAR REPORTE COMPARATIVO COMPLETO (PRE-QX + POST-QX + TABLA + MISMATCHES) EN PNG
+    function exportComparisonPNG() {
+        if (!isCompareMode) saveCurrentStageState();
+        if (!stageData.pre.bgImage && !stageData.post.bgImage) {
+            updateStatus("⚠️ Carga al menos una radiografía para exportar el reporte.", true);
+            closeSaveModal();
+            return;
+        }
+
+        const outCanvas = document.createElement('canvas');
+        outCanvas.width = 2200;
+        outCanvas.height = 1450;
+        const outCtx = outCanvas.getContext('2d');
+
+        // Fondo general
+        outCtx.fillStyle = '#0f172a';
+        outCtx.fillRect(0, 0, outCanvas.width, outCanvas.height);
+
+        // Barra Superior: Ficha Técnica
+        outCtx.fillStyle = '#1e293b';
+        outCtx.fillRect(0, 0, outCanvas.width, 90);
+        outCtx.fillStyle = '#10b981';
+        outCtx.font = 'bold 26px sans-serif';
+        outCtx.fillText('SpinePlan Pro - Reporte Comparativo Pre-Qx vs. Post-Qx', 35, 38);
+
+        let patName = document.getElementById('out-pat-name').innerText || document.getElementById('pat-name').value || '-';
+        let patId = document.getElementById('out-pat-id').innerText || document.getElementById('pat-id').value || '-';
+        let patAge = document.getElementById('out-pat-age').innerText || document.getElementById('pat-age').value || '-';
+        outCtx.fillStyle = '#f8fafc';
+        outCtx.font = 'bold 18px sans-serif';
+        outCtx.fillText(`Paciente: ${patName}     |     C.I: ${patId}     |     Edad: ${patAge}`, 35, 70);
+
+        // Mitad Izquierda: PRE-QX y Mitad Derecha: POST-QX
+        const panelW = 1060;
+        const panelH = 980;
+        const topY = 110;
+
+        ['pre', 'post'].forEach((stKey, idx) => {
+            let boxX = idx === 0 ? 30 : 1110;
+            outCtx.fillStyle = '#020617';
+            outCtx.strokeStyle = idx === 0 ? '#10b981' : '#0ea5e9';
+            outCtx.lineWidth = 2;
+            outCtx.fillRect(boxX, topY, panelW, panelH);
+            outCtx.strokeRect(boxX, topY, panelW, panelH);
+
+            let sData = stageData[stKey];
+            if (sData && sData.bgImage) {
+                let sc = Math.min((panelW - 40) / sData.bgImage.width, (panelH - 60) / sData.bgImage.height) * 0.95;
+                let px = boxX + (panelW - sData.bgImage.width * sc) / 2;
+                let py = topY + 40 + (panelH - 40 - sData.bgImage.height * sc) / 2;
+                stageData[stKey].results = renderStageOnContext(outCtx, sData, px, py, sc);
+            } else {
+                outCtx.fillStyle = '#64748b';
+                outCtx.font = '20px sans-serif';
+                outCtx.fillText(`Sin imagen ${stKey === 'pre' ? 'Pre-Qx' : 'Post-Qx'}`, boxX + panelW/2 - 90, topY + panelH/2);
+            }
+
+            // Etiqueta superior de cada panel
+            outCtx.fillStyle = idx === 0 ? '#065f46' : '#075985';
+            outCtx.fillRect(boxX + 15, topY + 15, 290, 36);
+            outCtx.fillStyle = '#ffffff';
+            outCtx.font = 'bold 16px sans-serif';
+            outCtx.fillText(idx === 0 ? 'PRE-QUIRÚRGICO (ANTES)' : 'POST-QUIRÚRGICO (DESPUÉS)', boxX + 30, topY + 39);
+        });
+
+        // Panel Inferior: Mismatch Pre-Qx, Mismatch Post-Qx y Tabla Comparativa (Base | Ideal | Logrado)
+        let preRes = stageData.pre.results || {};
+        let postRes = stageData.post.results || {};
+
+        // Mismatch Boxes en el encabezado derecho
+        if (preRes['L1-PA'] !== undefined && preRes['T4-PA'] !== undefined) {
+            let mmPre = preRes['T4-PA'] - preRes['L1-PA'];
+            outCtx.fillStyle = '#0f172a';
+            outCtx.strokeStyle = Math.abs(mmPre) <= 4 ? '#10b981' : '#f43f5e';
+            outCtx.lineWidth = 2;
+            outCtx.fillRect(1420, 20, 360, 50);
+            outCtx.strokeRect(1420, 20, 360, 50);
+            outCtx.fillStyle = '#e2e8f0';
+            outCtx.font = 'bold 17px sans-serif';
+            outCtx.fillText(`Mismatch Pre-Qx (T4-L1): ${mmPre.toFixed(0)}°`, 1440, 51);
+        }
+        if (postRes['L1-PA'] !== undefined && postRes['T4-PA'] !== undefined) {
+            let mmPost = postRes['T4-PA'] - postRes['L1-PA'];
+            outCtx.fillStyle = '#0f172a';
+            outCtx.strokeStyle = Math.abs(mmPost) <= 4 ? '#10b981' : '#f43f5e';
+            outCtx.lineWidth = 2;
+            outCtx.fillRect(1800, 20, 370, 50);
+            outCtx.strokeRect(1800, 20, 370, 50);
+            outCtx.fillStyle = '#38bdf8';
+            outCtx.font = 'bold 17px sans-serif';
+            outCtx.fillText(`Mismatch Post-Qx (T4-L1): ${mmPost.toFixed(0)}°`, 1820, 51);
+        }
+
+        // Tabla Comparativa en la franja inferior
+        let tableY = 1115;
+        outCtx.fillStyle = '#1e293b';
+        outCtx.strokeStyle = '#10b981';
+        outCtx.lineWidth = 2;
+        outCtx.fillRect(30, tableY, 2140, 305);
+        outCtx.strokeRect(30, tableY, 2140, 305);
+
+        let pi = preRes['PI'] !== undefined ? preRes['PI'] : postRes['PI'];
+        let ideal_L1S1 = pi !== undefined ? ((pi * 0.6) + 30).toFixed(0) + '°' : '-';
+        let ideal_PA = pi !== undefined ? ((pi * 0.5) - 20).toFixed(0) + '°' : '-';
+        let fVal = (v) => v !== undefined ? v.toFixed(0) + '°' : '-';
+
+        outCtx.fillStyle = '#10b981';
+        outCtx.font = 'bold 20px sans-serif';
+        outCtx.fillText('TABLA COMPARATIVA: PERFIL SAGITAL (BASE vs. IDEAL vs. LOGRADO)', 60, tableY + 38);
+
+        const cols = ['Parámetro', 'PI', 'L1-S1', 'L4-S1', 'L1-PA', 'T4-PA', 'C2 Tilt'];
+        const rowBase = ['Base (Pre-Qx)', fVal(preRes['PI']), fVal(preRes['L1-S1']), fVal(preRes['L4-S1']), fVal(preRes['L1-PA']), fVal(preRes['T4-PA']), fVal(preRes['C2 Tilt'])];
+        const rowIdeal = ['Ideal Teórico', pi !== undefined ? pi.toFixed(0)+'°' : '-', ideal_L1S1, '35° a 40°', ideal_PA, ideal_PA, '1° a -3°'];
+        const rowPost = ['Logrado (Post-Qx)', fVal(postRes['PI']), fVal(postRes['L1-S1']), fVal(postRes['L4-S1']), fVal(postRes['L1-PA']), fVal(postRes['T4-PA']), fVal(postRes['C2 Tilt'])];
+
+        const colX = [60, 420, 710, 1000, 1290, 1580, 1870];
+
+        // Encabezados de columna
+        outCtx.fillStyle = '#94a3b8';
+        outCtx.font = 'bold 18px sans-serif';
+        cols.forEach((c, i) => outCtx.fillText(c, colX[i], tableY + 85));
+
+        // Fila Base
+        outCtx.fillStyle = '#e2e8f0';
+        outCtx.font = 'bold 19px sans-serif';
+        rowBase.forEach((val, i) => outCtx.fillText(val, colX[i], tableY + 140));
+
+        // Fila Ideal
+        outCtx.fillStyle = '#10b981';
+        rowIdeal.forEach((val, i) => outCtx.fillText(val, colX[i], tableY + 195));
+
+        // Fila Logrado
+        outCtx.fillStyle = '#38bdf8';
+        rowPost.forEach((val, i) => outCtx.fillText(val, colX[i], tableY + 250));
+
+        const link = document.createElement('a');
+        link.download = `${getCleanFilenamePrefix()}_COMPARATIVA_PRE_POST.png`;
+        link.href = outCanvas.toDataURL('image/png');
+        link.click();
+
+        closeSaveModal();
+        updateStatus("✅ Reporte Comparativo PNG descargado con éxito.");
+    }
 
     function toggleGaze() { gazeDirection *= -1; document.getElementById('gaze-btn').innerHTML = `<span class="hidden md:inline mr-1">Mirada:</span>${gazeDirection === 1 ? '➡️' : '⬅️'}`; draw(); }
     function getNextColor() { let c = COLORS[colorIndex]; colorIndex = (colorIndex + 1) % COLORS.length; return c; }
