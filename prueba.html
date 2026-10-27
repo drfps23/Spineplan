@@ -234,7 +234,7 @@
                     </div>
                 </div>
 
-                <!-- MÓDULO 6: PERFIL SAGITAL CERVICAL -->
+                <!-- MÓDULO 6: PERFIL SAGITAL CERVICAL (ACTUALIZADO CON cSVA) -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden">
                     <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-white" data-i18n="mod_6">6. Cervical Sagittal Profile</div>
                     <div class="p-3 grid grid-cols-2 gap-2 bg-gray-900/50">
@@ -243,7 +243,7 @@
                         <button onclick="activateTool('cbva', 'CBVA')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">CBVA</button>
                         <button onclick="activateTool('cobb', 'C2-C7')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C2-C7</button>
                         <button onclick="activateTool('cobb', 'C0-C2')" class="tool-btn border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 hover:bg-gray-800">C0-C2</button>
-                        <button onclick="activateTool('sva', 'SVA')" class="tool-btn col-span-2 border border-emerald-700/50 bg-emerald-900/20 rounded px-2 py-1.5 text-xs text-emerald-300 hover:bg-emerald-800/40 font-bold flex justify-center" data-i18n="btn_sva">📍 SVA (C7 Plumbline to S1)</button>
+                        <button onclick="activateTool('sva', 'cSVA')" class="tool-btn col-span-2 border border-emerald-700/50 bg-emerald-900/20 rounded px-2 py-1.5 text-xs text-emerald-300 hover:bg-emerald-800/40 font-bold flex justify-center">cSVA</button>
                     </div>
                 </div>
 
@@ -306,27 +306,16 @@
                     </div>
                 </div>
 
-                <!-- MÓDULO 12: MAPEO VERTEBRAL -->
+                <!-- MÓDULO 12: MAPEO VERTEBRAL (SOLO CONTORNEADO) -->
                 <div class="border border-gray-700 rounded-lg overflow-hidden mt-3">
                     <div class="bg-gray-800 px-3 py-2 text-sm font-semibold text-emerald-400" data-i18n="mod_12">12. Vertebral Mapping</div>
-                    <div class="p-3 bg-gray-900/50 space-y-3">
-                        <div>
-                            <span class="text-[10px] text-gray-400 uppercase tracking-wider mb-1 block" data-i18n="map_labels">Labels (Letter & Number)</span>
-                            <div class="grid grid-cols-4 gap-1">
-                                <button onclick="activateTool('vertebra', 'Cervical', 'C')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-sky-400 hover:bg-sky-900/30 font-bold">C</button>
-                                <button onclick="activateTool('vertebra', 'Thoracic', 'T')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-amber-400 hover:bg-amber-900/30 font-bold">T</button>
-                                <button onclick="activateTool('vertebra', 'Lumbar', 'L')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-purple-400 hover:bg-purple-900/30 font-bold">L</button>
-                                <button onclick="activateTool('vertebra', 'Sacrum', 'S')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-emerald-400 hover:bg-emerald-900/30 font-bold">S</button>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-gray-400 uppercase tracking-wider mb-1 block" data-i18n="map_contours">Contours (Edges)</span>
-                            <div class="grid grid-cols-4 gap-1">
-                                <button onclick="activateTool('vertebraContour', 'Contour C', 'C')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-sky-400 hover:bg-sky-900/30 flex items-center justify-center">🎨 C</button>
-                                <button onclick="activateTool('vertebraContour', 'Contour T', 'T')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-amber-400 hover:bg-amber-900/30 flex items-center justify-center">🎨 T</button>
-                                <button onclick="activateTool('vertebraContour', 'Contour L', 'L')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-purple-400 hover:bg-purple-900/30 flex items-center justify-center">🎨 L</button>
-                                <button onclick="activateTool('vertebraContour', 'Contour S', 'S')" class="tool-btn border border-gray-700 rounded py-1 text-[10px] text-emerald-400 hover:bg-emerald-900/30 flex items-center justify-center">🎨 S</button>
-                            </div>
+                    <div class="p-3 bg-gray-900/50">
+                        <span class="text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 block" data-i18n="map_contours">Contours (Edges)</span>
+                        <div class="grid grid-cols-4 gap-1">
+                            <button onclick="activateTool('vertebraContour', 'Contour C', 'C')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-sky-400 hover:bg-sky-900/30 flex items-center justify-center font-bold">🎨 C</button>
+                            <button onclick="activateTool('vertebraContour', 'Contour T', 'T')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-amber-400 hover:bg-amber-900/30 flex items-center justify-center font-bold">🎨 T</button>
+                            <button onclick="activateTool('vertebraContour', 'Contour L', 'L')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-purple-400 hover:bg-purple-900/30 flex items-center justify-center font-bold">🎨 L</button>
+                            <button onclick="activateTool('vertebraContour', 'Contour S', 'S')" class="tool-btn border border-gray-700 rounded py-1.5 text-xs text-emerald-400 hover:bg-emerald-900/30 flex items-center justify-center font-bold">🎨 S</button>
                         </div>
                     </div>
                 </div>
@@ -1594,13 +1583,16 @@
 
     function activateTool(type, title, subType = null) {
         if (isCompareMode) switchStage(currentStage);
-        if (activeTool === type && activeSubType === subType) {
+        if (activeTool === type && activeSubType === subType && activeTitle === title) {
             deactivateTool();
             return;
         }
 
         document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); event.currentTarget.classList.add('active');
         activeTool = type; activeTitle = title; activeSubType = subType; currentMeasurement = null; stepCount = 0; clickIntent = null;
+        if (type === 'vertebra' || type === 'vertebraContour') {
+            activeVertebraRegion = subType || 'C';
+        }
         
         if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
     }
