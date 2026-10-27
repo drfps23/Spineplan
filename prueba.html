@@ -1421,7 +1421,7 @@
 
         let pi = preRes['PI'] !== undefined ? preRes['PI'] : postRes['PI'];
         let ideal_L1S1 = pi !== undefined ? fmtInt((pi * 0.6) + 30) + '°' : '-';
-        let ideal_PA = pi !== undefined ? fmtInt((pi * 0.5) - 20) + '°' : '-';
+        let ideal_PA = pi !== undefined ? fmtInt((pi * 0.5) - 19) + '°' : '-';
         let fVal = (v) => v !== undefined ? fmtInt(v) + '°' : '-';
 
         outCtx.fillStyle = '#10b981';
@@ -1800,7 +1800,7 @@
         }
     }
 
-    // TABLA DE PERFIL TEÓRICO Y COMPARACIÓN PRE/POST-QX
+    // TABLA DE PERFIL TEÓRICO Y COMPARACIÓN PRE/POST-QX (FÓRMULA EXACTA: 0.5 * PI - 19)
     function updateTheoreticalTableContent() {
         if (!isCompareMode) {
             stageData[currentStage].results = { ...window.currentResults };
@@ -1811,7 +1811,7 @@
         if (pi === undefined) return false;
 
         let ideal_L1S1 = (pi * 0.6) + 30; 
-        let ideal_PA = (pi * 0.5) - 20;
+        let ideal_PA = (pi * 0.5) - 19;
         let formatVal = (val) => val !== undefined ? fmtInt(val) + '°' : '-';
 
         let base_PI = formatVal(preRes['PI']);
