@@ -1,16 +1,17 @@
 // ============================================================================
-// MÓDULO CONECTABLE: 7. OSTEOTOMÍAS (SCHWAB, 2014) Y SIMULADOR DE CORTE EN CUÑA
-// Se integra automáticamente con index.html sin alterar los módulos existentes
+// MÓDULO CONECTABLE: 7. OSTEOTOMÍAS (SCHWAB, 2014) + MOTOR CINEMÁTICO EN VIVO
+// Rota la Rx, arrastra los puntos craneales al corte y recalcula valores ideales
 // ============================================================================
 
 (function() {
     window.ostSimActive = false;
+    window._preOstBaseResults = null;
 
-    // 1. INTEGRAR TRADUCCIONES Y RENUMERAR MÓDULOS 8 AL 13 AUTOMÁTICAMENTE
+    // 1. TRADUCCIONES Y RENUMERACIÓN AUTOMÁTICA DE MÓDULOS 8 AL 13
     if (typeof I18N !== 'undefined') {
         Object.assign(I18N.en, {
             mod_7_ost: "7. Osteotomies (Schwab, 2014)",
-            ost_sub: "Wedge Resection & Simulation",
+            ost_sub: "Wedge Resection & Live Kinematics",
             btn_draw_ost: "📐 1. Draw Wedge (3 Points)",
             btn_sim_ost: "✂️ 2. Simulate Wedge Closure (OFF)",
             btn_sim_ost_on: "✅ 2. Wedge Closure Active (ON)",
@@ -27,7 +28,7 @@
         });
         Object.assign(I18N.es, {
             mod_7_ost: "7. Osteotomías (Schwab, 2014)",
-            ost_sub: "Resección en Cuña y Simulación",
+            ost_sub: "Corte en Cuña y Cinemática en Vivo",
             btn_draw_ost: "📐 1. Trazar Cuña (3 Puntos)",
             btn_sim_ost: "✂️ 2. Simular Cierre de Cuña (OFF)",
             btn_sim_ost_on: "✅ 2. Cierre de Cuña Activo (ON)",
@@ -44,7 +45,7 @@
         });
     }
 
-    // 2. INYECTAR EL MÓDULO 7 EN EL MENÚ LATERAL Y EL PANEL FLOTANTE DE SCHWAB
+    // 2. INYECTAR MÓDULO 7 EN LA BARRA LATERAL Y CUADRO FLOTANTE DE SCHWAB
     const rsHeader = document.querySelector('[data-i18n="mod_7"]');
     if (rsHeader && rsHeader.parentElement) {
         const mod7Card = document.createElement('div');
@@ -52,7 +53,7 @@
         mod7Card.innerHTML = `
             <div class="bg-rose-900/40 px-3 py-2 text-sm font-semibold text-rose-400" data-i18n="mod_7_ost">7. Osteotomies (Schwab, 2014)</div>
             <div class="p-3 bg-gray-900/50 space-y-2">
-                <span class="text-[10px] text-gray-400 uppercase tracking-wider block" data-i18n="ost_sub">Wedge Resection & Simulation</span>
+                <span class="text-[10px] text-gray-400 uppercase tracking-wider block" data-i18n="ost_sub">Wedge Resection & Live Kinematics</span>
                 <button onclick="activateTool('osteotomy', 'Osteotomy')" class="tool-btn w-full border border-rose-700/60 bg-rose-950/30 rounded px-2 py-2 text-xs text-rose-300 hover:bg-rose-900/50 font-bold flex justify-center items-center" data-i18n="btn_draw_ost">📐 1. Draw Wedge (3 Points)</button>
                 <button id="btn-sim-ost" onclick="toggleOsteotomySim()" class="w-full border border-amber-600/60 bg-amber-900/20 rounded px-2 py-2 text-xs text-amber-300 hover:bg-amber-700 hover:text-white font-bold transition-colors flex justify-center items-center" data-i18n="btn_sim_ost">✂️ 2. Simulate Wedge Closure (OFF)</button>
                 <button onclick="showSchwab()" class="w-full border border-rose-500 bg-rose-600/20 rounded px-2 py-2 text-xs font-bold text-rose-300 hover:bg-rose-600 hover:text-white transition-colors flex justify-center items-center shadow-lg" data-i18n="btn_calc_schwab">📊 3. Schwab (2014) & Degrees</button>
@@ -109,7 +110,7 @@
         if (typeof makeInteractivePanel === 'function') makeInteractivePanel(schwabModal);
     }
 
-    // 3. GEOMETRÍA DE LA CUÑA, AJUSTE DE GRADOS Y SIMULACIÓN RADIOGRÁFICA
+    // 3. MOTOR GEOMÉTRICO Y CINEMÁTICO (ROTA PUNTOS CRANEALES JUNTO CON LA VÉRTEBRA)
     window.computeOsteotomyGeometry = function(m) {
         if (!m || !m.points || m.points.length < 3) return null;
         let p1 = m.points[1]; // Bisagra / Ápex anterior
@@ -122,8 +123,79 @@
         while (rotAngle < -Math.PI) rotAngle += 2 * Math.PI;
         let deg = Math.abs(rotAngle * 180 / Math.PI);
         if (deg > 120) deg = 180 - deg;
-        return { p1, pSup, pInf, rotAngle, deg };
+        let vx = pInf.x - p1.x, vy = pInf.y - p1.y, len = Math.hypot(vx, vy) || 1;
+        vx /= len; vy /= len;
+        let nx = -vy, ny = vx;
+        if (ny > 0) { nx = -nx; ny = -ny; } // Normal apuntando hacia craneal (arriba)
+        return { p1, pSup, pInf, rotAngle, deg, vx, vy, nx, ny };
     };
+
+    function rotatePoint(pt, center, angleRad) {
+        let dx = pt.x - center.x, dy = pt.y - center.y;
+        let c = Math.cos(angleRad), s = Math.sin(angleRad);
+        return { x: center.x + dx * c - dy * s, y: center.y + dx * s + dy * c };
+    }
+
+    function isPointCranialToCut(pt, geom) {
+        return ((pt.x - geom.p1.x) * geom.nx + (pt.y - geom.p1.y) * geom.ny) > 0;
+    }
+
+    // Guarda las coordenadas originales antes de simular o aplica la rotación a los puntos craneales
+    function applyOsteotomyKinematics(measList, simActive) {
+        if (!measList) return;
+        let ost = measList.find(m => m.type === 'osteotomy' && m.points.length === 3);
+        if (!simActive || !ost) {
+            measList.forEach(m => {
+                if (m.type === 'osteotomy') return;
+                if (m._isRotated) {
+                    if (m._basePoints) m.points = m._basePoints.map(p => ({ x: p.x, y: p.y }));
+                    if (m._baseTextPos && m.textPos) m.textPos = { x: m._baseTextPos.x, y: m._baseTextPos.y };
+                    if (m._baseSternum && m.sternum) m.sternum = { x: m._baseSternum.x, y: m._baseSternum.y };
+                    if (m._baseSlipPoint && m.slipPoint) m.slipPoint = { x: m._baseSlipPoint.x, y: m._baseSlipPoint.y };
+                    m._isRotated = false;
+                } else {
+                    if (m.points) m._basePoints = m.points.map(p => ({ x: p.x, y: p.y }));
+                    if (m.textPos) m._baseTextPos = { x: m.textPos.x, y: m.textPos.y };
+                    if (m.sternum) m._baseSternum = { x: m.sternum.x, y: m.sternum.y };
+                    if (m.slipPoint) m._baseSlipPoint = { x: m.slipPoint.x, y: m.slipPoint.y };
+                }
+            });
+            return;
+        }
+
+        let geom = computeOsteotomyGeometry(ost);
+        if (!geom) return;
+
+        measList.forEach(m => {
+            if (m.type === 'osteotomy' || m.type === 'pelvic' || m.type === 'coronal_cf') return;
+            if (!m._isRotated) {
+                if (m.points) m._basePoints = m.points.map(p => ({ x: p.x, y: p.y }));
+                if (m.textPos) m._baseTextPos = { x: m.textPos.x, y: m.textPos.y };
+                if (m.sternum) m._baseSternum = { x: m.sternum.x, y: m.sternum.y };
+                if (m.slipPoint) m._baseSlipPoint = { x: m.slipPoint.x, y: m.slipPoint.y };
+            }
+            let anyPointRotated = false;
+            if (m._basePoints) {
+                m.points = m._basePoints.map(bp => {
+                    if (isPointCranialToCut(bp, geom)) {
+                        anyPointRotated = true;
+                        return rotatePoint(bp, geom.p1, geom.rotAngle);
+                    }
+                    return { x: bp.x, y: bp.y };
+                });
+            }
+            if (m._baseSternum && m.sternum) {
+                m.sternum = isPointCranialToCut(m._baseSternum, geom) ? rotatePoint(m._baseSternum, geom.p1, geom.rotAngle) : { x: m._baseSternum.x, y: m._baseSternum.y };
+            }
+            if (m._baseSlipPoint && m.slipPoint) {
+                m.slipPoint = isPointCranialToCut(m._baseSlipPoint, geom) ? rotatePoint(m._baseSlipPoint, geom.p1, geom.rotAngle) : { x: m._baseSlipPoint.x, y: m._baseSlipPoint.y };
+            }
+            if (m._baseTextPos && m.textPos) {
+                m.textPos = anyPointRotated ? rotatePoint(m._baseTextPos, geom.p1, geom.rotAngle) : { x: m._baseTextPos.x, y: m._baseTextPos.y };
+            }
+            m._isRotated = true;
+        });
+    }
 
     window.setOsteotomyCustomAngle = function(val) {
         let deg = Math.max(1, Math.min(85, Number(val) || 1));
@@ -159,6 +231,9 @@
     window.toggleOsteotomySim = function() {
         let ost = measurements.find(m => m.type === 'osteotomy' && m.points.length === 3);
         if (!ost) { updateStatus("⚠️ Draw the 3-point Osteotomy Wedge first.", true); return; }
+        if (!window.ostSimActive && currentStage === 'pre') {
+            window._preOstBaseResults = { ...window.currentResults };
+        }
         window.ostSimActive = !window.ostSimActive;
         stageData[currentStage].ostSimActive = window.ostSimActive;
         updateOsteotomySimButtonUI();
@@ -185,10 +260,13 @@
     window.populateSchwabBox = function() {
         let ost = measurements.find(m => m.type === 'osteotomy' && m.points.length === 3);
         let wedgeAngle = ost ? Number(fmtInt(computeOsteotomyGeometry(ost).deg)) : 0;
-        let pi = window.currentResults['PI'];
-        let ll = window.currentResults['L1-S1'];
+        let baseRes = (window.ostSimActive && window._preOstBaseResults) ? window._preOstBaseResults : window.currentResults;
+        let pi = baseRes['PI'] !== undefined ? baseRes['PI'] : window.currentResults['PI'];
+        let baseLL = baseRes['L1-S1'];
         let idealLL = pi !== undefined ? Math.round((pi * 0.6) + 30) : null;
-        let simLL = ll !== undefined ? (Math.abs(ll) + wedgeAngle) : null;
+        let simLL = window.ostSimActive && window.currentResults['L1-S1'] !== undefined
+            ? window.currentResults['L1-S1']
+            : (baseLL !== undefined ? (baseLL + wedgeAngle) : null);
 
         document.getElementById('sw-wedge').innerText = `${fmtInt(wedgeAngle)}°`;
         document.getElementById('sw-ideal-ll').innerText = idealLL !== null ? `${fmtInt(idealLL)}°` : '-';
@@ -209,7 +287,7 @@
         if (window.innerWidth < 768 && isMobileMenuOpen) toggleMobileMenu();
     };
 
-    // 4. INTERCEPTOR GRÁFICO PARA SIMULAR EL CIERRE DE LA CUÑA Y DIBUJAR TRAZOS
+    // 4. INTERCEPTOR DE IMAGEN Y SINCRONIZACIÓN CON TABLA DE PERFIL TEÓRICO
     const origDrawImage = CanvasRenderingContext2D.prototype.drawImage;
     CanvasRenderingContext2D.prototype.drawImage = function(img, x, y) {
         if (arguments.length === 3 && x === 0 && y === 0) {
@@ -221,10 +299,7 @@
             if (stData && stData.ostSimActive && ostMeas) {
                 let geom = computeOsteotomyGeometry(ostMeas);
                 if (geom) {
-                    let { p1, pInf, rotAngle } = geom;
-                    let vx = pInf.x - p1.x, vy = pInf.y - p1.y, len = Math.hypot(vx, vy) || 1;
-                    vx /= len; vy /= len;
-                    let nx = -vy, ny = vx; if (ny > 0) { nx = -nx; ny = -ny; }
+                    let { p1, rotAngle, vx, vy, nx, ny } = geom;
                     let M = 15000, ax = p1.x - vx * M, ay = p1.y - vy * M, bx = p1.x + vx * M, by = p1.y + vy * M;
 
                     this.save();
@@ -276,10 +351,40 @@
         targetCtx.restore();
     }
 
+    // Actualiza la tabla teórica mostrando Base (Pre-corte) vs Ideal vs Logrado (Simulación Post-corte)
+    const origUpdateTheo = updateTheoreticalTableContent;
+    updateTheoreticalTableContent = function() {
+        if (currentStage === 'pre' && window.ostSimActive && window._preOstBaseResults && !stageData.post.bgImage) {
+            let baseRes = window._preOstBaseResults;
+            let simRes = window.currentResults;
+            let pi = baseRes['PI'] !== undefined ? baseRes['PI'] : simRes['PI'];
+            if (pi === undefined) return false;
+            let ideal_L1S1 = (pi * 0.6) + 30;
+            let ideal_PA = (pi * 0.5) - 19;
+            let fVal = (v) => v !== undefined ? fmtInt(v) + '°' : '-';
+            document.getElementById('theo-tbody').innerHTML = `
+                <tr class="border-b border-gray-700/50"><td class="py-2 pr-2 font-medium text-emerald-400">PI</td><td class="py-2 pr-2 text-gray-300">${fVal(baseRes['PI'])}</td><td class="py-2 pr-2 font-bold text-emerald-400">${fmtInt(pi)}°</td><td class="py-2 font-bold text-sky-400">${fVal(simRes['PI'])}</td></tr>
+                <tr class="border-b border-gray-700/50"><td class="py-2 pr-2 font-medium text-white">L1-S1</td><td class="py-2 pr-2 text-gray-300">${fVal(baseRes['L1-S1'])}</td><td class="py-2 pr-2 font-bold text-emerald-400">${fmtInt(ideal_L1S1)}°</td><td class="py-2 font-bold text-sky-400">${fVal(simRes['L1-S1'])}</td></tr>
+                <tr class="border-b border-gray-700/50"><td class="py-2 pr-2 font-medium text-white">L4-S1</td><td class="py-2 pr-2 text-gray-300">${fVal(baseRes['L4-S1'])}</td><td class="py-2 pr-2 font-bold text-emerald-400">35° - 40°</td><td class="py-2 font-bold text-sky-400">${fVal(simRes['L4-S1'])}</td></tr>
+                <tr class="border-b border-gray-700/50"><td class="py-2 pr-2 font-medium text-white">L1-PA</td><td class="py-2 pr-2 text-gray-300">${fVal(baseRes['L1-PA'])}</td><td class="py-2 pr-2 font-bold text-emerald-400">${fmtInt(ideal_PA)}°</td><td class="py-2 font-bold text-sky-400">${fVal(simRes['L1-PA'])}</td></tr>
+                <tr class="border-b border-gray-700/50"><td class="py-2 pr-2 font-medium text-white">T4-PA</td><td class="py-2 pr-2 text-gray-300">${fVal(baseRes['T4-PA'])}</td><td class="py-2 pr-2 font-bold text-emerald-400">${fmtInt(ideal_PA)}°</td><td class="py-2 font-bold text-sky-400">${fVal(simRes['T4-PA'])}</td></tr>
+                <tr><td class="py-2 pr-2 font-medium text-white">C2 Tilt</td><td class="py-2 pr-2 text-gray-300">${fVal(baseRes['C2 Tilt'])}</td><td class="py-2 pr-2 font-bold text-emerald-400">1° / -3°</td><td class="py-2 font-bold text-sky-400">${fVal(simRes['C2 Tilt'])}</td></tr>
+            `;
+            return true;
+        }
+        return origUpdateTheo();
+    };
+
     const origDraw = draw;
     draw = function() {
+        if (bgImage) {
+            applyOsteotomyKinematics(measurements, window.ostSimActive);
+        }
         origDraw();
         if (bgImage) {
+            if (!window.ostSimActive && currentStage === 'pre') {
+                window._preOstBaseResults = { ...window.currentResults };
+            }
             let sc = baseScale * zoomScale;
             ctx.save(); ctx.translate(panX, panY); ctx.scale(sc, sc);
             drawOsteotomyOverlay(ctx, measurements, window.ostSimActive, sc);
@@ -288,6 +393,7 @@
             if (ost) {
                 window.currentResults['Osteotomy'] = Number(fmtInt(computeOsteotomyGeometry(ost).deg));
                 stageData[currentStage].results = { ...window.currentResults };
+                if (!document.getElementById('theoretical-table').classList.contains('hidden')) updateTheoreticalTableContent();
                 if (!document.getElementById('schwab-box').classList.contains('hidden')) populateSchwabBox();
             }
         }
@@ -295,6 +401,7 @@
 
     const origRenderStage = renderStageOnContext;
     renderStageOnContext = function(cCtx, sData, panXVal, panYVal, sc) {
+        if (sData && sData.measurements) applyOsteotomyKinematics(sData.measurements, sData.ostSimActive);
         let res = origRenderStage(cCtx, sData, panXVal, panYVal, sc);
         if (sData && sData.bgImage && sData.measurements) {
             cCtx.save(); cCtx.translate(panXVal, panYVal); cCtx.scale(sc, sc);
@@ -334,8 +441,8 @@
         if (!clickIntent || clickIntent.tool !== 'osteotomy') return;
         if (Math.hypot(e.clientX - clickIntent.startX, e.clientY - clickIntent.startY) < 10) {
             if (!currentMeasurement) {
+                if (window.ostSimActive) { window.ostSimActive = false; applyOsteotomyKinematics(measurements, false); updateOsteotomySimButtonUI(); }
                 measurements = measurements.filter(m => m.type !== 'osteotomy');
-                window.ostSimActive = false; updateOsteotomySimButtonUI();
                 currentMeasurement = { id: Date.now(), type: 'osteotomy', title: 'Osteotomy', color: '#f43f5e', width: 1.5, fontSize: 14, points: [{ x: clickIntent.logX, y: clickIntent.logY }], textPos: null };
                 measurements.push(currentMeasurement);
                 updateStatus("📍 Point 1 set. Click Anterior Hinge / Apex (Point 2).");
@@ -352,11 +459,10 @@
         clickIntent = null; draw();
     }, true);
 
-    // Sincronizar estados al limpiar, reiniciar o cambiar de etapa/idioma
     const origClear = clearCanvas;
-    clearCanvas = function() { window.ostSimActive = false; updateOsteotomySimButtonUI(); document.getElementById('schwab-box').classList.add('hidden'); origClear(); };
+    clearCanvas = function() { window.ostSimActive = false; window._preOstBaseResults = null; updateOsteotomySimButtonUI(); document.getElementById('schwab-box').classList.add('hidden'); origClear(); };
     const origReset = resetAllStudy;
-    resetAllStudy = function(s) { window.ostSimActive = false; updateOsteotomySimButtonUI(); document.getElementById('schwab-box').classList.add('hidden'); origReset(s); };
+    resetAllStudy = function(s) { window.ostSimActive = false; window._preOstBaseResults = null; updateOsteotomySimButtonUI(); document.getElementById('schwab-box').classList.add('hidden'); origReset(s); };
     const origSwitch = switchStage;
     switchStage = function(st) { stageData[currentStage].ostSimActive = window.ostSimActive; origSwitch(st); window.ostSimActive = !!stageData[currentStage].ostSimActive; updateOsteotomySimButtonUI(); draw(); };
 
