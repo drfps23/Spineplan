@@ -1,6 +1,6 @@
 // ============================================================================
-// MÓDULO CONECTABLE: 7. OSTEOTOMÍAS (SCHWAB, 2014) + MOTOR CINEMÁTICO EN VIVO
-// Rota la Rx, arrastra los puntos craneales al corte y recalcula valores ideales
+// MÓDULO CONECTABLE: 7. OSTEOTOMÍAS (SCHWAB, 2014) + MOTOR CINEMÁTICO V2
+// Auto-detección de ápex, slider desbloqueado y etiquetas 100% móviles post-corte
 // ============================================================================
 
 (function() {
@@ -78,15 +78,15 @@
                     <div><span class="text-gray-400 block text-[10px]">Ideal LL</span><span id="sw-ideal-ll" class="font-bold text-emerald-400 text-sm">-</span></div>
                     <div><span class="text-gray-400 block text-[10px]">Sim. Post-LL</span><span id="sw-sim-ll" class="font-bold text-sky-400 text-sm">-</span></div>
                 </div>
-                <div class="bg-gray-800/70 border border-gray-700 rounded p-2">
-                    <div class="flex justify-between items-center mb-1">
+                <div id="sw-controls-wrap" class="bg-gray-800/70 border border-gray-700 rounded p-2 cursor-default">
+                    <div class="flex justify-between items-center mb-1.5">
                         <span class="text-[10px] text-amber-300 font-bold uppercase" data-i18n="sw_set_deg">Target Osteotomy Angle (α):</span>
                         <div class="flex items-center space-x-1">
-                            <input type="number" id="sw-angle-input" min="1" max="90" value="25" class="w-14 bg-gray-950 border border-gray-600 rounded px-1.5 py-0.5 text-center text-white font-bold text-xs" onchange="setOsteotomyCustomAngle(this.value)">
+                            <input type="number" id="sw-angle-input" min="1" max="85" value="25" class="w-16 bg-gray-950 border border-gray-600 rounded px-1.5 py-0.5 text-center text-white font-bold text-xs focus:outline-none focus:border-rose-500">
                             <span class="text-xs font-bold text-white">°</span>
                         </div>
                     </div>
-                    <input type="range" id="sw-angle-slider" min="1" max="75" value="25" class="w-full accent-rose-500 cursor-pointer" oninput="setOsteotomyCustomAngle(this.value)">
+                    <input type="range" id="sw-angle-slider" min="1" max="75" value="25" class="w-full accent-rose-500 cursor-pointer">
                 </div>
                 <div>
                     <label class="text-[10px] text-rose-300 uppercase font-bold block mb-1" data-i18n="sw_grade_lbl">Grades of Vertebral Resection (Schwab, 2014):</label>
@@ -103,19 +103,55 @@
                     <div id="sw-badge" class="bg-rose-600 text-white font-bold py-0.5 px-3 rounded-full mb-1 inline-block text-xs shadow">Grade 3</div>
                     <p id="sw-desc" class="text-[11px] text-gray-200 leading-snug font-medium"></p>
                 </div>
-                <button onclick="toggleOsteotomySim()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 px-3 rounded text-xs transition-colors shadow">✂️ Simulate / Close Wedge on X-Ray</button>
+                <button id="btn-modal-sim-ost" onclick="toggleOsteotomySim()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 px-3 rounded text-xs transition-colors shadow">✂️ Simulate / Close Wedge on X-Ray</button>
             </div>
         `;
         mainContainer.appendChild(schwabModal);
         if (typeof makeInteractivePanel === 'function') makeInteractivePanel(schwabModal);
+
+        // Desbloquear slider e input numérico para que no arrastren el modal al usarlos
+        const ctrlWrap = document.getElementById('sw-controls-wrap');
+        const sliderEl = document.getElementById('sw-angle-slider');
+        const inputEl = document.getElementById('sw-angle-input');
+        ['mousedown', 'touchstart', 'pointerdown'].forEach(evtName => {
+            ctrlWrap.addEventListener(evtName, (ev) => ev.stopPropagation());
+            sliderEl.addEventListener(evtName, (ev) => ev.stopPropagation());
+            inputEl.addEventListener(evtName, (ev) => ev.stopPropagation());
+        });
+        sliderEl.addEventListener('input', function() { setOsteotomyCustomAngle(this.value); });
+        inputEl.addEventListener('input', function() { if (this.value !== '') setOsteotomyCustomAngle(this.value); });
+        inputEl.addEventListener('change', function() { setOsteotomyCustomAngle(this.value); });
     }
 
-    // 3. MOTOR GEOMÉTRICO Y CINEMÁTICO (ROTA PUNTOS CRANEALES JUNTO CON LA VÉRTEBRA)
+    // 3. AUTO-DETECCIÓN DEL ÁPEX (BISAGRA) SIN IMPORTAR EL ORDEN DE LOS 3 CLICS
+    function detectWedgeApexAndRays(m) {
+        if (!m || !m.points || m.points.length < 3) return null;
+        if (typeof m.apexIndex !== 'number') {
+            // El ápex de la cuña es el vértice opuesto al lado más corto (la base de resección)
+            let d01 = Math.hypot(m.points[0].x - m.points[1].x, m.points[0].y - m.points[1].y); // opuesto a 2
+            let d12 = Math.hypot(m.points[1].x - m.points[2].x, m.points[1].y - m.points[2].y); // opuesto a 0
+            let d20 = Math.hypot(m.points[2].x - m.points[0].x, m.points[2].y - m.points[0].y); // opuesto a 1
+            if (d12 <= d01 && d12 <= d20) m.apexIndex = 0;
+            else if (d20 <= d01 && d20 <= d12) m.apexIndex = 1;
+            else m.apexIndex = 2;
+
+            let others = [0, 1, 2].filter(i => i !== m.apexIndex);
+            m.supIndex = m.points[others[0]].y < m.points[others[1]].y ? others[0] : others[1];
+            m.infIndex = m.supIndex === others[0] ? others[1] : others[0];
+        }
+        let others = [0, 1, 2].filter(i => i !== m.apexIndex);
+        let supIdx = (typeof m.supIndex === 'number') ? m.supIndex : (m.points[others[0]].y < m.points[others[1]].y ? others[0] : others[1]);
+        let infIdx = (typeof m.infIndex === 'number') ? m.infIndex : (supIdx === others[0] ? others[1] : others[0]);
+        return { apexIdx: m.apexIndex, supIdx, infIdx };
+    }
+
     window.computeOsteotomyGeometry = function(m) {
         if (!m || !m.points || m.points.length < 3) return null;
-        let p1 = m.points[1]; // Bisagra / Ápex anterior
-        let pSup = m.points[0].y < m.points[2].y ? m.points[0] : m.points[2];
-        let pInf = m.points[0].y < m.points[2].y ? m.points[2] : m.points[0];
+        let idxs = detectWedgeApexAndRays(m);
+        let p1 = m.points[idxs.apexIdx];   // Bisagra / Ápex verdadero
+        let pSup = m.points[idxs.supIdx];  // Borde craneal de la cuña
+        let pInf = m.points[idxs.infIdx];  // Borde caudal de la cuña
+
         let angSup = Math.atan2(pSup.y - p1.y, pSup.x - p1.x);
         let angInf = Math.atan2(pInf.y - p1.y, pInf.x - p1.x);
         let rotAngle = angInf - angSup;
@@ -123,11 +159,12 @@
         while (rotAngle < -Math.PI) rotAngle += 2 * Math.PI;
         let deg = Math.abs(rotAngle * 180 / Math.PI);
         if (deg > 120) deg = 180 - deg;
+
         let vx = pInf.x - p1.x, vy = pInf.y - p1.y, len = Math.hypot(vx, vy) || 1;
         vx /= len; vy /= len;
         let nx = -vy, ny = vx;
-        if (ny > 0) { nx = -nx; ny = -ny; } // Normal apuntando hacia craneal (arriba)
-        return { p1, pSup, pInf, rotAngle, deg, vx, vy, nx, ny };
+        if (ny > 0) { nx = -nx; ny = -ny; } // Vector normal apuntando hacia craneal (arriba)
+        return { p1, pSup, pInf, rotAngle, deg, vx, vy, nx, ny, apexIdx: idxs.apexIdx, supIdx: idxs.supIdx, infIdx: idxs.infIdx };
     };
 
     function rotatePoint(pt, center, angleRad) {
@@ -140,7 +177,28 @@
         return ((pt.x - geom.p1.x) * geom.nx + (pt.y - geom.p1.y) * geom.ny) > 0;
     }
 
-    // Guarda las coordenadas originales antes de simular o aplica la rotación a los puntos craneales
+    // Sincroniza hacia atrás si el usuario mueve un texto o punto durante la simulación activa
+    function syncDraggedItemToBase(item, geom) {
+        if (!item || item.type === 'osteotomy' || item.type === 'pelvic' || item.type === 'coronal_cf') return;
+        let anyRotated = false;
+        if (item.points && item._basePoints) {
+            item._basePoints = item.points.map((curPt, i) => {
+                let origBase = item._basePoints[i] || curPt;
+                if (isPointCranialToCut(origBase, geom)) {
+                    anyRotated = true;
+                    return rotatePoint(curPt, geom.p1, -geom.rotAngle);
+                }
+                return { x: curPt.x, y: curPt.y };
+            });
+        }
+        if (item.textPos) {
+            if (item._basePoints && item._basePoints.some(bp => isPointCranialToCut(bp, geom))) {
+                anyRotated = true;
+            }
+            item._baseTextPos = anyRotated ? rotatePoint(item.textPos, geom.p1, -geom.rotAngle) : { x: item.textPos.x, y: item.textPos.y };
+        }
+    }
+
     function applyOsteotomyKinematics(measList, simActive) {
         if (!measList) return;
         let ost = measList.find(m => m.type === 'osteotomy' && m.points.length === 3);
@@ -166,6 +224,12 @@
         let geom = computeOsteotomyGeometry(ost);
         if (!geom) return;
 
+        // Si el usuario está arrastrando un texto o punto con el mouse ahora mismo, respetar su movimiento
+        let activeDragItem = (typeof dragObj !== 'undefined' && dragObj && dragObj.item) ? dragObj.item : null;
+        if (activeDragItem && activeDragItem.type !== 'osteotomy') {
+            syncDraggedItemToBase(activeDragItem, geom);
+        }
+
         measList.forEach(m => {
             if (m.type === 'osteotomy' || m.type === 'pelvic' || m.type === 'coronal_cf') return;
             if (!m._isRotated) {
@@ -173,6 +237,10 @@
                 if (m.textPos) m._baseTextPos = { x: m.textPos.x, y: m.textPos.y };
                 if (m.sternum) m._baseSternum = { x: m.sternum.x, y: m.sternum.y };
                 if (m.slipPoint) m._baseSlipPoint = { x: m.slipPoint.x, y: m.slipPoint.y };
+            }
+            if (m === activeDragItem) {
+                m._isRotated = true;
+                return;
             }
             let anyPointRotated = false;
             if (m._basePoints) {
@@ -199,32 +267,45 @@
 
     window.setOsteotomyCustomAngle = function(val) {
         let deg = Math.max(1, Math.min(85, Number(val) || 1));
-        document.getElementById('sw-angle-input').value = Math.round(deg);
-        document.getElementById('sw-angle-slider').value = Math.round(deg);
+        const inEl = document.getElementById('sw-angle-input');
+        const slEl = document.getElementById('sw-angle-slider');
+        if (inEl && document.activeElement !== inEl) inEl.value = Math.round(deg);
+        if (slEl) slEl.value = Math.round(deg);
+
         let ost = measurements.find(m => m.type === 'osteotomy' && m.points.length === 3);
         if (!ost) return;
-        let p1 = ost.points[1];
-        let supIdx = ost.points[0].y < ost.points[2].y ? 0 : 2;
-        let infIdx = supIdx === 0 ? 2 : 0;
-        let pSup = ost.points[supIdx], pInf = ost.points[infIdx];
+        let idxs = detectWedgeApexAndRays(ost);
+        let p1 = ost.points[idxs.apexIdx];
+        let pSup = ost.points[idxs.supIdx];
+        let pInf = ost.points[idxs.infIdx];
+
         let lenSup = Math.hypot(pSup.x - p1.x, pSup.y - p1.y) || 80;
         let angInf = Math.atan2(pInf.y - p1.y, pInf.x - p1.x);
         let rad = deg * Math.PI / 180;
+        // Elevar el rayo craneal (pSup) hacia arriba respecto al rayo caudal (pInf)
         let dir = (pInf.x >= p1.x) ? -1 : 1;
         let newAngSup = angInf + dir * rad;
-        ost.points[supIdx] = { x: p1.x + Math.cos(newAngSup) * lenSup, y: p1.y + Math.sin(newAngSup) * lenSup };
+        ost.points[idxs.supIdx] = { x: p1.x + Math.cos(newAngSup) * lenSup, y: p1.y + Math.sin(newAngSup) * lenSup };
         draw();
     };
 
     window.updateOsteotomySimButtonUI = function() {
         const b1 = document.getElementById('btn-sim-ost');
-        if (!b1) return;
-        if (window.ostSimActive) {
-            b1.innerHTML = t('btn_sim_ost_on');
-            b1.className = "w-full border border-emerald-500 bg-emerald-700 text-white rounded px-2 py-2 text-xs font-bold transition-colors flex justify-center items-center shadow-lg";
-        } else {
-            b1.innerHTML = t('btn_sim_ost');
-            b1.className = "w-full border border-amber-600/60 bg-amber-900/20 rounded px-2 py-2 text-xs text-amber-300 hover:bg-amber-700 hover:text-white font-bold transition-colors flex justify-center items-center";
+        const b2 = document.getElementById('btn-modal-sim-ost');
+        if (b1) {
+            if (window.ostSimActive) {
+                b1.innerHTML = t('btn_sim_ost_on');
+                b1.className = "w-full border border-emerald-500 bg-emerald-700 text-white rounded px-2 py-2 text-xs font-bold transition-colors flex justify-center items-center shadow-lg";
+            } else {
+                b1.innerHTML = t('btn_sim_ost');
+                b1.className = "w-full border border-amber-600/60 bg-amber-900/20 rounded px-2 py-2 text-xs text-amber-300 hover:bg-amber-700 hover:text-white font-bold transition-colors flex justify-center items-center";
+            }
+        }
+        if (b2) {
+            b2.innerHTML = window.ostSimActive ? "✅ Return to Original X-Ray (Sim ON)" : "✂️ Simulate / Close Wedge on X-Ray";
+            b2.className = window.ostSimActive
+                ? "w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-3 rounded text-xs transition-colors shadow"
+                : "w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 px-3 rounded text-xs transition-colors shadow";
         }
     };
 
@@ -257,22 +338,39 @@
         }
     };
 
+    // Calcula el L1-S1 simulado exacto incluso antes de presionar el botón Simulate
+    function predictSimulatedL1S1(geom) {
+        let llMeas = measurements.find(m => m.type === 'cobb' && m.title === 'L1-S1' && m.points.length === 4);
+        if (!llMeas || !geom) return null;
+        let basePts = llMeas._basePoints || llMeas.points;
+        let simPts = basePts.map(bp => isPointCranialToCut(bp, geom) ? rotatePoint(bp, geom.p1, geom.rotAngle) : { x: bp.x, y: bp.y });
+        let a1 = Math.atan2(simPts[1].y - simPts[0].y, simPts[1].x - simPts[0].x);
+        let a2 = Math.atan2(simPts[3].y - simPts[2].y, simPts[3].x - simPts[2].x);
+        let diff = Math.abs((a1 - a2) * 180 / Math.PI);
+        if (diff > 180) diff = 360 - diff;
+        if (diff > 90) diff = 180 - diff;
+        return Math.round(diff);
+    }
+
     window.populateSchwabBox = function() {
         let ost = measurements.find(m => m.type === 'osteotomy' && m.points.length === 3);
-        let wedgeAngle = ost ? Number(fmtInt(computeOsteotomyGeometry(ost).deg)) : 0;
+        let geom = ost ? computeOsteotomyGeometry(ost) : null;
+        let wedgeAngle = geom ? Number(fmtInt(geom.deg)) : 0;
         let baseRes = (window.ostSimActive && window._preOstBaseResults) ? window._preOstBaseResults : window.currentResults;
         let pi = baseRes['PI'] !== undefined ? baseRes['PI'] : window.currentResults['PI'];
-        let baseLL = baseRes['L1-S1'];
         let idealLL = pi !== undefined ? Math.round((pi * 0.6) + 30) : null;
         let simLL = window.ostSimActive && window.currentResults['L1-S1'] !== undefined
-            ? window.currentResults['L1-S1']
-            : (baseLL !== undefined ? (baseLL + wedgeAngle) : null);
+            ? Math.abs(window.currentResults['L1-S1'])
+            : (geom ? predictSimulatedL1S1(geom) : null);
 
         document.getElementById('sw-wedge').innerText = `${fmtInt(wedgeAngle)}°`;
         document.getElementById('sw-ideal-ll').innerText = idealLL !== null ? `${fmtInt(idealLL)}°` : '-';
         document.getElementById('sw-sim-ll').innerText = simLL !== null ? `${fmtInt(simLL)}°` : '-';
-        document.getElementById('sw-angle-input').value = Math.round(wedgeAngle);
-        document.getElementById('sw-angle-slider').value = Math.round(wedgeAngle);
+
+        const inEl = document.getElementById('sw-angle-input');
+        const slEl = document.getElementById('sw-angle-slider');
+        if (inEl && document.activeElement !== inEl) inEl.value = Math.round(wedgeAngle);
+        if (slEl && document.activeElement !== slEl) slEl.value = Math.round(wedgeAngle);
 
         let autoGrade = wedgeAngle <= 10 ? "1" : wedgeAngle <= 18 ? "2" : wedgeAngle <= 35 ? "3" : wedgeAngle <= 45 ? "4" : wedgeAngle <= 60 ? "5" : "6";
         document.getElementById('sw-selector').value = autoGrade;
@@ -332,26 +430,35 @@
         } else {
             let geom = computeOsteotomyGeometry(m);
             if (!simFlag) {
-                targetCtx.beginPath(); targetCtx.moveTo(m.points[0].x, m.points[0].y); targetCtx.lineTo(m.points[1].x, m.points[1].y); targetCtx.lineTo(m.points[2].x, m.points[2].y); targetCtx.closePath();
-                targetCtx.fillStyle = m.color + '4D'; targetCtx.fill(); targetCtx.stroke();
-                m.points.forEach((pt, idx) => { targetCtx.fillStyle = idx === 1 ? '#facc15' : m.color; targetCtx.beginPath(); targetCtx.arc(pt.x, pt.y, dotR, 0, 2 * Math.PI); targetCtx.fill(); });
+                targetCtx.beginPath();
+                targetCtx.moveTo(geom.pSup.x, geom.pSup.y);
+                targetCtx.lineTo(geom.p1.x, geom.p1.y);
+                targetCtx.lineTo(geom.pInf.x, geom.pInf.y);
+                targetCtx.closePath();
+                targetCtx.fillStyle = m.color + '40'; targetCtx.fill(); targetCtx.stroke();
+                m.points.forEach((pt, idx) => {
+                    targetCtx.fillStyle = (idx === geom.apexIdx) ? '#facc15' : m.color;
+                    targetCtx.beginPath(); targetCtx.arc(pt.x, pt.y, (idx === geom.apexIdx) ? dotR * 1.3 : dotR, 0, 2 * Math.PI); targetCtx.fill();
+                });
             } else {
-                targetCtx.strokeStyle = '#10b981'; targetCtx.setLineDash([6 / sc, 4 / sc]);
+                targetCtx.strokeStyle = '#10b981'; targetCtx.lineWidth = 2 / sc; targetCtx.setLineDash([6 / sc, 4 / sc]);
                 targetCtx.beginPath(); targetCtx.moveTo(geom.p1.x, geom.p1.y); targetCtx.lineTo(geom.pInf.x, geom.pInf.y); targetCtx.stroke();
-                targetCtx.setLineDash([]); targetCtx.fillStyle = '#facc15'; targetCtx.beginPath(); targetCtx.arc(geom.p1.x, geom.p1.y, dotR * 1.2, 0, 2 * Math.PI); targetCtx.fill();
+                targetCtx.setLineDash([]); targetCtx.fillStyle = '#facc15'; targetCtx.beginPath(); targetCtx.arc(geom.p1.x, geom.p1.y, dotR * 1.3, 0, 2 * Math.PI); targetCtx.fill();
             }
             if (m.textPos) {
                 let lbl = `${simFlag ? 'Closed: ' : 'Wedge: '}${fmtInt(geom.deg)}°`;
                 targetCtx.font = `bold ${(m.fontSize || 14) / sc}px sans-serif`;
+                targetCtx.textAlign = 'left'; targetCtx.textBaseline = 'top';
+                targetCtx.shadowColor = 'rgba(0,0,0,0.9)'; targetCtx.shadowBlur = 4 / sc;
                 targetCtx.fillStyle = simFlag ? '#10b981' : m.color;
                 targetCtx.fillText(m.title || 'Osteotomy', m.textPos.x, m.textPos.y);
                 targetCtx.fillText(lbl, m.textPos.x, m.textPos.y + ((m.fontSize || 14) + 4) / sc);
+                targetCtx.shadowBlur = 0;
             }
         }
         targetCtx.restore();
     }
 
-    // Actualiza la tabla teórica mostrando Base (Pre-corte) vs Ideal vs Logrado (Simulación Post-corte)
     const origUpdateTheo = updateTheoreticalTableContent;
     updateTheoreticalTableContent = function() {
         if (currentStage === 'pre' && window.ostSimActive && window._preOstBaseResults && !stageData.post.bgImage) {
@@ -445,14 +552,16 @@
                 measurements = measurements.filter(m => m.type !== 'osteotomy');
                 currentMeasurement = { id: Date.now(), type: 'osteotomy', title: 'Osteotomy', color: '#f43f5e', width: 1.5, fontSize: 14, points: [{ x: clickIntent.logX, y: clickIntent.logY }], textPos: null };
                 measurements.push(currentMeasurement);
-                updateStatus("📍 Point 1 set. Click Anterior Hinge / Apex (Point 2).");
+                updateStatus("📍 Point 1 set. Click Point 2 of the wedge.");
             } else if (currentMeasurement.points.length === 1) {
                 currentMeasurement.points.push({ x: clickIntent.logX, y: clickIntent.logY });
-                updateStatus("📍 Hinge set. Click Posterior Inferior border (Point 3).");
+                updateStatus("📍 Point 2 set. Click Point 3 to complete the wedge.");
             } else if (currentMeasurement.points.length === 2) {
                 currentMeasurement.points.push({ x: clickIntent.logX, y: clickIntent.logY });
                 delete currentMeasurement.tempPoint;
-                currentMeasurement.textPos = { x: currentMeasurement.points[1].x + 25, y: currentMeasurement.points[1].y - 15 };
+                detectWedgeApexAndRays(currentMeasurement);
+                let apexPt = currentMeasurement.points[currentMeasurement.apexIndex];
+                currentMeasurement.textPos = { x: apexPt.x + 25, y: apexPt.y - 15 };
                 deactivateTool(); draw(); showSchwab();
             }
         }
