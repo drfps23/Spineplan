@@ -1,6 +1,6 @@
 // ============================================================================
 // ACTUALIZACIÓN 3 (implantes.js): TORNILLOS TRANSPEDICULARES Y BARRAS (SAG/AP)
-// Exclusivo para Deformidades: Cinemática Sagital + Corrección y Pronóstico AP
+// Sagital: Solo barra/tornillos (sin modal). Coronal: Modal de Reducción AP.
 // ============================================================================
 
 (function() {
@@ -13,10 +13,10 @@
             btn_rod_sag: "🔩 1. Sagittal Rod (Profile)",
             btn_rod_cor: "🔩 2. Coronal Rods (AP - 2 Sides)",
             btn_rod_end: "✅ Finish Current Rod",
-            btn_rod_panel: "📐 3. Correction & Prognosis",
-            imp_title: "Screws, Rods & Deformity Prognosis",
-            imp_len_lbl: "Rod Length(s):",
-            imp_bend_lbl: "Rod Contour / Bend:",
+            btn_rod_panel: "📐 3. Coronal Correction (AP)",
+            imp_title: "Coronal Reduction & Derotation (AP)",
+            imp_len_lbl: "AP Rod Length(s):",
+            imp_bend_lbl: "AP Alignment:",
             imp_cor_sec: "Coronal Reduction & Derotation Prognosis",
             imp_cor_pct: "Rod Translation & Derotation:",
             imp_cobb_lbl: "Coronal Cobb (Pre → Post):",
@@ -29,10 +29,10 @@
             btn_rod_sag: "🔩 1. Barra Sagital (Perfil)",
             btn_rod_cor: "🔩 2. Barras Coronales (AP - 2 Lados)",
             btn_rod_end: "✅ Terminar Barra Actual",
-            btn_rod_panel: "📐 3. Corrección y Pronóstico",
-            imp_title: "Tornillos, Barras y Pronóstico de Corrección",
-            imp_len_lbl: "Longitud de Barra(s):",
-            imp_bend_lbl: "Moldeado / Curvatura:",
+            btn_rod_panel: "📐 3. Corrección Coronal (AP)",
+            imp_title: "Reducción Coronal y Desrotación (AP)",
+            imp_len_lbl: "Longitud Barra(s) AP:",
+            imp_bend_lbl: "Alineación AP:",
             imp_cor_sec: "Reducción Coronal y Pronóstico de Desrotación",
             imp_cor_pct: "Reducción a la Barra y Desrotación:",
             imp_cobb_lbl: "Cobb Coronal (Base → Logrado):",
@@ -41,7 +41,6 @@
         });
     }
 
-    // 1. INYECTAR MÓDULO 7B EN LA BARRA LATERAL Y EL PANEL FLOTANTE
     const rsHeader = document.querySelector('[data-i18n="mod_7"]');
     if (rsHeader && rsHeader.parentElement) {
         const impCard = document.createElement('div');
@@ -52,7 +51,7 @@
                 <span class="text-[10px] text-gray-400 uppercase tracking-wider block" data-i18n="imp_sub">Sagittal & Coronal (AP) Deformity Construct</span>
                 <button id="btn-rod-sag" onclick="startOrFinishRod('sagittal')" class="tool-btn w-full border border-indigo-600/60 bg-indigo-950/30 rounded px-2 py-2 text-xs text-indigo-300 hover:bg-indigo-900/50 font-bold flex justify-center items-center" data-i18n="btn_rod_sag">🔩 1. Sagittal Rod (Profile)</button>
                 <button id="btn-rod-cor" onclick="startOrFinishRod('coronal')" class="tool-btn w-full border border-purple-600/60 bg-purple-950/30 rounded px-2 py-2 text-xs text-purple-300 hover:bg-purple-900/50 font-bold flex justify-center items-center" data-i18n="btn_rod_cor">🔩 2. Coronal Rods (AP - 2 Sides)</button>
-                <button onclick="showRodPanel()" class="w-full border border-indigo-500 bg-indigo-600/20 rounded px-2 py-2 text-xs font-bold text-indigo-300 hover:bg-indigo-600 hover:text-white transition-colors flex justify-center items-center shadow-lg" data-i18n="btn_rod_panel">📐 3. Correction & Prognosis</button>
+                <button onclick="showRodPanel()" class="w-full border border-purple-500 bg-purple-600/20 rounded px-2 py-2 text-xs font-bold text-purple-300 hover:bg-purple-600 hover:text-white transition-colors flex justify-center items-center shadow-lg" data-i18n="btn_rod_panel">📐 3. Coronal Correction (AP)</button>
             </div>
         `;
         rsHeader.parentElement.parentNode.insertBefore(impCard, rsHeader.parentElement);
@@ -62,20 +61,20 @@
     if (mainContainer) {
         const rodModal = document.createElement('div');
         rodModal.id = "implants-box";
-        rodModal.className = "hidden absolute top-20 left-1/4 bg-gray-900/95 border border-indigo-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md cursor-move select-none w-[350px]";
+        rodModal.className = "hidden absolute top-20 left-1/4 bg-gray-900/95 border border-purple-500 rounded-lg p-4 shadow-2xl z-40 backdrop-blur-md cursor-move select-none w-[350px]";
         rodModal.innerHTML = `
             <div class="flex justify-between items-center mb-2.5 border-b border-gray-700 pb-2 pointer-events-none">
-                <h3 class="text-indigo-400 font-bold text-sm" data-i18n="imp_title">Screws, Rods & Deformity Prognosis</h3>
+                <h3 class="text-purple-400 font-bold text-sm" data-i18n="imp_title">Coronal Reduction & Derotation (AP)</h3>
                 <button onclick="document.getElementById('implants-box').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 rounded px-2 py-0.5 text-xs pointer-events-auto" data-i18n="btn_close">&times; Close</button>
             </div>
             <div id="rod-modal-body" class="pointer-events-auto text-xs text-gray-300 space-y-3 cursor-default">
                 <div class="bg-gray-800/70 border border-gray-700 rounded p-2.5 space-y-1.5">
                     <div class="flex justify-between items-center">
-                        <span class="text-[10px] text-indigo-300 font-bold uppercase">Construct Parameters</span>
+                        <span class="text-[10px] text-purple-300 font-bold uppercase">AP Construct</span>
                         <button onclick="clearAllRods()" class="text-[10px] bg-red-700/80 hover:bg-red-600 text-white px-2 py-0.5 rounded font-bold">🗑️ Clear Rods</button>
                     </div>
-                    <div class="flex justify-between text-[11px]"><span class="text-gray-400" data-i18n="imp_len_lbl">Rod Length(s):</span><span id="imp-len-val" class="font-bold text-white">-</span></div>
-                    <div class="flex justify-between text-[11px]"><span class="text-gray-400" data-i18n="imp_bend_lbl">Rod Contour / Bend:</span><span id="imp-bend-val" class="font-bold text-indigo-300">-</span></div>
+                    <div class="flex justify-between text-[11px]"><span class="text-gray-400" data-i18n="imp_len_lbl">AP Rod Length(s):</span><span id="imp-len-val" class="font-bold text-white">-</span></div>
+                    <div class="flex justify-between text-[11px]"><span class="text-gray-400" data-i18n="imp_bend_lbl">AP Alignment:</span><span id="imp-bend-val" class="font-bold text-purple-300">-</span></div>
                 </div>
                 <div class="bg-gray-800/70 border border-purple-700/60 rounded p-2.5 space-y-2">
                     <span class="text-[10px] text-purple-300 font-bold uppercase tracking-wider block" data-i18n="imp_cor_sec">Coronal Reduction & Derotation Prognosis</span>
@@ -107,7 +106,6 @@
         });
     }
 
-    // 2. CURVA SPLINE DE LA BARRA Y MOTOR DE REDUCCIÓN / DESROTACIÓN CORONAL
     function getSpline(pts) {
         if (!pts || pts.length < 2) return pts || [];
         if (pts.length === 2) return [pts[0], pts[1]];
@@ -117,7 +115,7 @@
             for (let s = 0; s < 14; s++) {
                 let t = s / 14, t2 = t * t, t3 = t2 * t;
                 out.push({
-                    x: 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * t + (2 * p0.y * 0 + 2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3),
+                    x: 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3),
                     y: 0.5 * ((2 * p1.y) + (-p0.y + p2.y) * t + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3)
                 });
             }
@@ -158,7 +156,6 @@
         let alpha = (window.coronalCorrPct || 0) / 100;
         let corRods = measList.filter(m => m.type === 'rod' && m.subType === 'coronal' && m.points && m.points.length >= 2);
 
-        // Si el usuario mueve un tornillo manualmente cuando la reducción está en 0%, actualizar su base
         let activeDragItem = (typeof dragObj !== 'undefined' && dragObj && dragObj.item) ? dragObj.item : null;
         if (activeDragItem && activeDragItem.type === 'rod' && alpha === 0) {
             activeDragItem._corBasePoints = activeDragItem.points.map(p => ({ x: p.x, y: p.y }));
@@ -182,9 +179,9 @@
             });
         });
 
-        // Corrección en vivo de los ángulos de Cobb Coronales y plomada C7
+        // Solo modifica ángulos de Cobb del plano Coronal (cobb_coronal)
         measList.forEach(m => {
-            if ((m.type === 'cobb_coronal' || m.type === 'cobb') && m.points && m.points.length === 4 && corRods.length > 0) {
+            if (m.type === 'cobb_coronal' && m.points && m.points.length === 4 && corRods.length > 0) {
                 if (!m._corBasePoints || alpha === 0) {
                     if (alpha === 0 && m._corBasePoints) m.points = m._corBasePoints.map(p => ({ x: p.x, y: p.y }));
                     m._corBasePoints = m.points.map(p => ({ x: p.x, y: p.y }));
@@ -217,7 +214,6 @@
         });
     }
 
-    // Deformación elástica en vivo de la radiografía AP al reducir la escoliosis hacia las barras
     const prevDrawImage = CanvasRenderingContext2D.prototype.drawImage;
     CanvasRenderingContext2D.prototype.drawImage = function(img, x, y) {
         if (arguments.length === 3 && x === 0 && y === 0 && img === bgImage && this === ctx && window.coronalCorrPct > 0) {
@@ -235,7 +231,6 @@
         return prevDrawImage.apply(this, arguments);
     };
 
-    // 3. DIBUJAR TORNILLOS Y BARRAS (SAGITAL Y CORONAL)
     function computeRodStats(rod, cmVal) {
         if (!rod || !rod.points || rod.points.length < 2) return null;
         let sp = getSpline(rod.points.slice().sort((a, b) => b.y - a.y));
@@ -283,7 +278,6 @@
 
             rod.points.forEach(pt => {
                 if (isCor) {
-                    // Vista coaxial del tornillo sobre el pedículo con rotación progresiva hacia la línea media
                     let rOut = 7.2 / sc, rIn = 3.2 / sc;
                     targetCtx.beginPath(); targetCtx.arc(pt.x, pt.y, rOut, 0, 2 * Math.PI);
                     targetCtx.fillStyle = 'rgba(15,23,42,0.85)'; targetCtx.fill();
@@ -311,7 +305,6 @@
             targetCtx.restore();
         });
 
-        // Dibujar conectores transversales (Cross-links) sutiles si están las 2 barras coronales puestas
         if (corRods.length >= 2) {
             let r1 = corRods[0].points.slice().sort((a, b) => a.y - b.y);
             let r2 = corRods[1].points.slice().sort((a, b) => a.y - b.y);
@@ -330,14 +323,17 @@
         }
     }
 
-    // 4. GESTIÓN DE PANEL Y PRONÓSTICO CORONAL / DESROTACIÓN
     window.startOrFinishRod = function(planeMode) {
         if (activeTool === 'rod' && currentMeasurement && currentMeasurement.type === 'rod') {
             if (currentMeasurement.points.length >= 2) {
+                let finishedMode = currentMeasurement.subType;
                 currentMeasurement.closed = true; delete currentMeasurement.tempPoint;
                 currentMeasurement._basePoints = currentMeasurement.points.map(p => ({ x: p.x, y: p.y }));
                 currentMeasurement._corBasePoints = currentMeasurement.points.map(p => ({ x: p.x, y: p.y }));
-                deactivateTool(); updateRodBtns(null); draw(); showRodPanel(); return;
+                deactivateTool(); updateRodBtns(null); draw();
+                // SOLO abrir el cuadro si la barra trazada es CORONAL (AP)
+                if (finishedMode === 'coronal') showRodPanel();
+                return;
             }
         }
         activateTool('rod', planeMode === 'coronal' ? 'AP Rod' : 'Sag Rod', planeMode);
@@ -364,15 +360,16 @@
     };
 
     window.populateRodPanel = function() {
-        let rods = measurements.filter(m => m.type === 'rod' && m.points && m.points.length >= 2);
-        document.getElementById('imp-len-val').innerText = rods.length
-            ? rods.map(r => { let s = computeRodStats(r, window.cmPerPx); return `${r.title}: ${fmtInt(s.len)}${s.unit}`; }).join(' | ')
+        let corRods = measurements.filter(m => m.type === 'rod' && m.subType === 'coronal' && m.points && m.points.length >= 2);
+        document.getElementById('imp-len-val').innerText = corRods.length
+            ? corRods.map(r => { let s = computeRodStats(r, window.cmPerPx); return `${r.title}: ${fmtInt(s.len)}${s.unit}`; }).join(' | ')
             : '-';
-        document.getElementById('imp-bend-val').innerText = rods.length
-            ? rods.map(r => `${r.title}: ${computeRodStats(r, window.cmPerPx).bend}°`).join(' | ')
+        document.getElementById('imp-bend-val').innerText = corRods.length
+            ? corRods.map(r => `${r.title}: ${computeRodStats(r, window.cmPerPx).bend}°`).join(' | ')
             : '-';
 
-        let cobbMeas = measurements.find(m => (m.type === 'cobb_coronal' || m.type === 'cobb') && m.points && m.points.length === 4);
+        // Solo lee el Cobb Coronal (cobb_coronal)
+        let cobbMeas = measurements.find(m => m.type === 'cobb_coronal' && m.points && m.points.length === 4);
         if (cobbMeas) {
             let bp = cobbMeas._corBasePoints || cobbMeas.points;
             let ba1 = Math.atan2(bp[1].y - bp[0].y, bp[1].x - bp[0].x), ba2 = Math.atan2(bp[3].y - bp[2].y, bp[3].x - bp[2].x);
@@ -383,13 +380,12 @@
             let curCobb = Math.abs((ca1 - ca2) * 180 / Math.PI); if (curCobb > 90) curCobb = 180 - curCobb;
 
             let corrPct = baseCobb > 0.5 ? Math.round(((baseCobb - curCobb) / baseCobb) * 100) : 0;
-            // Estimación biomecánica de desrotación vertebral apical acoplada a la reducción por translación
             let derotDeg = Math.round((baseCobb * 0.35) * (window.coronalCorrPct / 100));
 
             document.getElementById('imp-cobb-val').innerText = `${fmtInt(baseCobb)}° → ${fmtInt(curCobb)}°`;
             document.getElementById('imp-gain-val').innerText = `${corrPct}% | Derot: ~${derotDeg}°`;
         } else {
-            document.getElementById('imp-cobb-val').innerText = 'Measure Cobb';
+            document.getElementById('imp-cobb-val').innerText = 'Measure Coronal Cobb';
             document.getElementById('imp-gain-val').innerText = '-';
         }
 
@@ -471,10 +467,13 @@
             } else {
                 let last = currentMeasurement.points[currentMeasurement.points.length - 1];
                 if (currentMeasurement.points.length >= 2 && Math.hypot(clickIntent.logX - last.x, clickIntent.logY - last.y) < 18 / (baseScale * zoomScale)) {
+                    let finishedMode = currentMeasurement.subType;
                     currentMeasurement.closed = true; delete currentMeasurement.tempPoint;
                     currentMeasurement._basePoints = currentMeasurement.points.map(p => ({ x: p.x, y: p.y }));
                     currentMeasurement._corBasePoints = currentMeasurement.points.map(p => ({ x: p.x, y: p.y }));
-                    deactivateTool(); updateRodBtns(null); draw(); showRodPanel();
+                    deactivateTool(); updateRodBtns(null); draw();
+                    // SOLO abre el modal si se terminó una barra CORONAL (AP)
+                    if (finishedMode === 'coronal') showRodPanel();
                 } else {
                     currentMeasurement.points.push({ x: clickIntent.logX, y: clickIntent.logY });
                     currentMeasurement._basePoints = currentMeasurement.points.map(p => ({ x: p.x, y: p.y }));
