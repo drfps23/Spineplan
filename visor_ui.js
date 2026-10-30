@@ -1,6 +1,6 @@
 // ============================================================================
-// ACTUALIZACIÓN 1 (visor_ui.js): BARRA DE ICONOS + BRILLO/CONTRASTE/NEGATIVO + LUPA
-// Se conecta sin alterar index.html ni osteotomia.js
+// ACTUALIZACIÓN 1 V2 (visor_ui.js): ICONOS + MOTOR DE PÍXELES (MÓVIL/PC) + LUPA
+// Compatible 100% con iPhone (iOS), iPad, Android y PC mediante procesamiento LUT
 // ============================================================================
 
 (function() {
@@ -9,9 +9,14 @@
         post: { brightness: 100, contrast: 100, invert: false }
     };
     window.loupeActive = false;
-    let lastPointerLogical = null;
 
-    // 1. CONVERTIR BOTONES DEL HEADER A ICONOS MINIMALISTAS (SIN ROMPER EVENTOS)
+    // Caché de imágenes procesadas píxel por píxel para máxima fluidez en celulares
+    const filterCache = {
+        pre: { src: null, key: '', canvas: null },
+        post: { src: null, key: '', canvas: null }
+    };
+
+    // 1. ICONOS MINIMALISTAS EN LA BARRA SUPERIOR
     function applyMinimalistHeaderIcons() {
         const btnPatient = document.querySelector('button[onclick="openPatientModal()"]');
         if (btnPatient) {
@@ -24,11 +29,10 @@
         const btnGaze = document.getElementById('gaze-btn');
         if (btnGaze) {
             btnGaze.innerHTML = gazeDirection === 1 ? '➡️' : '⬅️';
-            btnGaze.title = currentLang === 'es' ? ' Dirección de la Mirada' : 'Gaze Direction';
+            btnGaze.title = currentLang === 'es' ? 'Dirección de la Mirada' : 'Gaze Direction';
             btnGaze.className = "bg-gray-800 hover:bg-gray-700 text-emerald-400 border border-emerald-600/50 px-2.5 py-1.5 rounded text-sm font-bold transition-colors flex items-center justify-center shadow-sm";
         }
 
-        // Conservar intacto el <input id="imageLoader"> dentro del label
         const imgInput = document.getElementById('imageLoader');
         if (imgInput && imgInput.parentElement && imgInput.parentElement.tagName === 'LABEL') {
             const lbl = imgInput.parentElement;
@@ -66,7 +70,6 @@
             btnReset.className = "bg-red-700/80 hover:bg-red-600 text-white px-2.5 py-1.5 rounded text-sm font-bold transition-colors border border-red-500 flex items-center justify-center shadow-sm";
         }
 
-        // Insertar botones de Ajuste Radiológico (🔆) y Lupa (🔍) si aún no existen
         if (btnSave && !document.getElementById('btn-rx-adjust')) {
             const btnRx = document.createElement('button');
             btnRx.id = 'btn-rx-adjust';
@@ -86,7 +89,7 @@
         }
     }
 
-    // 2. CREAR PANEL FLOTANTE DE CONTROL RADIOLÓGICO Y LENTE DE LUPA
+    // 2. PANEL FLOTANTE CON SOPORTE TÁCTIL DIRECTO PARA MÓVILES Y TABLETS
     const mainContainer = document.getElementById('canvas-container');
     if (mainContainer) {
         const rxPanel = document.createElement('div');
@@ -100,11 +103,11 @@
             <div id="rx-controls-body" class="space-y-2.5 text-xs text-gray-200 cursor-default">
                 <div>
                     <div class="flex justify-between mb-0.5"><span id="lbl-rx-bright" class="text-[11px] text-gray-400 font-semibold">Brillo</span><span id="val-rx-bright" class="text-[11px] font-bold text-amber-300">100%</span></div>
-                    <input type="range" id="sl-rx-bright" min="40" max="220" value="100" class="w-full accent-amber-500 cursor-pointer">
+                    <input type="range" id="sl-rx-bright" min="30" max="220" value="100" class="w-full accent-amber-500 cursor-pointer">
                 </div>
                 <div>
                     <div class="flex justify-between mb-0.5"><span id="lbl-rx-contrast" class="text-[11px] text-gray-400 font-semibold">Contraste</span><span id="val-rx-contrast" class="text-[11px] font-bold text-amber-300">100%</span></div>
-                    <input type="range" id="sl-rx-contrast" min="40" max="260" value="100" class="w-full accent-amber-500 cursor-pointer">
+                    <input type="range" id="sl-rx-contrast" min="30" max="260" value="100" class="w-full accent-amber-500 cursor-pointer">
                 </div>
                 <div class="flex gap-1.5 pt-1">
                     <button id="btn-rx-invert" onclick="toggleRxInvert()" class="flex-1 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white py-1.5 rounded text-[11px] font-bold transition-colors">🌓 Modo Negativo</button>
@@ -118,24 +121,28 @@
         const bodyWrap = document.getElementById('rx-controls-body');
         const slBright = document.getElementById('sl-rx-bright');
         const slContrast = document.getElementById('sl-rx-contrast');
-        ['mousedown', 'touchstart', 'pointerdown'].forEach(evt => {
-            bodyWrap.addEventListener(evt, e => e.stopPropagation());
-            slBright.addEventListener(evt, e => e.stopPropagation());
-            slContrast.addEventListener(evt, e => e.stopPropagation());
+        ['mousedown', 'touchstart', 'touchmove', 'pointerdown'].forEach(evt => {
+            bodyWrap.addEventListener(evt, e => e.stopPropagation(), { passive: true });
+            slBright.addEventListener(evt, e => e.stopPropagation(), { passive: true });
+            slContrast.addEventListener(evt, e => e.stopPropagation(), { passive: true });
         });
 
-        slBright.addEventListener('input', function() {
+        const onBrightChange = function() {
             window.rxFilters[currentStage].brightness = Number(this.value);
             document.getElementById('val-rx-bright').innerText = this.value + '%';
             draw(); if (isCompareMode) drawCompareCanvases();
-        });
-        slContrast.addEventListener('input', function() {
+        };
+        const onContrastChange = function() {
             window.rxFilters[currentStage].contrast = Number(this.value);
             document.getElementById('val-rx-contrast').innerText = this.value + '%';
             draw(); if (isCompareMode) drawCompareCanvases();
-        });
+        };
 
-        // Canvas circular para la Lupa de Precisión
+        slBright.addEventListener('input', onBrightChange);
+        slBright.addEventListener('change', onBrightChange);
+        slContrast.addEventListener('input', onContrastChange);
+        slContrast.addEventListener('change', onContrastChange);
+
         const loupeCanvas = document.createElement('canvas');
         loupeCanvas.id = 'loupe-canvas';
         loupeCanvas.width = 150;
@@ -197,30 +204,72 @@
         if (lc && !window.loupeActive) lc.classList.add('hidden');
     };
 
-    // 3. APLICAR FILTRO EXCLUSIVAMENTE A LA RADIOGRAFÍA (SIN AFECTAR TRAZOS NI TEXTO)
-    function getFilterStringForImage(img) {
+    // 3. MOTOR DE PÍXELES UNIVERSAL (LUT) PARA IPHONE, IPAD, ANDROID Y PC
+    const nativeDrawImage = CanvasRenderingContext2D.prototype.drawImage;
+
+    function getFilteredRxCanvas(img) {
         let stKey = currentStage;
         if (stageData.pre && img === stageData.pre.bgImage) stKey = 'pre';
         else if (stageData.post && img === stageData.post.bgImage) stKey = 'post';
-        let f = window.rxFilters[stKey] || { brightness: 100, contrast: 100, invert: false };
-        if (f.brightness === 100 && f.contrast === 100 && !f.invert) return 'none';
-        return `brightness(${f.brightness}%) contrast(${f.contrast}%) invert(${f.invert ? 100 : 0}%)`;
+
+        const f = window.rxFilters[stKey] || { brightness: 100, contrast: 100, invert: false };
+        if (f.brightness === 100 && f.contrast === 100 && !f.invert) return img;
+
+        const key = `${f.brightness}_${f.contrast}_${f.invert ? 1 : 0}`;
+        const cache = filterCache[stKey];
+        if (cache.src === img && cache.key === key && cache.canvas) {
+            return cache.canvas;
+        }
+
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        if (!w || !h) return img;
+
+        if (!cache.canvas) cache.canvas = document.createElement('canvas');
+        cache.canvas.width = w;
+        cache.canvas.height = h;
+        const cCtx = cache.canvas.getContext('2d');
+        nativeDrawImage.call(cCtx, img, 0, 0, w, h);
+
+        const imgData = cCtx.getImageData(0, 0, w, h);
+        const data = imgData.data;
+
+        // Tabla precalculada de 256 niveles (ejecución instantánea en móviles)
+        const lut = new Uint8Array(256);
+        const bFactor = f.brightness / 100;
+        const cFactor = f.contrast / 100;
+
+        for (let i = 0; i < 256; i++) {
+            let v = i * bFactor;
+            v = (v - 128) * cFactor + 128;
+            if (f.invert) v = 255 - v;
+            lut[i] = v < 0 ? 0 : (v > 255 ? 255 : Math.round(v));
+        }
+
+        for (let p = 0, len = data.length; p < len; p += 4) {
+            data[p]     = lut[data[p]];
+            data[p + 1] = lut[data[p + 1]];
+            data[p + 2] = lut[data[p + 2]];
+        }
+
+        cCtx.putImageData(imgData, 0, 0);
+        cache.src = img;
+        cache.key = key;
+        return cache.canvas;
     }
 
-    const prevDrawImage = CanvasRenderingContext2D.prototype.drawImage;
     CanvasRenderingContext2D.prototype.drawImage = function(img) {
         let isRx = (img === bgImage) || (stageData.pre && img === stageData.pre.bgImage) || (stageData.post && img === stageData.post.bgImage);
-        if (isRx) {
-            let prevFilter = this.filter || 'none';
-            this.filter = getFilterStringForImage(img);
-            let res = prevDrawImage.apply(this, arguments);
-            this.filter = prevFilter;
-            return res;
+        if (isRx && img) {
+            const processedImg = getFilteredRxCanvas(img);
+            const args = Array.prototype.slice.call(arguments);
+            args[0] = processedImg;
+            return nativeDrawImage.apply(this, args);
         }
-        return prevDrawImage.apply(this, arguments);
+        return nativeDrawImage.apply(this, arguments);
     };
 
-    // 4. RENDERIZAR LUPA DE PRECISIÓN EN TIEMPO REAL
+    // 4. LUPA DE PRECISIÓN
     function renderLoupe(clientX, clientY) {
         const lc = document.getElementById('loupe-canvas');
         if (!lc || !window.loupeActive || !bgImage || isCompareMode) {
@@ -244,9 +293,8 @@
         lCtx.clearRect(0, 0, lc.width, lc.height);
         lCtx.fillStyle = '#020617';
         lCtx.fillRect(0, 0, lc.width, lc.height);
-        lCtx.drawImage(canvas, cx - srcW / 2, cy - srcH / 2, srcW, srcH, 0, 0, lc.width, lc.height);
+        nativeDrawImage.call(lCtx, canvas, cx - srcW / 2, cy - srcH / 2, srcW, srcH, 0, 0, lc.width, lc.height);
 
-        // Mirilla quirúrgica central
         lCtx.strokeStyle = 'rgba(56, 189, 248, 0.85)';
         lCtx.lineWidth = 1;
         lCtx.beginPath();
@@ -260,7 +308,6 @@
     }
 
     canvas.addEventListener('mousemove', function(e) {
-        lastPointerLogical = { x: e.clientX, y: e.clientY };
         if (window.loupeActive) renderLoupe(e.clientX, e.clientY);
     });
     canvas.addEventListener('touchmove', function(e) {
@@ -273,33 +320,20 @@
         if (lc) lc.classList.add('hidden');
     });
 
-    // 5. MANTENER ICONOS AL CAMBIAR IDIOMA, MIRADA O ETAPA
     const prevSetLang = setLanguage;
-    setLanguage = function(lang) {
-        prevSetLang(lang);
-        applyMinimalistHeaderIcons();
-        syncRxPanelUI();
-    };
-
+    setLanguage = function(lang) { prevSetLang(lang); applyMinimalistHeaderIcons(); syncRxPanelUI(); };
     const prevToggleGaze = toggleGaze;
-    toggleGaze = function() {
-        prevToggleGaze();
-        applyMinimalistHeaderIcons();
-    };
-
+    toggleGaze = function() { prevToggleGaze(); applyMinimalistHeaderIcons(); };
     const prevSwitchStage = switchStage;
-    switchStage = function(st) {
-        prevSwitchStage(st);
-        syncRxPanelUI();
-        applyMinimalistHeaderIcons();
-    };
-
+    switchStage = function(st) { prevSwitchStage(st); syncRxPanelUI(); applyMinimalistHeaderIcons(); };
     const prevResetAll = resetAllStudy;
     resetAllStudy = function(s) {
         window.rxFilters = {
             pre: { brightness: 100, contrast: 100, invert: false },
             post: { brightness: 100, contrast: 100, invert: false }
         };
+        filterCache.pre = { src: null, key: '', canvas: null };
+        filterCache.post = { src: null, key: '', canvas: null };
         prevResetAll(s);
         syncRxPanelUI();
         applyMinimalistHeaderIcons();
