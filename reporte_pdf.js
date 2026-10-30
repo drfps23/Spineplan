@@ -1,6 +1,6 @@
 // ============================================================================
-// ACTUALIZACIÓN 4 (reporte_pdf.js): GENERADOR DE REPORTE QUIRÚRGICO EN PDF
-// Hoja formal tamaño Carta para Historia Clínica y Seguros Médicos (ARS)
+// ACTUALIZACIÓN 4 V2 (reporte_pdf.js): GENERADOR DE REPORTE QUIRÚRGICO EN PDF
+// Márgenes de encabezado médico y firma ajustados hacia el interior de la hoja
 // ============================================================================
 
 (function() {
@@ -150,12 +150,13 @@
         win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
         <title>SpinePlan_Report_${patName.replace(/\s+/g, '_')}</title>
         <style>
-            @page { size: letter portrait; margin: 10mm; }
-            body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; margin: 0; padding: 0; font-size: 11px; }
-            .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 10px; }
+            @page { size: letter portrait; margin: 12mm 14mm; }
+            body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; margin: 0; padding: 0 10px; font-size: 11px; }
+            .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding: 0 50px 8px 10px; margin-bottom: 10px; }
             .brand { font-size: 18px; font-weight: 800; color: #0284c7; letter-spacing: 0.5px; }
             .sub { font-size: 10px; color: #475569; font-weight: 600; text-transform: uppercase; }
-            .pat-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; margin-bottom: 10px; font-size: 11px; }
+            .doc-info { text-align: right; margin-right: 25px; }
+            .pat-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 12px; margin-bottom: 10px; font-size: 11px; }
             .grid-main { display: grid; grid-template-columns: 54% 44%; gap: 2%; align-items: start; }
             .img-box { background: #020617; border-radius: 6px; padding: 6px; text-align: center; border: 1px solid #334155; }
             .img-box img { max-width: 100%; max-height: 430px; object-fit: contain; }
@@ -165,8 +166,8 @@
             tr:nth-child(even) { background: #f8fafc; }
             .box-sec { border: 1px solid #cbd5e1; border-radius: 6px; padding: 7px 9px; margin-bottom: 8px; background: #fff; }
             .box-title { font-weight: 700; font-size: 10px; text-transform: uppercase; color: #0284c7; margin-bottom: 4px; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px; }
-            .sig-row { margin-top: 22px; display: flex; justify-content: space-between; align-items: flex-end; padding-top: 10px; }
-            .sig-line { width: 220px; border-top: 1.5px solid #0f172a; text-align: center; padding-top: 4px; font-weight: 700; }
+            .sig-row { margin-top: 26px; display: flex; justify-content: space-between; align-items: flex-end; padding: 12px 75px 0 15px; }
+            .sig-line { width: 230px; border-top: 1.5px solid #0f172a; text-align: center; padding-top: 5px; font-weight: 700; }
             .no-print { text-align: center; padding: 10px; background: #0f172a; margin-bottom: 12px; border-radius: 6px; }
             .btn-p { background: #10b981; color: #fff; border: none; padding: 8px 18px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; }
             @media print { .no-print { display: none !important; } }
@@ -179,7 +180,7 @@
                     <div class="brand">SpinePlan Pro</div>
                     <div class="sub">${isEs ? 'Reporte de Planificación Quirúrgica y Balance Espinopélvico' : 'Surgical Planning & Spinopelvic Alignment Report'}</div>
                 </div>
-                <div style="text-align:right">
+                <div class="doc-info">
                     <div style="font-weight:700;font-size:12px">${surgeon || (isEs ? 'Cirugía de Columna Vertebral' : 'Spine Surgery Department')}</div>
                     <div style="color:#475569">${clinic || ''}</div>
                     <div style="color:#64748b;font-size:10px">${dateStr}</div>
