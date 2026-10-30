@@ -1,6 +1,6 @@
 // ============================================================================
-// ACTUALIZACIÓN 4 V2 (reporte_pdf.js): GENERADOR DE REPORTE QUIRÚRGICO EN PDF
-// Márgenes de encabezado médico y firma ajustados hacia el interior de la hoja
+// ACTUALIZACIÓN 4 V3 (reporte_pdf.js): GENERADOR DE REPORTE QUIRÚRGICO EN PDF
+// Lectura directa y sincronizada de los datos del paciente (Nombre, ID, Edad)
 // ============================================================================
 
 (function() {
@@ -8,6 +8,7 @@
         Object.assign(I18N.en, {
             pdf_btn_hdr: "📄 Surgical Report (PDF)",
             pdf_modal_title: "📄 Generate Surgical Planning Report (PDF)",
+            pdf_pat_sec: "Patient Data (Synced with 👤):",
             pdf_doc_lbl: "Surgeon Name & Specialty:",
             pdf_cli_lbl: "Medical Center / Institution:",
             pdf_not_lbl: "Surgical Plan & Clinical Notes (ARS / Chart):",
@@ -16,6 +17,7 @@
         Object.assign(I18N.es, {
             pdf_btn_hdr: "📄 Reporte Quirúrgico (PDF)",
             pdf_modal_title: "📄 Generar Reporte de Planificación Quirúrgica (PDF)",
+            pdf_pat_sec: "Datos del Paciente (Sincronizados con 👤):",
             pdf_doc_lbl: "Nombre del Cirujano / Especialidad:",
             pdf_cli_lbl: "Centro Médico / Institución:",
             pdf_not_lbl: "Plan Quirúrgico y Notas Clínicas (Historia / ARS):",
@@ -23,7 +25,76 @@
         });
     }
 
-    // 1. AGREGAR BOTÓN 📄 EN LA BARRA SUPERIOR Y DENTRO DEL MODAL DE GUARDADO
+    // 1. EXTRACTOR INTELIGENTE DE LOS DATOS DEL PACIENTE DESDE EL MODAL 👤
+    function extractPatientDataFromApp() {
+        let name = '', id = '', age = '';
+
+        // A. Buscar en variables globales si existen
+        if (typeof patientData === 'object' && patientData !== null) {
+            name = patientData.name || patientData.nombre || '';
+            id   = patientData.id || patientData.dni || patientData.cedula || patientData.hc || '';
+            age  = patientData.age || patientData.edad || '';
+        }
+
+        // B. Buscar por IDs directos de inputs o textos en el DOM
+        const tryVal = (ids) => {
+            for (let i of ids) {
+                const el = document.getElementById(i);
+                if (el) {
+                    const v = (el.value !== undefined ? el.value : el.innerText || '').trim();
+                    if (v && v !== '-' && v !== 'N/A') return v;
+                }
+            }
+            return '';
+        };
+
+        if (!name) name = tryVal(['pat-name', 'patient-name', 'p-name', 'inp-pat-name', 'display-name', 'patName']);
+        if (!id)   id   = tryVal(['pat-id', 'patient-id', 'p-id', 'pat-dni', 'pat-cedula', 'pat-hc', 'display-id', 'patId']);
+        if (!age)  age  = tryVal(['pat-age', 'patient-age', 'p-age', 'inp-pat-age', 'display-age', 'patAge']);
+
+        // C. Buscar directamente todos los inputs dentro de #patient-modal (por si tienen otros IDs)
+        const patModal = document.getElementById('patient-modal') || document.querySelector('[id*="patient"]');
+        if (patModal) {
+            const inputs = Array.from(patModal.querySelectorAll('input, select'));
+            inputs.forEach(inp => {
+                const val = (inp.value || '').trim();
+                if (!val) return;
+                const hint = ((inp.id || '') + ' ' + (inp.name || '') + ' ' + (inp.placeholder || '') + ' ' + (inp.previousElementSibling?.innerText || '')).toLowerCase();
+                if (!name && /name|nombre|pacient/i.test(hint)) name = val;
+                else if (!id && /id|cédula|cedula|dni|hc|hist|doc|exped/i.test(hint)) id = val;
+                else if (!age && /age|edad|año|yr/i.test(hint)) age = val;
+            });
+            // Si aún falta alguno y hay exactamente 2 o 3 inputs con texto en el modal del paciente, tomarlos en orden
+            if (!name && !id && !age && inputs.length >= 2) {
+                if (inputs[0]?.value) name = inputs[0].value.trim();
+                if (inputs[1]?.value) id   = inputs[1].value.trim();
+                if (inputs[2]?.value) age  = inputs[2].value.trim();
+            }
+        }
+
+        return { name, id, age };
+    }
+
+    // Sincronizar de vuelta hacia los inputs del modal 👤 si el usuario los edita en el modal PDF
+    function syncPatientDataBackToApp(name, id, age) {
+        const setIfFound = (ids, val) => {
+            ids.forEach(i => {
+                const el = document.getElementById(i);
+                if (el) {
+                    if (el.value !== undefined) el.value = val;
+                    else el.innerText = val || '-';
+                }
+            });
+        };
+        setIfFound(['pat-name', 'patient-name', 'p-name', 'display-name'], name);
+        setIfFound(['pat-id', 'patient-id', 'p-id', 'pat-dni', 'pat-cedula', 'display-id'], id);
+        setIfFound(['pat-age', 'patient-age', 'p-age', 'display-age'], age);
+        if (typeof savePatientData === 'function') {
+            try { savePatientData(); } catch (e) {}
+        }
+    }
+
+    // 2. AGREGAR BOTÓN 📄 EN LA BARRA SUPERIOR Y DENTRO DEL MODAL DE GUARDADO
     function injectPdfButtons() {
         const btnSave = document.querySelector('button[onclick="openSaveModal()"]');
         if (btnSave && !document.getElementById('btn-top-pdf')) {
@@ -50,18 +121,26 @@
         }
     }
 
-    // 2. CREAR MODAL DE CONFIGURACIÓN DEL REPORTE CLÍNICO
+    // 3. CREAR MODAL DE CONFIGURACIÓN DEL REPORTE CLÍNICO (CON PREVISUALIZACIÓN DE PACIENTE)
     const mainContainer = document.getElementById('canvas-container') || document.body;
     const pdfModal = document.createElement('div');
     pdfModal.id = 'pdf-report-modal';
     pdfModal.className = 'hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm';
     pdfModal.innerHTML = `
-        <div class="bg-gray-900 border border-emerald-500 rounded-xl max-w-md w-full p-5 shadow-2xl space-y-3.5 text-xs text-gray-200">
+        <div class="bg-gray-900 border border-emerald-500 rounded-xl max-w-md w-full p-5 shadow-2xl space-y-3 text-xs text-gray-200">
             <div class="flex justify-between items-center border-b border-gray-700 pb-2.5">
                 <h3 class="text-emerald-400 font-bold text-sm" data-i18n="pdf_modal_title">📄 Generar Reporte de Planificación Quirúrgica (PDF)</h3>
                 <button onclick="document.getElementById('pdf-report-modal').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 px-2 py-0.5 rounded">&times;</button>
             </div>
             <div class="space-y-2.5">
+                <div class="bg-gray-800/60 border border-gray-700 rounded-lg p-2.5">
+                    <label class="block text-[10px] text-emerald-400 font-bold uppercase mb-1.5" data-i18n="pdf_pat_sec">Datos del Paciente (Sincronizados con 👤):</label>
+                    <div class="grid grid-cols-12 gap-1.5">
+                        <input type="text" id="pdf-pat-name" placeholder="Nombre del Paciente" class="col-span-6 bg-gray-900 border border-gray-600 rounded px-2 py-1 text-white focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="pdf-pat-id" placeholder="ID / Cédula" class="col-span-4 bg-gray-900 border border-gray-600 rounded px-2 py-1 text-white focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="pdf-pat-age" placeholder="Edad" class="col-span-2 bg-gray-900 border border-gray-600 rounded px-1.5 py-1 text-center text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
                 <div>
                     <label class="block text-[11px] text-gray-400 font-bold mb-1" data-i18n="pdf_doc_lbl">Nombre del Cirujano / Especialidad:</label>
                     <input type="text" id="pdf-surgeon-name" placeholder="Dr. ... - Cirujano de Columna" class="w-full bg-gray-800 border border-gray-600 rounded px-2.5 py-1.5 text-white focus:outline-none focus:border-emerald-500">
@@ -85,12 +164,17 @@
             updateStatus("⚠️ Load and measure an X-Ray first.", true);
             return;
         }
+        const pInfo = extractPatientDataFromApp();
+        document.getElementById('pdf-pat-name').value = pInfo.name || '';
+        document.getElementById('pdf-pat-id').value   = pInfo.id || '';
+        document.getElementById('pdf-pat-age').value  = pInfo.age || '';
+
         document.getElementById('pdf-surgeon-name').value = localStorage.getItem('sp_surgeon') || '';
-        document.getElementById('pdf-clinic-name').value = localStorage.getItem('sp_clinic') || '';
+        document.getElementById('pdf-clinic-name').value  = localStorage.getItem('sp_clinic') || '';
         document.getElementById('pdf-report-modal').classList.remove('hidden');
     };
 
-    // 3. CAPTURAR IMAGEN LIMPIA DE CADA ETAPA Y COMPILAR EL DOCUMENTO FORMAL
+    // 4. CAPTURAR IMAGEN LIMPIA DE CADA ETAPA Y COMPILAR EL DOCUMENTO FORMAL
     function captureStageDataURL(stKey) {
         let sData = (stKey === currentStage)
             ? { bgImage, measurements, gazeDirection, cmPerPx: window.cmPerPx, ostSimActive: window.ostSimActive }
@@ -105,20 +189,21 @@
     }
 
     window.generatePrintableSurgicalPDF = function() {
+        const patName = document.getElementById('pdf-pat-name').value.trim() || '-';
+        const patId   = document.getElementById('pdf-pat-id').value.trim()   || '-';
+        const patAge  = document.getElementById('pdf-pat-age').value.trim()  || '-';
+        syncPatientDataBackToApp(patName === '-' ? '' : patName, patId === '-' ? '' : patId, patAge === '-' ? '' : patAge);
+
         const surgeon = document.getElementById('pdf-surgeon-name').value.trim();
-        const clinic = document.getElementById('pdf-clinic-name').value.trim();
-        const notes = document.getElementById('pdf-surg-notes').value.trim();
+        const clinic  = document.getElementById('pdf-clinic-name').value.trim();
+        const notes   = document.getElementById('pdf-surg-notes').value.trim();
         localStorage.setItem('sp_surgeon', surgeon);
         localStorage.setItem('sp_clinic', clinic);
         document.getElementById('pdf-report-modal').classList.add('hidden');
 
         const isEs = (currentLang === 'es');
-        const patName = document.getElementById('display-name')?.innerText || '-';
-        const patId = document.getElementById('display-id')?.innerText || '-';
-        const patAge = document.getElementById('display-age')?.innerText || '-';
         const dateStr = new Date().toLocaleDateString(isEs ? 'es-DO' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
-        // Resultados Base vs Ideal vs Logrado
         const baseRes = (window.ostSimActive && window._preOstBaseResults) ? window._preOstBaseResults : (stageData.pre.results && Object.keys(stageData.pre.results).length ? stageData.pre.results : window.currentResults);
         const postRes = stageData.post.bgImage ? stageData.post.results : window.currentResults;
         const pi = baseRes['PI'] !== undefined ? baseRes['PI'] : postRes['PI'];
@@ -127,7 +212,6 @@
         const idealGT = pi !== undefined ? Math.round(pi * 0.48 - 15) + '°' : '-';
         const fv = (obj, k, u = '°') => (obj && obj[k] !== undefined) ? `${fmtInt(obj[k])}${u}` : '-';
 
-        // Resumen de Osteotomías y Barras
         const osts = measurements.filter(m => m.type === 'osteotomy' && m.points && m.points.length === 3);
         const totalOstDeg = osts.reduce((acc, o) => acc + (typeof computeOsteotomyGeometry === 'function' ? Math.round(computeOsteotomyGeometry(o, true).deg) : 0), 0);
         const ostSummary = osts.length > 0
@@ -156,7 +240,7 @@
             .brand { font-size: 18px; font-weight: 800; color: #0284c7; letter-spacing: 0.5px; }
             .sub { font-size: 10px; color: #475569; font-weight: 600; text-transform: uppercase; }
             .doc-info { text-align: right; margin-right: 25px; }
-            .pat-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 12px; margin-bottom: 10px; font-size: 11px; }
+            .pat-bar { display: grid; grid-template-columns: 1.6fr 1.2fr 0.8fr 1fr; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 12px; margin-bottom: 10px; font-size: 11px; }
             .grid-main { display: grid; grid-template-columns: 54% 44%; gap: 2%; align-items: start; }
             .img-box { background: #020617; border-radius: 6px; padding: 6px; text-align: center; border: 1px solid #334155; }
             .img-box img { max-width: 100%; max-height: 430px; object-fit: contain; }
