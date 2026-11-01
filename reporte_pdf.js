@@ -1,9 +1,11 @@
 // ============================================================================
-// ACTUALIZACIÓN 4 V3 (reporte_pdf.js): GENERADOR DE REPORTE QUIRÚRGICO EN PDF
-// Lectura directa y sincronizada de los datos del paciente (Nombre, ID, Edad)
+// ACTUALIZACIÓN 4 V4 (reporte_pdf.js): GENERADOR DE REPORTE QUIRÚRGICO EN PDF
+// Captura en tiempo real de la Ficha del Paciente (Nombre, Cédula/ID y Edad)
 // ============================================================================
 
 (function() {
+    window._spPatientCache = { name: '', id: '', age: '' };
+
     if (typeof I18N !== 'undefined') {
         Object.assign(I18N.en, {
             pdf_btn_hdr: "📄 Surgical Report (PDF)",
@@ -25,74 +27,149 @@
         });
     }
 
-    // 1. EXTRACTOR INTELIGENTE DE LOS DATOS DEL PACIENTE DESDE EL MODAL 👤
-    function extractPatientDataFromApp() {
-        let name = '', id = '', age = '';
+    // 1. LOCALIZAR EL MODAL DEL PACIENTE Y EXTRAER SUS CASILLAS CON PRECISIÓN
+    function getPatientModalElement() {
+        // Intentar obtener el ID exacto leyendo la función openPatientModal de index.html
+        if (typeof openPatientModal === 'function') {
+            const fnStr = openPatientModal.toString();
+            const match = fnStr.match(/getElementById\(['"]([^'"]+)['"]\)/);
+            if (match && match[1]) {
+                const el = document.getElementById(match[1]);
+                if (el) return el;
+            }
+        }
+        return document.getElementById('patient-modal') ||
+               document.getElementById('pat-modal') ||
+               document.getElementById('modal-patient') ||
+               null;
+    }
 
-        // A. Buscar en variables globales si existen
-        if (typeof patientData === 'object' && patientData !== null) {
-            name = patientData.name || patientData.nombre || '';
-            id   = patientData.id || patientData.dni || patientData.cedula || patientData.hc || '';
-            age  = patientData.age || patientData.edad || '';
+    function getPatientInputsList() {
+        const excludedIds = new Set([
+            'imageLoader', 'sw-angle-input', 'sw-angle-slider',
+            'sl-rx-bright', 'sl-rx-contrast', 'imp-cor-slider',
+            'pdf-pat-name', 'pdf-pat-id', 'pdf-pat-age',
+            'pdf-surgeon-name', 'pdf-clinic-name'
+        ]);
+
+        const patModal = getPatientModalElement();
+        if (patModal) {
+            const modalInputs = Array.from(patModal.querySelectorAll('input, select, textarea')).filter(el =>
+                !excludedIds.has(el.id) && el.type !== 'file' && el.type !== 'range' && el.type !== 'checkbox' && el.type !== 'button' && el.type !== 'submit'
+            );
+            if (modalInputs.length > 0) return modalInputs;
         }
 
-        // B. Buscar por IDs directos de inputs o textos en el DOM
-        const tryVal = (ids) => {
-            for (let i of ids) {
+        // Respaldo: buscar todos los inputs de texto/número del documento que no sean de herramientas
+        return Array.from(document.querySelectorAll('input')).filter(el =>
+            !excludedIds.has(el.id) &&
+            !el.id.startsWith('pdf-') &&
+            !el.id.startsWith('sw-') &&
+            !el.id.startsWith('sl-') &&
+            !el.id.startsWith('imp-') &&
+            el.type !== 'file' && el.type !== 'range' && el.type !== 'checkbox' && el.type !== 'hidden'
+        );
+    }
+
+    function scanAndClassifyPatientInputs() {
+        let name = '', id = '', age = '';
+
+        // A. Revisar objeto global si existe en index.html
+        const globalCandidates = [window.patientData, window.patientInfo, window.patient, (typeof stageData !== 'undefined' && stageData[currentStage]?.patient)];
+        for (const obj of globalCandidates) {
+            if (obj && typeof obj === 'object') {
+                if (!name) name = (obj.name || obj.nombre || obj.patientName || '').toString().trim();
+                if (!id)   id   = (obj.id || obj.cedula || obj.dni || obj.hc || obj.patientId || '').toString().trim();
+                if (!age)  age  = (obj.age || obj.edad || obj.patientAge || '').toString().trim();
+            }
+        }
+
+        // B. Escanear los inputs reales de la ficha del paciente
+        const inputs = getPatientInputsList();
+        const unassignedValues = [];
+
+        inputs.forEach(inp => {
+            const val = (inp.value || '').trim();
+            if (!val) return;
+
+            const labelText = inp.labels && inp.labels[0] ? inp.labels[0].innerText : '';
+            const prevText  = inp.previousElementSibling ? inp.previousElementSibling.innerText : '';
+            const parentText = inp.parentElement ? inp.parentElement.innerText : '';
+            const meta = `${inp.id || ''} ${inp.name || ''} ${inp.placeholder || ''} ${labelText} ${prevText} ${parentText}`.toLowerCase();
+
+            if (!age && (/age|edad|año|yr|nacim/i.test(meta) || (inp.type === 'number' && Number(val) > 0 && Number(val) < 120))) {
+                age = val;
+            } else if (!id && (/cedul|cédul|dni|hc|hist|doc|exped|ident|ssn|rut|\bid\b|pat-id|patient-id/i.test(meta))) {
+                id = val;
+            } else if (!name && (/name|nombre|pacient|patient|apell/i.test(meta))) {
+                name = val;
+            } else {
+                unassignedValues.push(val);
+            }
+        });
+
+        // C. Si alguna casilla tenía un nombre genérico, clasificar los valores restantes inteligentemente
+        unassignedValues.forEach(v => {
+            const cleanNum = v.replace(/\D/g, '');
+            // Si es un número corto (1 a 119), es la Edad
+            if (!age && /^\d{1,3}(\s*(años|ans|yrs|y))?$/i.test(v) && Number(cleanNum) > 0 && Number(cleanNum) < 120) {
+                age = v;
+            }
+            // Si tiene muchos dígitos (ej. cédula/ID) o mezcla letras y números
+            else if (!id && cleanNum.length >= 4) {
+                id = v;
+            }
+            // Si son palabras/letras, es el Nombre
+            else if (!name && /[a-zA-ZáéíóúÁÉÍÓÚñÑ]{2,}/.test(v)) {
+                name = v;
+            } else if (!name) {
+                name = v;
+            } else if (!id) {
+                id = v;
+            } else if (!age) {
+                age = v;
+            }
+        });
+
+        // D. Revisar elementos de texto visibles en pantalla (#display-name, etc.) por si los inputs fueron limpiados
+        const tryTextEl = (ids) => {
+            for (const i of ids) {
                 const el = document.getElementById(i);
-                if (el) {
-                    const v = (el.value !== undefined ? el.value : el.innerText || '').trim();
-                    if (v && v !== '-' && v !== 'N/A') return v;
+                if (el && el.tagName !== 'INPUT') {
+                    const tVal = (el.innerText || el.textContent || '').trim();
+                    if (tVal && tVal !== '-' && tVal !== 'N/A' && tVal.toLowerCase() !== 'none') return tVal;
                 }
             }
             return '';
         };
+        if (!name) name = tryTextEl(['display-name', 'pat-display-name', 'patient-name-display', 'header-patient-name']);
+        if (!id)   id   = tryTextEl(['display-id', 'pat-display-id', 'patient-id-display', 'header-patient-id']);
+        if (!age)  age  = tryTextEl(['display-age', 'pat-display-age', 'patient-age-display', 'header-patient-age']);
 
-        if (!name) name = tryVal(['pat-name', 'patient-name', 'p-name', 'inp-pat-name', 'display-name', 'patName']);
-        if (!id)   id   = tryVal(['pat-id', 'patient-id', 'p-id', 'pat-dni', 'pat-cedula', 'pat-hc', 'display-id', 'patId']);
-        if (!age)  age  = tryVal(['pat-age', 'patient-age', 'p-age', 'inp-pat-age', 'display-age', 'patAge']);
+        // Actualizar caché en memoria sin borrar datos ya capturados si un input se vació al cerrar
+        if (name) window._spPatientCache.name = name;
+        if (id)   window._spPatientCache.id   = id;
+        if (age)  window._spPatientCache.age  = age;
 
-        // C. Buscar directamente todos los inputs dentro de #patient-modal (por si tienen otros IDs)
-        const patModal = document.getElementById('patient-modal') || document.querySelector('[id*="patient"]');
-        if (patModal) {
-            const inputs = Array.from(patModal.querySelectorAll('input, select'));
-            inputs.forEach(inp => {
-                const val = (inp.value || '').trim();
-                if (!val) return;
-                const hint = ((inp.id || '') + ' ' + (inp.name || '') + ' ' + (inp.placeholder || '') + ' ' + (inp.previousElementSibling?.innerText || '')).toLowerCase();
-                if (!name && /name|nombre|pacient/i.test(hint)) name = val;
-                else if (!id && /id|cédula|cedula|dni|hc|hist|doc|exped/i.test(hint)) id = val;
-                else if (!age && /age|edad|año|yr/i.test(hint)) age = val;
-            });
-            // Si aún falta alguno y hay exactamente 2 o 3 inputs con texto en el modal del paciente, tomarlos en orden
-            if (!name && !id && !age && inputs.length >= 2) {
-                if (inputs[0]?.value) name = inputs[0].value.trim();
-                if (inputs[1]?.value) id   = inputs[1].value.trim();
-                if (inputs[2]?.value) age  = inputs[2].value.trim();
-            }
-        }
-
-        return { name, id, age };
-    }
-
-    // Sincronizar de vuelta hacia los inputs del modal 👤 si el usuario los edita en el modal PDF
-    function syncPatientDataBackToApp(name, id, age) {
-        const setIfFound = (ids, val) => {
-            ids.forEach(i => {
-                const el = document.getElementById(i);
-                if (el) {
-                    if (el.value !== undefined) el.value = val;
-                    else el.innerText = val || '-';
-                }
-            });
+        return {
+            name: name || window._spPatientCache.name || '',
+            id:   id   || window._spPatientCache.id   || '',
+            age:  age  || window._spPatientCache.age  || ''
         };
-        setIfFound(['pat-name', 'patient-name', 'p-name', 'display-name'], name);
-        setIfFound(['pat-id', 'patient-id', 'p-id', 'pat-dni', 'pat-cedula', 'display-id'], id);
-        setIfFound(['pat-age', 'patient-age', 'p-age', 'display-age'], age);
-        if (typeof savePatientData === 'function') {
-            try { savePatientData(); } catch (e) {}
-        }
     }
+
+    // Escuchar en tiempo real cualquier escritura o guardado en la ficha del paciente
+    document.addEventListener('input', function(e) {
+        if (e.target && e.target.tagName === 'INPUT' && !e.target.id.startsWith('pdf-')) {
+            scanAndClassifyPatientInputs();
+        }
+    }, true);
+
+    document.addEventListener('click', function(e) {
+        if (e.target && (e.target.tagName === 'BUTTON' || e.target.closest('button'))) {
+            scanAndClassifyPatientInputs();
+        }
+    }, true);
 
     // 2. AGREGAR BOTÓN 📄 EN LA BARRA SUPERIOR Y DENTRO DEL MODAL DE GUARDADO
     function injectPdfButtons() {
@@ -121,7 +198,7 @@
         }
     }
 
-    // 3. CREAR MODAL DE CONFIGURACIÓN DEL REPORTE CLÍNICO (CON PREVISUALIZACIÓN DE PACIENTE)
+    // 3. MODAL DE CONFIGURACIÓN DEL REPORTE CLÍNICO
     const mainContainer = document.getElementById('canvas-container') || document.body;
     const pdfModal = document.createElement('div');
     pdfModal.id = 'pdf-report-modal';
@@ -164,17 +241,17 @@
             updateStatus("⚠️ Load and measure an X-Ray first.", true);
             return;
         }
-        const pInfo = extractPatientDataFromApp();
+        const pInfo = scanAndClassifyPatientInputs();
         document.getElementById('pdf-pat-name').value = pInfo.name || '';
-        document.getElementById('pdf-pat-id').value   = pInfo.id || '';
-        document.getElementById('pdf-pat-age').value  = pInfo.age || '';
+        document.getElementById('pdf-pat-id').value   = pInfo.id   || '';
+        document.getElementById('pdf-pat-age').value  = pInfo.age  || '';
 
         document.getElementById('pdf-surgeon-name').value = localStorage.getItem('sp_surgeon') || '';
-        document.getElementById('pdf-clinic-name').value  = localStorage.getItem('sp_clinic') || '';
+        document.getElementById('pdf-clinic-name').value  = localStorage.getItem('sp_clinic')  || '';
         document.getElementById('pdf-report-modal').classList.remove('hidden');
     };
 
-    // 4. CAPTURAR IMAGEN LIMPIA DE CADA ETAPA Y COMPILAR EL DOCUMENTO FORMAL
+    // 4. CAPTURAR IMAGEN LIMPIA Y GENERAR REPORTE TAMAÑO CARTA
     function captureStageDataURL(stKey) {
         let sData = (stKey === currentStage)
             ? { bgImage, measurements, gazeDirection, cmPerPx: window.cmPerPx, ostSimActive: window.ostSimActive }
@@ -189,10 +266,14 @@
     }
 
     window.generatePrintableSurgicalPDF = function() {
-        const patName = document.getElementById('pdf-pat-name').value.trim() || '-';
-        const patId   = document.getElementById('pdf-pat-id').value.trim()   || '-';
-        const patAge  = document.getElementById('pdf-pat-age').value.trim()  || '-';
-        syncPatientDataBackToApp(patName === '-' ? '' : patName, patId === '-' ? '' : patId, patAge === '-' ? '' : patAge);
+        const fallbackInfo = scanAndClassifyPatientInputs();
+        const patName = document.getElementById('pdf-pat-name').value.trim() || fallbackInfo.name || '-';
+        const patId   = document.getElementById('pdf-pat-id').value.trim()   || fallbackInfo.id   || '-';
+        const patAge  = document.getElementById('pdf-pat-age').value.trim()  || fallbackInfo.age  || '-';
+
+        if (patName !== '-') window._spPatientCache.name = patName;
+        if (patId !== '-')   window._spPatientCache.id   = patId;
+        if (patAge !== '-')  window._spPatientCache.age  = patAge;
 
         const surgeon = document.getElementById('pdf-surgeon-name').value.trim();
         const clinic  = document.getElementById('pdf-clinic-name').value.trim();
@@ -318,6 +399,12 @@
             </div>
         </body></html>`);
         win.document.close();
+    };
+
+    const prevResetAll = resetAllStudy;
+    resetAllStudy = function(s) {
+        window._spPatientCache = { name: '', id: '', age: '' };
+        prevResetAll(s);
     };
 
     const prevSetLang = setLanguage;
