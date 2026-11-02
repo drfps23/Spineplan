@@ -1,6 +1,6 @@
 // ============================================================================
-// ACTUALIZACIÓN 1 V4 (visor_ui.js): BARRA AUTO-AJUSTABLE MÓVIL + 👁️ + 🔒 + LUPA
-// 11 iconos en 1 sola fila en celulares + Ocultar trazos (👁️) + Bloqueo (🔒)
+// ACTUALIZACIÓN 1 V5 (visor_ui.js): BARRA MÓVIL + 👁️ + CANDADO 🔒 BLINDADO + LUPA
+// Bloqueo táctil de prioridad máxima: congela líneas y resultados permitiendo Zoom/Pan
 // ============================================================================
 
 (function() {
@@ -17,10 +17,22 @@
         post: { src: null, key: '', canvas: null }
     };
 
-    // Clase compacta elástica: en celular (px-1 text-xs flex-1) caben los 11 en 1 sola línea; en PC mantiene su tamaño normal
     const BTN_BASE_CLS = "flex-1 sm:flex-none min-w-0 px-1 sm:px-2.5 py-1.5 rounded text-xs sm:text-sm font-bold transition-colors flex items-center justify-center shadow-sm select-none";
 
-    // 1. ICONOS MINIMALISTAS AUTO-AJUSTABLES EN LA BARRA SUPERIOR
+    // 1. ASEGURAR QUE EL CANDADO SIEMPRE ENVUELVA A TODOS LOS MÓDULOS (INCLUSO IMPLANTES.JS)
+    function enforceTopLevelLockWrapper() {
+        if (typeof checkHit === 'function' && !checkHit._isMasterLockWrapped) {
+            const innerCheckHit = checkHit;
+            const masterWrapper = function(x, y) {
+                if (window.lockTraces || window.hideTraces) return null;
+                return innerCheckHit(x, y);
+            };
+            masterWrapper._isMasterLockWrapped = true;
+            checkHit = masterWrapper;
+        }
+    }
+
+    // 2. ICONOS MINIMALISTAS AUTO-AJUSTABLES EN LA BARRA SUPERIOR
     function applyMinimalistHeaderIcons() {
         const btnPatient = document.querySelector('button[onclick="openPatientModal()"]');
         if (btnPatient) {
@@ -74,11 +86,6 @@
             btnReset.className = `${BTN_BASE_CLS} bg-red-700/80 hover:bg-red-600 text-white border border-red-500`;
         }
 
-        const btnPdf = document.getElementById('btn-top-pdf');
-        if (btnPdf) {
-            btnPdf.className = `${BTN_BASE_CLS} bg-emerald-600/30 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/60`;
-        }
-
         if (btnSave && !document.getElementById('btn-rx-adjust')) {
             const parentBar = btnSave.parentNode;
 
@@ -108,11 +115,10 @@
             parentBar.insertBefore(btnLock, btnSave);
         }
 
-        // Forzar a que la fila de iconos nunca haga salto de línea en pantallas de celular
         if (btnSave && btnSave.parentNode) {
             const bar = btnSave.parentNode;
             bar.classList.remove('flex-wrap');
-            bar.classList.add('flex-nowrap', 'w-full', ' sm:w-auto', 'justify-between', 'gap-1');
+            bar.classList.add('flex-nowrap', 'w-full', 'sm:w-auto', 'justify-between', 'gap-1');
         }
 
         syncQuickButtonsUI();
@@ -153,6 +159,7 @@
 
     window.toggleHideTraces = function() {
         window.hideTraces = !window.hideTraces;
+        enforceTopLevelLockWrapper();
         syncQuickButtonsUI();
         draw();
         if (isCompareMode) drawCompareCanvases();
@@ -163,14 +170,20 @@
 
     window.toggleLockTraces = function() {
         window.lockTraces = !window.lockTraces;
-        if (window.lockTraces && typeof deactivateTool === 'function') deactivateTool();
+        enforceTopLevelLockWrapper();
+        if (window.lockTraces) {
+            if (typeof deactivateTool === 'function') deactivateTool();
+            if (typeof dragObj !== 'undefined') dragObj = null;
+            if (typeof currentMeasurement !== 'undefined') currentMeasurement = null;
+            if (typeof clickIntent !== 'undefined') clickIntent = null;
+        }
         syncQuickButtonsUI();
         updateStatus(window.lockTraces
-            ? (currentLang === 'es' ? "🔒 Puntos bloqueados: Puedes hacer zoom y mover la Rx sin alterar los trazos." : "🔒 Points locked: Safe zoom and pan enabled.")
+            ? (currentLang === 'es' ? "🔒 Puntos y resultados bloqueados: Zoom y movimiento seguros." : "🔒 Points & results locked: Safe zoom and pan enabled.")
             : (currentLang === 'es' ? "🔓 Puntos desbloqueados: Edición activa." : "🔓 Points unlocked: Editing active."));
     };
 
-    // 2. PANEL DE BRILLO/CONTRASTE Y LUPA FLOTANTE EN DOCUMENT.BODY
+    // 3. PANEL DE BRILLO/CONTRASTE Y LUPA FLOTANTE EN DOCUMENT.BODY
     const mainContainer = document.getElementById('canvas-container');
     if (mainContainer) {
         const rxPanel = document.createElement('div');
@@ -280,7 +293,7 @@
         if (lc && !window.loupeActive) lc.classList.add('hidden');
     };
 
-    // 3. MOTOR DE PÍXELES UNIVERSAL (LUT) Y OCULTACIÓN TEMPORAL DE TRAZOS (👁️)
+    // 4. MOTOR DE PÍXELES UNIVERSAL (LUT) Y OCULTACIÓN TEMPORAL DE TRAZOS (👁️)
     const nativeDrawImage = CanvasRenderingContext2D.prototype.drawImage;
     const nativeStroke    = CanvasRenderingContext2D.prototype.stroke;
     const nativeFill      = CanvasRenderingContext2D.prototype.fill;
@@ -360,26 +373,45 @@
         return nativeDrawImage.apply(this, arguments);
     };
 
-    // 4. BLOQUEO TÁCTIL DE PUNTOS (🔒): PERMITE MOVER Y HACER ZOOM SIN ALTERAR TRAZOS
-    window.addEventListener('load', function() {
-        applyMinimalistHeaderIcons();
-        if (typeof checkHit === 'function') {
-            const origHit = checkHit;
-            checkHit = function(x, y) {
-                if (window.lockTraces || window.hideTraces) return null;
-                return origHit(x, y);
-            };
+    // 5. INTERCEPTOR EN CAPTURA PARA GARANTIZAR QUE EL CANDADO 🔒 CONGELE TODO
+    function guardLockedCanvasInteraction() {
+        enforceTopLevelLockWrapper();
+        if (window.lockTraces || window.hideTraces) {
+            if (typeof activeTool !== 'undefined' && activeTool && typeof deactivateTool === 'function') {
+                deactivateTool();
+            }
+            if (typeof dragObj !== 'undefined') dragObj = null;
+            if (typeof currentMeasurement !== 'undefined') currentMeasurement = null;
+            if (typeof clickIntent !== 'undefined') clickIntent = null;
         }
-    });
+    }
+
+    canvas.addEventListener('mousedown', guardLockedCanvasInteraction, true);
+    canvas.addEventListener('touchstart', guardLockedCanvasInteraction, { capture: true, passive: true });
+    canvas.addEventListener('mousemove', function() {
+        if (window.lockTraces || window.hideTraces) {
+            if (typeof dragObj !== 'undefined' && dragObj) dragObj = null;
+        }
+    }, true);
+    canvas.addEventListener('touchmove', function() {
+        if (window.lockTraces || window.hideTraces) {
+            if (typeof dragObj !== 'undefined' && dragObj) dragObj = null;
+        }
+    }, { capture: true, passive: true });
 
     canvas.addEventListener('contextmenu', function(e) {
-        if (window.lockTraces) {
+        if (window.lockTraces || window.hideTraces) {
             e.preventDefault();
             e.stopImmediatePropagation();
         }
     }, true);
 
-    // 5. LUPA INTELIGENTE: FLOTA SOBRE EL DEDO EN CELULAR Y EN ESQUINA SUPERIOR EN PC
+    window.addEventListener('load', function() {
+        applyMinimalistHeaderIcons();
+        enforceTopLevelLockWrapper();
+    });
+
+    // 6. LUPA INTELIGENTE: FLOTA SOBRE EL DEDO EN CELULAR Y EN ESQUINA SUPERIOR EN PC
     function renderLoupe(clientX, clientY, isTouch) {
         const lc = document.getElementById('loupe-canvas');
         if (!lc || !window.loupeActive || !bgImage || isCompareMode) {
@@ -437,7 +469,6 @@
         lCtx.fillRect(0, 0, lSize, lSize);
         nativeDrawImage.call(lCtx, canvas, cx - srcW / 2, cy - srcH / 2, srcW, srcH, 0, 0, lSize, lSize);
 
-        nativeStroke.call(lCtx);
         lCtx.strokeStyle = 'rgba(56, 189, 248, 0.85)';
         lCtx.lineWidth = 1.2;
         lCtx.beginPath();
@@ -494,4 +525,5 @@
 
     applyMinimalistHeaderIcons();
     syncRxPanelUI();
+    enforceTopLevelLockWrapper();
 })();
