@@ -1,6 +1,6 @@
 // ============================================================================
-// ACTUALIZACIÓN 1 V2 (visor_ui.js): ICONOS + MOTOR DE PÍXELES (MÓVIL/PC) + LUPA
-// Compatible 100% con iPhone (iOS), iPad, Android y PC mediante procesamiento LUT
+// ACTUALIZACIÓN 1 V3 (visor_ui.js): ICONOS + MOTOR LUT MÓVIL + LUPA INTELIGENTE
+// Lupa flotante sobre el dedo en celular (nunca se corta) y auto-esquiva en PC
 // ============================================================================
 
 (function() {
@@ -10,7 +10,6 @@
     };
     window.loupeActive = false;
 
-    // Caché de imágenes procesadas píxel por píxel para máxima fluidez en celulares
     const filterCache = {
         pre: { src: null, key: '', canvas: null },
         post: { src: null, key: '', canvas: null }
@@ -89,7 +88,7 @@
         }
     }
 
-    // 2. PANEL FLOTANTE CON SOPORTE TÁCTIL DIRECTO PARA MÓVILES Y TABLETS
+    // 2. PANEL DE BRILLO/CONTRASTE Y LUPA FLOTANTE EN DOCUMENT.BODY
     const mainContainer = document.getElementById('canvas-container');
     if (mainContainer) {
         const rxPanel = document.createElement('div');
@@ -142,14 +141,15 @@
         slBright.addEventListener('change', onBrightChange);
         slContrast.addEventListener('input', onContrastChange);
         slContrast.addEventListener('change', onContrastChange);
-
-        const loupeCanvas = document.createElement('canvas');
-        loupeCanvas.id = 'loupe-canvas';
-        loupeCanvas.width = 150;
-        loupeCanvas.height = 150;
-        loupeCanvas.className = 'hidden absolute bottom-5 right-5 z-40 rounded-full border-2 border-sky-400 shadow-[0_0_20px_rgba(14,165,233,0.5)] pointer-events-none bg-black';
-        mainContainer.appendChild(loupeCanvas);
     }
+
+    // Lupa en document.body con position:fixed para que jamás sea recortada en celulares
+    const loupeCanvas = document.createElement('canvas');
+    loupeCanvas.id = 'loupe-canvas';
+    loupeCanvas.width = 140;
+    loupeCanvas.height = 140;
+    loupeCanvas.className = 'hidden fixed z-50 rounded-full border-2 border-sky-400 shadow-[0_0_25px_rgba(14,165,233,0.65)] pointer-events-none bg-black';
+    document.body.appendChild(loupeCanvas);
 
     function syncRxPanelUI() {
         const f = window.rxFilters[currentStage] || { brightness: 100, contrast: 100, invert: false };
@@ -234,7 +234,6 @@
         const imgData = cCtx.getImageData(0, 0, w, h);
         const data = imgData.data;
 
-        // Tabla precalculada de 256 niveles (ejecución instantánea en móviles)
         const lut = new Uint8Array(256);
         const bFactor = f.brightness / 100;
         const cFactor = f.contrast / 100;
@@ -269,34 +268,70 @@
         return nativeDrawImage.apply(this, arguments);
     };
 
-    // 4. LUPA DE PRECISIÓN
-    function renderLoupe(clientX, clientY) {
+    // 4. LUPA INTELIGENTE: FLOTA SOBRE EL DEDO EN CELULAR Y EN ESQUINA SUPERIOR EN PC
+    function renderLoupe(clientX, clientY, isTouch) {
         const lc = document.getElementById('loupe-canvas');
         if (!lc || !window.loupeActive || !bgImage || isCompareMode) {
             if (lc) lc.classList.add('hidden');
             return;
         }
         const rect = canvas.getBoundingClientRect();
-        const cx = clientX - rect.left;
-        const cy = clientY - rect.top;
-        if (cx < 0 || cy < 0 || cx > canvas.width || cy > canvas.height) {
+        if (clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) {
             lc.classList.add('hidden');
             return;
         }
+
+        const isMobileScreen = isTouch || window.innerWidth < 768;
+        const lSize = isMobileScreen ? 132 : 150;
+        if (lc.width !== lSize) {
+            lc.width = lSize;
+            lc.height = lSize;
+        }
+
+        // Posicionamiento inteligente para que jamás se corte abajo ni lo tape el dedo
+        let leftPx, topPx;
+        if (isMobileScreen) {
+            leftPx = clientX - lSize / 2;
+            topPx  = clientY - lSize - 46; // Flota 46px por encima de la yema del dedo
+            // Si el dedo sube muy cerca del borde superior, pasa la lupa a un costado del dedo
+            if (topPx < Math.max(52, rect.top + 6)) {
+                topPx = Math.max(56, Math.min(window.innerHeight - lSize - 20, clientY - lSize / 2));
+                leftPx = (clientX < window.innerWidth / 2) ? (clientX + 48) : (clientX - lSize - 48);
+            }
+            leftPx = Math.max(8, Math.min(window.innerWidth - lSize - 8, leftPx));
+            topPx  = Math.max(52, Math.min(window.innerHeight - lSize - 16, topPx));
+        } else {
+            // En PC: Esquina superior derecha del visor (y salta a la izquierda si acercas el mouse)
+            topPx  = rect.top + 16;
+            leftPx = rect.right - lSize - 16;
+            if (clientX > leftPx - 30 && clientY < topPx + lSize + 30) {
+                leftPx = rect.left + 16;
+            }
+        }
+
+        lc.style.left = `${Math.round(leftPx)}px`;
+        lc.style.top  = `${Math.round(topPx)}px`;
         lc.classList.remove('hidden');
+
+        // Escala exacta entre píxeles de pantalla (con o sin zoom móvil) y el canvas real
+        const scaleX = canvas.width / (rect.width || 1);
+        const scaleY = canvas.height / (rect.height || 1);
+        const cx = (clientX - rect.left) * scaleX;
+        const cy = (clientY - rect.top) * scaleY;
+
         const lCtx = lc.getContext('2d');
         const zoom = 2.6;
-        const r = lc.width / 2;
-        const srcW = lc.width / zoom;
-        const srcH = lc.height / zoom;
+        const r = lSize / 2;
+        const srcW = lSize / zoom;
+        const srcH = lSize / zoom;
 
-        lCtx.clearRect(0, 0, lc.width, lc.height);
+        lCtx.clearRect(0, 0, lSize, lSize);
         lCtx.fillStyle = '#020617';
-        lCtx.fillRect(0, 0, lc.width, lc.height);
-        nativeDrawImage.call(lCtx, canvas, cx - srcW / 2, cy - srcH / 2, srcW, srcH, 0, 0, lc.width, lc.height);
+        lCtx.fillRect(0, 0, lSize, lSize);
+        nativeDrawImage.call(lCtx, canvas, cx - srcW / 2, cy - srcH / 2, srcW, srcH, 0, 0, lSize, lSize);
 
         lCtx.strokeStyle = 'rgba(56, 189, 248, 0.85)';
-        lCtx.lineWidth = 1;
+        lCtx.lineWidth = 1.2;
         lCtx.beginPath();
         lCtx.moveTo(r - 18, r); lCtx.lineTo(r + 18, r);
         lCtx.moveTo(r, r - 18); lCtx.lineTo(r, r + 18);
@@ -308,11 +343,19 @@
     }
 
     canvas.addEventListener('mousemove', function(e) {
-        if (window.loupeActive) renderLoupe(e.clientX, e.clientY);
+        if (window.loupeActive) renderLoupe(e.clientX, e.clientY, false);
     });
+    canvas.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 1 && window.loupeActive) {
+            renderLoupe(e.touches[0].clientX, e.touches[0].clientY, true);
+        }
+    }, { passive: true });
     canvas.addEventListener('touchmove', function(e) {
         if (e.touches.length === 1 && window.loupeActive) {
-            renderLoupe(e.touches[0].clientX, e.touches[0].clientY);
+            renderLoupe(e.touches[0].clientX, e.touches[0].clientY, true);
+        } else if (e.touches.length > 1) {
+            const lc = document.getElementById('loupe-canvas');
+            if (lc) lc.classList.add('hidden');
         }
     }, { passive: true });
     canvas.addEventListener('touchend', function() {
