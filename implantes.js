@@ -1,6 +1,6 @@
 // ============================================================================
-// ACTUALIZACIÓN 3 (implantes.js): TORNILLOS TRANSPEDICULARES Y BARRAS (SAG/AP)
-// Sagital: Solo barra/tornillos (sin modal). Coronal: Modal de Reducción AP.
+// ACTUALIZACIÓN 3 V3 (implantes.js): TORNILLOS CON LONGITUD AJUSTABLE EN CM
+// Arrastra la punta de cada tornillo sagital para medir largo (cm) y angulación
 // ============================================================================
 
 (function() {
@@ -9,8 +9,8 @@
     if (typeof I18N !== 'undefined') {
         Object.assign(I18N.en, {
             mod_7b_imp: "7B. Pedicle Screws & Rods",
-            imp_sub: "Sagittal & Coronal (AP) Deformity Construct",
-            btn_rod_sag: "🔩 1. Sagittal Rod (Profile)",
+            imp_sub: "Adjustable Screw Length (cm) & AP Rods",
+            btn_rod_sag: "🔩 1. Sagittal Rod & Screws",
             btn_rod_cor: "🔩 2. Coronal Rods (AP - 2 Sides)",
             btn_rod_end: "✅ Finish Current Rod",
             btn_rod_panel: "📐 3. Coronal Correction (AP)",
@@ -25,8 +25,8 @@
         });
         Object.assign(I18N.es, {
             mod_7b_imp: "7B. Tornillos Transpediculares y Barras",
-            imp_sub: "Instrumentación Sagital y Coronal (AP)",
-            btn_rod_sag: "🔩 1. Barra Sagital (Perfil)",
+            imp_sub: "Tornillos Medibles (cm) y Barras Sag/AP",
+            btn_rod_sag: "🔩 1. Barra y Tornillos Sagitales",
             btn_rod_cor: "🔩 2. Barras Coronales (AP - 2 Lados)",
             btn_rod_end: "✅ Terminar Barra Actual",
             btn_rod_panel: "📐 3. Corrección Coronal (AP)",
@@ -48,8 +48,8 @@
         impCard.innerHTML = `
             <div class="bg-indigo-900/40 px-3 py-2 text-sm font-semibold text-indigo-300" data-i18n="mod_7b_imp">7B. Pedicle Screws & Rods</div>
             <div class="p-3 bg-gray-900/50 space-y-2">
-                <span class="text-[10px] text-gray-400 uppercase tracking-wider block" data-i18n="imp_sub">Sagittal & Coronal (AP) Deformity Construct</span>
-                <button id="btn-rod-sag" onclick="startOrFinishRod('sagittal')" class="tool-btn w-full border border-indigo-600/60 bg-indigo-950/30 rounded px-2 py-2 text-xs text-indigo-300 hover:bg-indigo-900/50 font-bold flex justify-center items-center" data-i18n="btn_rod_sag">🔩 1. Sagittal Rod (Profile)</button>
+                <span class="text-[10px] text-gray-400 uppercase tracking-wider block" data-i18n="imp_sub">Adjustable Screw Length (cm) & AP Rods</span>
+                <button id="btn-rod-sag" onclick="startOrFinishRod('sagittal')" class="tool-btn w-full border border-indigo-600/60 bg-indigo-950/30 rounded px-2 py-2 text-xs text-indigo-300 hover:bg-indigo-900/50 font-bold flex justify-center items-center" data-i18n="btn_rod_sag">🔩 1. Sagittal Rod & Screws</button>
                 <button id="btn-rod-cor" onclick="startOrFinishRod('coronal')" class="tool-btn w-full border border-purple-600/60 bg-purple-950/30 rounded px-2 py-2 text-xs text-purple-300 hover:bg-purple-900/50 font-bold flex justify-center items-center" data-i18n="btn_rod_cor">🔩 2. Coronal Rods (AP - 2 Sides)</button>
                 <button onclick="showRodPanel()" class="w-full border border-purple-500 bg-purple-600/20 rounded px-2 py-2 text-xs font-bold text-purple-300 hover:bg-purple-600 hover:text-white transition-colors flex justify-center items-center shadow-lg" data-i18n="btn_rod_panel">📐 3. Coronal Correction (AP)</button>
             </div>
@@ -106,6 +106,55 @@
         });
     }
 
+    // 1. GESTIÓN DE VECTORES DE TORNILLOS SAGITALES (PUNTA ESTIRABLE Y MEDIBLE EN CM)
+    function getOsteotomyRotAtBasePoint(basePt, measList) {
+        if (!window.ostSimActive || typeof computeOsteotomyGeometry !== 'function') return 0;
+        let osts = (measList || measurements).filter(m => m.type === 'osteotomy' && m.points && m.points.length === 3);
+        let totalRot = 0;
+        osts.forEach(o => {
+            let g = computeOsteotomyGeometry(o, true);
+            if (g && ((basePt.x - g.p1.x) * g.nx + (basePt.y - g.p1.y) * g.ny) > 0) {
+                totalRot += g.rotAngle;
+            }
+        });
+        return totalRot;
+    }
+
+    function ensureScrewVectors(rod, stageGaze, stageCm) {
+        if (!rod || rod.subType === 'coronal' || !rod.points) return;
+        if (!rod.screwVecs) rod.screwVecs = [];
+        if (rod._lastGaze !== undefined && rod._lastGaze !== stageGaze) {
+            rod.screwVecs.forEach(v => { if (v) v.dx = -v.dx; });
+        }
+        rod._lastGaze = stageGaze;
+
+        let defLenPx = stageCm ? (4.5 / stageCm) : 42; // 4.5 cm por defecto si está calibrado
+        for (let i = 0; i < rod.points.length; i++) {
+            if (!rod.screwVecs[i]) {
+                let next = rod.points[Math.min(rod.points.length - 1, i + 1)];
+                let prev = rod.points[Math.max(0, i - 1)];
+                let ty = next.y - prev.y, tx = next.x - prev.x;
+                let sx = stageGaze, sy = -(tx * stageGaze) / (Math.abs(ty) > 5 ? ty : 25);
+                let mag = Math.hypot(sx, sy) || 1;
+                sx /= mag; sy /= mag;
+                rod.screwVecs[i] = { dx: sx * defLenPx, dy: sy * defLenPx };
+            }
+        }
+    }
+
+    function getScrewTipWorld(rod, idx, measList, stageGaze, stageCm) {
+        ensureScrewVectors(rod, stageGaze, stageCm);
+        let pt = rod.points[idx];
+        let basePt = (rod._basePoints && rod._basePoints[idx]) ? rod._basePoints[idx] : pt;
+        let rot = getOsteotomyRotAtBasePoint(basePt, measList);
+        let v = rod.screwVecs[idx] || { dx: stageGaze * 40, dy: 0 };
+        let c = Math.cos(rot), s = Math.sin(rot);
+        let rx = v.dx * c - v.dy * s;
+        let ry = v.dx * s + v.dy * c;
+        return { x: pt.x + rx, y: pt.y + ry, rot, lenPx: Math.hypot(v.dx, v.dy) };
+    }
+
+    // 2. MATEMÁTICA DE SPLINE Y REDUCCIÓN CORONAL (AP)
     function getSpline(pts) {
         if (!pts || pts.length < 2) return pts || [];
         if (pts.length === 2) return [pts[0], pts[1]];
@@ -157,7 +206,7 @@
         let corRods = measList.filter(m => m.type === 'rod' && m.subType === 'coronal' && m.points && m.points.length >= 2);
 
         let activeDragItem = (typeof dragObj !== 'undefined' && dragObj && dragObj.item) ? dragObj.item : null;
-        if (activeDragItem && activeDragItem.type === 'rod' && alpha === 0) {
+        if (activeDragItem && activeDragItem.type === 'rod' && dragObj.type === 'point' && alpha === 0) {
             activeDragItem._corBasePoints = activeDragItem.points.map(p => ({ x: p.x, y: p.y }));
             activeDragItem._basePoints = activeDragItem.points.map(p => ({ x: p.x, y: p.y }));
         }
@@ -179,7 +228,6 @@
             });
         });
 
-        // Solo modifica ángulos de Cobb del plano Coronal (cobb_coronal)
         measList.forEach(m => {
             if (m.type === 'cobb_coronal' && m.points && m.points.length === 4 && corRods.length > 0) {
                 if (!m._corBasePoints || alpha === 0) {
@@ -199,17 +247,6 @@
                     m.points[pair[0]] = { x: midX - Math.cos(newAng) * halfL, y: midY - Math.sin(newAng) * halfL };
                     m.points[pair[1]] = { x: midX + Math.cos(newAng) * halfL, y: midY + Math.sin(newAng) * halfL };
                 });
-            } else if (m.type === 'point_marker' && m.subType === 'bao_c7' && m.points && m.points.length === 1 && corRods.length > 0) {
-                if (!m._corBasePt || alpha === 0) {
-                    if (alpha === 0 && m._corBasePt) m.points[0] = { x: m._corBasePt.x, y: m._corBasePt.y };
-                    m._corBasePt = { x: m.points[0].x, y: m.points[0].y };
-                    return;
-                }
-                let s1Meas = measList.find(x => x.type === 'point_marker' && x.subType === 'bao_s1');
-                if (s1Meas && s1Meas.points[0]) {
-                    let targetX = s1Meas.points[0].x;
-                    m.points[0] = { x: m._corBasePt.x + (targetX - m._corBasePt.x) * (alpha * 0.8), y: m._corBasePt.y };
-                }
             }
         });
     }
@@ -243,6 +280,7 @@
         return { len: cmVal ? lenPx * cmVal : lenPx, unit: cmVal ? 'cm' : 'px', bend: Math.round(bend) };
     }
 
+    // 3. DIBUJAR TORNILLOS CON PUNTA ESTIRABLE, MEDIDA EN CM Y BARRAS
     function drawAllRods(targetCtx, measList, stageGaze, stageCm, sc) {
         if (!measList) return;
         let corRods = measList.filter(m => m.type === 'rod' && m.subType === 'coronal' && m.points && m.points.length >= 2);
@@ -255,15 +293,47 @@
             let isCor = (rod.subType === 'coronal');
 
             if (!isCor) {
+                ensureScrewVectors(rod, stageGaze, stageCm);
                 rod.points.forEach((pt, idx) => {
-                    let next = rod.points[Math.min(rod.points.length - 1, idx + 1)];
-                    let prev = rod.points[Math.max(0, idx - 1)];
-                    let ty = next.y - prev.y, tx = next.x - prev.x;
-                    let sx = stageGaze, sy = -(tx * stageGaze) / (Math.abs(ty) > 5 ? ty : 20);
-                    let mag = Math.hypot(sx, sy) || 1; sx /= mag; sy /= mag;
-                    let sLen = 36 / sc;
-                    targetCtx.beginPath(); targetCtx.moveTo(pt.x, pt.y); targetCtx.lineTo(pt.x + sx * sLen, pt.y + sy * sLen);
-                    targetCtx.strokeStyle = '#94a3b8'; targetCtx.lineWidth = 3.2 / sc; targetCtx.stroke();
+                    let tip = getScrewTipWorld(rod, idx, measList, stageGaze, stageCm);
+
+                    // Vástago roscado del tornillo transpedicular
+                    targetCtx.beginPath();
+                    targetCtx.moveTo(pt.x, pt.y);
+                    targetCtx.lineTo(tip.x, tip.y);
+                    targetCtx.strokeStyle = '#94a3b8';
+                    targetCtx.lineWidth = 3.4 / sc;
+                    targetCtx.lineCap = 'round';
+                    targetCtx.stroke();
+
+                    // Alma metálica central del tornillo
+                    targetCtx.beginPath();
+                    targetCtx.moveTo(pt.x, pt.y);
+                    targetCtx.lineTo(tip.x, tip.y);
+                    targetCtx.strokeStyle = '#e2e8f0';
+                    targetCtx.lineWidth = 1.1 / sc;
+                    targetCtx.stroke();
+
+                    // Punto interactivo en la punta del tornillo (para estirar/inclinar)
+                    targetCtx.beginPath();
+                    targetCtx.arc(tip.x, tip.y, 3.8 / sc, 0, 2 * Math.PI);
+                    targetCtx.fillStyle = '#facc15';
+                    targetCtx.fill();
+                    targetCtx.lineWidth = 1.2 / sc;
+                    targetCtx.strokeStyle = '#0f172a';
+                    targetCtx.stroke();
+
+                    // Etiqueta de longitud del tornillo en cm (desde el pedículo hasta la punta)
+                    let screwVal = stageCm ? `${(tip.lenPx * stageCm).toFixed(1)} cm` : `${Math.round(tip.lenPx)} px`;
+                    let dirX = tip.x >= pt.x ? 1 : -1;
+                    targetCtx.font = `bold ${10.5 / sc}px sans-serif`;
+                    targetCtx.textAlign = dirX > 0 ? 'left' : 'right';
+                    targetCtx.textBaseline = 'middle';
+                    targetCtx.shadowColor = 'rgba(0,0,0,0.95)';
+                    targetCtx.shadowBlur = 3 / sc;
+                    targetCtx.fillStyle = '#fde047';
+                    targetCtx.fillText(screwVal, tip.x + dirX * (7 / sc), tip.y);
+                    targetCtx.shadowBlur = 0;
                 });
             }
 
@@ -296,6 +366,8 @@
                 if (st) {
                     let fSize = rod.fontSize || 13;
                     targetCtx.font = `bold ${fSize / sc}px sans-serif`;
+                    targetCtx.textAlign = 'left';
+                    targetCtx.textBaseline = 'top';
                     targetCtx.fillStyle = isCor ? '#e879f9' : '#a5b4fc';
                     targetCtx.shadowColor = 'rgba(0,0,0,0.9)'; targetCtx.shadowBlur = 4 / sc;
                     targetCtx.fillText(`🔩 ${rod.title} (${fmtInt(st.len)}${st.unit} | ${st.bend}°)`, rod.textPos.x, rod.textPos.y);
@@ -330,17 +402,18 @@
                 currentMeasurement.closed = true; delete currentMeasurement.tempPoint;
                 currentMeasurement._basePoints = currentMeasurement.points.map(p => ({ x: p.x, y: p.y }));
                 currentMeasurement._corBasePoints = currentMeasurement.points.map(p => ({ x: p.x, y: p.y }));
+                ensureScrewVectors(currentMeasurement, gazeDirection, window.cmPerPx);
                 deactivateTool(); updateRodBtns(null); draw();
-                // SOLO abrir el cuadro si la barra trazada es CORONAL (AP)
                 if (finishedMode === 'coronal') showRodPanel();
+                else updateStatus(currentLang === 'es' ? "✅ Barra lista. Arrastra la punta amarilla de cualquier tornillo para medir su longitud en cm." : "✅ Rod complete. Drag any yellow screw tip to adjust length in cm.");
                 return;
             }
         }
         activateTool('rod', planeMode === 'coronal' ? 'AP Rod' : 'Sag Rod', planeMode);
         updateRodBtns(planeMode);
         updateStatus(planeMode === 'coronal'
-            ? (currentLang === 'es' ? "🔩 AP: Haz clic en cada pedículo de un lado. Doble clic en el último para cerrar (puedes trazar las 2 barras)." : "🔩 AP: Click pedicles on one side. Double-click last screw to finish (supports 2 rods).")
-            : (currentLang === 'es' ? "🔩 Sagital: Haz clic en cada pedículo. Doble clic en el último tornillo para cerrar la barra." : "🔩 Sagittal: Click each pedicle. Double-click last screw to finish."));
+            ? (currentLang === 'es' ? "🔩 AP: Haz clic en cada pedículo de un lado. Doble clic en el último para cerrar." : "🔩 AP: Click pedicles on one side. Double-click last screw to finish.")
+            : (currentLang === 'es' ? "🔩 Sagital: Haz clic en cada pedículo. Doble clic en el último para cerrar y luego estira la punta de los tornillos." : "🔩 Sagittal: Click each pedicle. Double-click last screw to finish, then drag screw tips to size."));
     };
 
     function updateRodBtns(mode) {
@@ -368,7 +441,6 @@
             ? corRods.map(r => `${r.title}: ${computeRodStats(r, window.cmPerPx).bend}°`).join(' | ')
             : '-';
 
-        // Solo lee el Cobb Coronal (cobb_coronal)
         let cobbMeas = measurements.find(m => m.type === 'cobb_coronal' && m.points && m.points.length === 4);
         if (cobbMeas) {
             let bp = cobbMeas._corBasePoints || cobbMeas.points;
@@ -425,18 +497,57 @@
         return res;
     };
 
+    // 4. DETECCIÓN DE CLIC EN LA PUNTA DEL TORNILLO (screwTip) O EN EL PEDÍCULO (point)
     const prevCheckHit = checkHit;
     checkHit = function(x, y) {
-        const sc = baseScale * zoomScale, r = 15 / sc;
+        const sc = baseScale * zoomScale, r = 14 / sc;
         for (let rod of measurements.filter(m => m.type === 'rod')) {
-            if (rod.textPos && x >= rod.textPos.x - 10 / sc && x <= rod.textPos.x + 160 / sc && y >= rod.textPos.y - 10 / sc && y <= rod.textPos.y + 35 / sc) return { type: 'text', item: rod };
+            if (rod.textPos && x >= rod.textPos.x - 10 / sc && x <= rod.textPos.x + 160 / sc && y >= rod.textPos.y - 10 / sc && y <= rod.textPos.y + 35 / sc) {
+                return { type: 'text', item: rod };
+            }
+            if (rod.subType !== 'coronal') {
+                for (let i = 0; i < rod.points.length; i++) {
+                    let tip = getScrewTipWorld(rod, i, measurements, gazeDirection, window.cmPerPx);
+                    if (Math.hypot(x - tip.x, y - tip.y) < r) {
+                        return { type: 'screwTip', item: rod, index: i };
+                    }
+                }
+            }
             for (let i = 0; i < rod.points.length; i++) {
-                if (Math.hypot(x - rod.points[i].x, y - rod.points[i].y) < r) return { type: 'point', item: rod, index: i };
+                if (Math.hypot(x - rod.points[i].x, y - rod.points[i].y) < r) {
+                    return { type: 'point', item: rod, index: i };
+                }
             }
         }
         return prevCheckHit(x, y);
     };
 
+    // Arrastrar la punta del tornillo con mouse o pantalla táctil
+    function updateDraggedScrewTip(pos) {
+        if (!dragObj || dragObj.type !== 'screwTip') return false;
+        let rod = dragObj.item, idx = dragObj.index;
+        let pt = rod.points[idx];
+        let basePt = (rod._basePoints && rod._basePoints[idx]) ? rod._basePoints[idx] : pt;
+        let rot = getOsteotomyRotAtBasePoint(basePt, measurements);
+        let vx = pos.x - pt.x, vy = pos.y - pt.y;
+        let c = Math.cos(-rot), s = Math.sin(-rot);
+        ensureScrewVectors(rod, gazeDirection, window.cmPerPx);
+        rod.screwVecs[idx] = { dx: vx * c - vy * s, dy: vx * s + vy * c };
+        draw();
+        return true;
+    }
+
+    canvas.addEventListener('mousemove', function(e) {
+        if (!bgImage || !dragObj || dragObj.type !== 'screwTip' || e.buttons !== 1) return;
+        updateDraggedScrewTip(getLogicalPos(e));
+    }, true);
+
+    canvas.addEventListener('touchmove', function(e) {
+        if (!bgImage || !dragObj || dragObj.type !== 'screwTip' || e.touches.length !== 1) return;
+        updateDraggedScrewTip(getLogicalPos(e.touches[0]));
+    }, { passive: true });
+
+    // 5. TRAZADO DE PUNTOS DE LA BARRA
     canvas.addEventListener('mousedown', function(e) {
         if (e.button !== 0 || !bgImage || activeTool !== 'rod') return;
         const pos = getLogicalPos(e);
@@ -460,7 +571,7 @@
                     id: Date.now(), type: 'rod', subType: mode,
                     title: mode === 'coronal' ? `AP Rod #${cnt}` : 'Sag Rod',
                     color: mode === 'coronal' ? '#c084fc' : '#818cf8', fontSize: 13,
-                    points: [{ x: clickIntent.logX, y: clickIntent.logY }], closed: false,
+                    points: [{ x: clickIntent.logX, y: clickIntent.logY }], screwVecs: [], closed: false,
                     textPos: { x: clickIntent.logX + 22, y: clickIntent.logY - 20 }
                 };
                 measurements.push(currentMeasurement);
@@ -471,13 +582,15 @@
                     currentMeasurement.closed = true; delete currentMeasurement.tempPoint;
                     currentMeasurement._basePoints = currentMeasurement.points.map(p => ({ x: p.x, y: p.y }));
                     currentMeasurement._corBasePoints = currentMeasurement.points.map(p => ({ x: p.x, y: p.y }));
+                    ensureScrewVectors(currentMeasurement, gazeDirection, window.cmPerPx);
                     deactivateTool(); updateRodBtns(null); draw();
-                    // SOLO abre el modal si se terminó una barra CORONAL (AP)
                     if (finishedMode === 'coronal') showRodPanel();
+                    else updateStatus(currentLang === 'es' ? "✅ Barra lista. Arrastra la punta amarilla de cualquier tornillo para medir su longitud en cm." : "✅ Rod complete. Drag any yellow screw tip to adjust length in cm.");
                 } else {
                     currentMeasurement.points.push({ x: clickIntent.logX, y: clickIntent.logY });
                     currentMeasurement._basePoints = currentMeasurement.points.map(p => ({ x: p.x, y: p.y }));
                     currentMeasurement._corBasePoints = currentMeasurement.points.map(p => ({ x: p.x, y: p.y }));
+                    ensureScrewVectors(currentMeasurement, gazeDirection, window.cmPerPx);
                 }
             }
         }
