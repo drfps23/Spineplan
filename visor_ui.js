@@ -1,6 +1,6 @@
 // ============================================================================
-// ACTUALIZACIÓN 1 V3 (visor_ui.js): ICONOS + MOTOR LUT MÓVIL + LUPA INTELIGENTE
-// Lupa flotante sobre el dedo en celular (nunca se corta) y auto-esquiva en PC
+// ACTUALIZACIÓN 1 V4 (visor_ui.js): BARRA AUTO-AJUSTABLE MÓVIL + 👁️ + 🔒 + LUPA
+// 11 iconos en 1 sola fila en celulares + Ocultar trazos (👁️) + Bloqueo (🔒)
 // ============================================================================
 
 (function() {
@@ -9,27 +9,32 @@
         post: { brightness: 100, contrast: 100, invert: false }
     };
     window.loupeActive = false;
+    window.hideTraces = false;
+    window.lockTraces = false;
 
     const filterCache = {
         pre: { src: null, key: '', canvas: null },
         post: { src: null, key: '', canvas: null }
     };
 
-    // 1. ICONOS MINIMALISTAS EN LA BARRA SUPERIOR
+    // Clase compacta elástica: en celular (px-1 text-xs flex-1) caben los 11 en 1 sola línea; en PC mantiene su tamaño normal
+    const BTN_BASE_CLS = "flex-1 sm:flex-none min-w-0 px-1 sm:px-2.5 py-1.5 rounded text-xs sm:text-sm font-bold transition-colors flex items-center justify-center shadow-sm select-none";
+
+    // 1. ICONOS MINIMALISTAS AUTO-AJUSTABLES EN LA BARRA SUPERIOR
     function applyMinimalistHeaderIcons() {
         const btnPatient = document.querySelector('button[onclick="openPatientModal()"]');
         if (btnPatient) {
             btnPatient.removeAttribute('data-i18n');
             btnPatient.innerHTML = '👤';
             btnPatient.title = currentLang === 'es' ? 'Datos del Paciente' : 'Patient Information';
-            btnPatient.className = "bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 px-2.5 py-1.5 rounded text-sm font-bold transition-colors border border-blue-500/50 flex items-center justify-center shadow-sm";
+            btnPatient.className = `${BTN_BASE_CLS} bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/50`;
         }
 
         const btnGaze = document.getElementById('gaze-btn');
         if (btnGaze) {
             btnGaze.innerHTML = gazeDirection === 1 ? '➡️' : '⬅️';
             btnGaze.title = currentLang === 'es' ? 'Dirección de la Mirada' : 'Gaze Direction';
-            btnGaze.className = "bg-gray-800 hover:bg-gray-700 text-emerald-400 border border-emerald-600/50 px-2.5 py-1.5 rounded text-sm font-bold transition-colors flex items-center justify-center shadow-sm";
+            btnGaze.className = `${BTN_BASE_CLS} bg-gray-800 hover:bg-gray-700 text-emerald-400 border border-emerald-600/50`;
         }
 
         const imgInput = document.getElementById('imageLoader');
@@ -42,7 +47,7 @@
             iconSpan.textContent = '📤';
             lbl.insertBefore(iconSpan, imgInput);
             lbl.title = currentLang === 'es' ? 'Cargar Radiografía (Rx)' : 'Load X-Ray';
-            lbl.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded text-sm font-bold cursor-pointer flex items-center justify-center transition-colors shadow-sm";
+            lbl.className = `${BTN_BASE_CLS} bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer`;
         }
 
         const btnSave = document.querySelector('button[onclick="openSaveModal()"]');
@@ -50,7 +55,7 @@
             btnSave.removeAttribute('data-i18n');
             btnSave.innerHTML = '💾';
             btnSave.title = currentLang === 'es' ? 'Guardar y Exportar Estudio' : 'Save & Export Study';
-            btnSave.className = "bg-purple-600 hover:bg-purple-500 text-white px-2.5 py-1.5 rounded text-sm font-bold transition-colors border border-purple-500 flex items-center justify-center shadow-sm";
+            btnSave.className = `${BTN_BASE_CLS} bg-purple-600 hover:bg-purple-500 text-white border border-purple-500`;
         }
 
         const btnClear = document.querySelector('button[onclick="clearCanvas()"]');
@@ -58,7 +63,7 @@
             btnClear.removeAttribute('data-i18n');
             btnClear.innerHTML = '🧹';
             btnClear.title = currentLang === 'es' ? 'Limpiar trazos actuales' : 'Clear current traces';
-            btnClear.className = "bg-gray-700 hover:bg-gray-600 text-white px-2.5 py-1.5 rounded text-sm font-bold transition-colors border border-gray-600 flex items-center justify-center shadow-sm";
+            btnClear.className = `${BTN_BASE_CLS} bg-gray-700 hover:bg-gray-600 text-white border border-gray-600`;
         }
 
         const btnReset = document.querySelector('button[onclick="resetAllStudy()"]');
@@ -66,27 +71,104 @@
             btnReset.removeAttribute('data-i18n');
             btnReset.innerHTML = '🗑️';
             btnReset.title = currentLang === 'es' ? 'Quitar todo (Reiniciar)' : 'Reset All Study';
-            btnReset.className = "bg-red-700/80 hover:bg-red-600 text-white px-2.5 py-1.5 rounded text-sm font-bold transition-colors border border-red-500 flex items-center justify-center shadow-sm";
+            btnReset.className = `${BTN_BASE_CLS} bg-red-700/80 hover:bg-red-600 text-white border border-red-500`;
+        }
+
+        const btnPdf = document.getElementById('btn-top-pdf');
+        if (btnPdf) {
+            btnPdf.className = `${BTN_BASE_CLS} bg-emerald-600/30 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/60`;
         }
 
         if (btnSave && !document.getElementById('btn-rx-adjust')) {
+            const parentBar = btnSave.parentNode;
+
             const btnRx = document.createElement('button');
             btnRx.id = 'btn-rx-adjust';
             btnRx.innerHTML = '🔆';
             btnRx.title = currentLang === 'es' ? 'Brillo, Contraste y Modo Negativo' : 'Brightness, Contrast & Negative Mode';
-            btnRx.className = "bg-amber-600/20 hover:bg-amber-600/40 text-amber-300 border border-amber-500/50 px-2.5 py-1.5 rounded text-sm font-bold transition-colors flex items-center justify-center shadow-sm";
+            btnRx.className = `${BTN_BASE_CLS} bg-amber-600/20 hover:bg-amber-600/40 text-amber-300 border border-amber-500/50`;
             btnRx.onclick = toggleRxAdjustPanel;
-            btnSave.parentNode.insertBefore(btnRx, btnSave);
+            parentBar.insertBefore(btnRx, btnSave);
 
             const btnLoupe = document.createElement('button');
             btnLoupe.id = 'btn-rx-loupe';
             btnLoupe.innerHTML = '🔍';
             btnLoupe.title = currentLang === 'es' ? 'Activar/Desactivar Lupa de Precisión' : 'Toggle Precision Loupe';
-            btnLoupe.className = "bg-gray-800 hover:bg-gray-700 text-sky-400 border border-sky-600/50 px-2.5 py-1.5 rounded text-sm font-bold transition-colors flex items-center justify-center shadow-sm";
             btnLoupe.onclick = togglePrecisionLoupe;
-            btnSave.parentNode.insertBefore(btnLoupe, btnSave);
+            parentBar.insertBefore(btnLoupe, btnSave);
+
+            const btnEye = document.createElement('button');
+            btnEye.id = 'btn-rx-eye';
+            btnEye.onclick = toggleHideTraces;
+            parentBar.insertBefore(btnEye, btnSave);
+
+            const btnLock = document.createElement('button');
+            btnLock.id = 'btn-rx-lock';
+            btnLock.onclick = toggleLockTraces;
+            parentBar.insertBefore(btnLock, btnSave);
+        }
+
+        // Forzar a que la fila de iconos nunca haga salto de línea en pantallas de celular
+        if (btnSave && btnSave.parentNode) {
+            const bar = btnSave.parentNode;
+            bar.classList.remove('flex-wrap');
+            bar.classList.add('flex-nowrap', 'w-full', ' sm:w-auto', 'justify-between', 'gap-1');
+        }
+
+        syncQuickButtonsUI();
+    }
+
+    function syncQuickButtonsUI() {
+        const isEs = currentLang === 'es';
+        const btnLoupe = document.getElementById('btn-rx-loupe');
+        if (btnLoupe) {
+            btnLoupe.className = window.loupeActive
+                ? `${BTN_BASE_CLS} bg-sky-600 text-white border border-sky-400 shadow-lg`
+                : `${BTN_BASE_CLS} bg-gray-800 hover:bg-gray-700 text-sky-400 border border-sky-600/50`;
+        }
+
+        const btnEye = document.getElementById('btn-rx-eye');
+        if (btnEye) {
+            btnEye.innerHTML = window.hideTraces ? '🙈' : '👁️';
+            btnEye.title = isEs ? 'Mostrar / Ocultar Trazos (Ver Rx Limpia)' : 'Show / Hide Traces (Clean X-Ray)';
+            btnEye.className = window.hideTraces
+                ? `${BTN_BASE_CLS} bg-teal-600 text-white border border-teal-400 shadow-lg`
+                : `${BTN_BASE_CLS} bg-gray-800 hover:bg-gray-700 text-teal-300 border border-teal-600/50`;
+        }
+
+        const btnLock = document.getElementById('btn-rx-lock');
+        if (btnLock) {
+            btnLock.innerHTML = window.lockTraces ? '🔒' : '🔓';
+            btnLock.title = isEs ? 'Bloquear / Desbloquear Puntos (Zoom Seguro)' : 'Lock / Unlock Points (Safe Zoom)';
+            btnLock.className = window.lockTraces
+                ? `${BTN_BASE_CLS} bg-rose-600 text-white border border-rose-400 shadow-lg`
+                : `${BTN_BASE_CLS} bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-600`;
+        }
+
+        const btnPdf = document.getElementById('btn-top-pdf');
+        if (btnPdf) {
+            btnPdf.className = `${BTN_BASE_CLS} bg-emerald-600/30 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/60`;
         }
     }
+
+    window.toggleHideTraces = function() {
+        window.hideTraces = !window.hideTraces;
+        syncQuickButtonsUI();
+        draw();
+        if (isCompareMode) drawCompareCanvases();
+        updateStatus(window.hideTraces
+            ? (currentLang === 'es' ? "🙈 Trazos ocultos temporalmente (Vista de Rx limpia)." : "🙈 Traces temporarily hidden (Clean X-Ray view).")
+            : (currentLang === 'es' ? "👁️ Trazos visibles nuevamente." : "👁️ Traces visible again."));
+    };
+
+    window.toggleLockTraces = function() {
+        window.lockTraces = !window.lockTraces;
+        if (window.lockTraces && typeof deactivateTool === 'function') deactivateTool();
+        syncQuickButtonsUI();
+        updateStatus(window.lockTraces
+            ? (currentLang === 'es' ? "🔒 Puntos bloqueados: Puedes hacer zoom y mover la Rx sin alterar los trazos." : "🔒 Points locked: Safe zoom and pan enabled.")
+            : (currentLang === 'es' ? "🔓 Puntos desbloqueados: Edición activa." : "🔓 Points unlocked: Editing active."));
+    };
 
     // 2. PANEL DE BRILLO/CONTRASTE Y LUPA FLOTANTE EN DOCUMENT.BODY
     const mainContainer = document.getElementById('canvas-container');
@@ -143,7 +225,6 @@
         slContrast.addEventListener('change', onContrastChange);
     }
 
-    // Lupa en document.body con position:fixed para que jamás sea recortada en celulares
     const loupeCanvas = document.createElement('canvas');
     loupeCanvas.id = 'loupe-canvas';
     loupeCanvas.width = 140;
@@ -194,18 +275,29 @@
 
     window.togglePrecisionLoupe = function() {
         window.loupeActive = !window.loupeActive;
-        const btn = document.getElementById('btn-rx-loupe');
+        syncQuickButtonsUI();
         const lc = document.getElementById('loupe-canvas');
-        if (btn) {
-            btn.className = window.loupeActive
-                ? "bg-sky-600 text-white border border-sky-400 px-2.5 py-1.5 rounded text-sm font-bold transition-colors flex items-center justify-center shadow-lg"
-                : "bg-gray-800 hover:bg-gray-700 text-sky-400 border border-sky-600/50 px-2.5 py-1.5 rounded text-sm font-bold transition-colors flex items-center justify-center shadow-sm";
-        }
         if (lc && !window.loupeActive) lc.classList.add('hidden');
     };
 
-    // 3. MOTOR DE PÍXELES UNIVERSAL (LUT) PARA IPHONE, IPAD, ANDROID Y PC
+    // 3. MOTOR DE PÍXELES UNIVERSAL (LUT) Y OCULTACIÓN TEMPORAL DE TRAZOS (👁️)
     const nativeDrawImage = CanvasRenderingContext2D.prototype.drawImage;
+    const nativeStroke    = CanvasRenderingContext2D.prototype.stroke;
+    const nativeFill      = CanvasRenderingContext2D.prototype.fill;
+    const nativeFillText  = CanvasRenderingContext2D.prototype.fillText;
+
+    CanvasRenderingContext2D.prototype.stroke = function() {
+        if (window.hideTraces && (this === ctx || this.canvas?.id?.includes('compare'))) return;
+        return nativeStroke.apply(this, arguments);
+    };
+    CanvasRenderingContext2D.prototype.fill = function() {
+        if (window.hideTraces && (this === ctx || this.canvas?.id?.includes('compare'))) return;
+        return nativeFill.apply(this, arguments);
+    };
+    CanvasRenderingContext2D.prototype.fillText = function() {
+        if (window.hideTraces && (this === ctx || this.canvas?.id?.includes('compare'))) return;
+        return nativeFillText.apply(this, arguments);
+    };
 
     function getFilteredRxCanvas(img) {
         let stKey = currentStage;
@@ -268,7 +360,26 @@
         return nativeDrawImage.apply(this, arguments);
     };
 
-    // 4. LUPA INTELIGENTE: FLOTA SOBRE EL DEDO EN CELULAR Y EN ESQUINA SUPERIOR EN PC
+    // 4. BLOQUEO TÁCTIL DE PUNTOS (🔒): PERMITE MOVER Y HACER ZOOM SIN ALTERAR TRAZOS
+    window.addEventListener('load', function() {
+        applyMinimalistHeaderIcons();
+        if (typeof checkHit === 'function') {
+            const origHit = checkHit;
+            checkHit = function(x, y) {
+                if (window.lockTraces || window.hideTraces) return null;
+                return origHit(x, y);
+            };
+        }
+    });
+
+    canvas.addEventListener('contextmenu', function(e) {
+        if (window.lockTraces) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
+    }, true);
+
+    // 5. LUPA INTELIGENTE: FLOTA SOBRE EL DEDO EN CELULAR Y EN ESQUINA SUPERIOR EN PC
     function renderLoupe(clientX, clientY, isTouch) {
         const lc = document.getElementById('loupe-canvas');
         if (!lc || !window.loupeActive || !bgImage || isCompareMode) {
@@ -288,12 +399,10 @@
             lc.height = lSize;
         }
 
-        // Posicionamiento inteligente para que jamás se corte abajo ni lo tape el dedo
         let leftPx, topPx;
         if (isMobileScreen) {
             leftPx = clientX - lSize / 2;
-            topPx  = clientY - lSize - 46; // Flota 46px por encima de la yema del dedo
-            // Si el dedo sube muy cerca del borde superior, pasa la lupa a un costado del dedo
+            topPx  = clientY - lSize - 46;
             if (topPx < Math.max(52, rect.top + 6)) {
                 topPx = Math.max(56, Math.min(window.innerHeight - lSize - 20, clientY - lSize / 2));
                 leftPx = (clientX < window.innerWidth / 2) ? (clientX + 48) : (clientX - lSize - 48);
@@ -301,7 +410,6 @@
             leftPx = Math.max(8, Math.min(window.innerWidth - lSize - 8, leftPx));
             topPx  = Math.max(52, Math.min(window.innerHeight - lSize - 16, topPx));
         } else {
-            // En PC: Esquina superior derecha del visor (y salta a la izquierda si acercas el mouse)
             topPx  = rect.top + 16;
             leftPx = rect.right - lSize - 16;
             if (clientX > leftPx - 30 && clientY < topPx + lSize + 30) {
@@ -313,7 +421,6 @@
         lc.style.top  = `${Math.round(topPx)}px`;
         lc.classList.remove('hidden');
 
-        // Escala exacta entre píxeles de pantalla (con o sin zoom móvil) y el canvas real
         const scaleX = canvas.width / (rect.width || 1);
         const scaleY = canvas.height / (rect.height || 1);
         const cx = (clientX - rect.left) * scaleX;
@@ -330,16 +437,17 @@
         lCtx.fillRect(0, 0, lSize, lSize);
         nativeDrawImage.call(lCtx, canvas, cx - srcW / 2, cy - srcH / 2, srcW, srcH, 0, 0, lSize, lSize);
 
+        nativeStroke.call(lCtx);
         lCtx.strokeStyle = 'rgba(56, 189, 248, 0.85)';
         lCtx.lineWidth = 1.2;
         lCtx.beginPath();
         lCtx.moveTo(r - 18, r); lCtx.lineTo(r + 18, r);
         lCtx.moveTo(r, r - 18); lCtx.lineTo(r, r + 18);
-        lCtx.stroke();
+        nativeStroke.call(lCtx);
         lCtx.beginPath();
         lCtx.arc(r, r, 3, 0, 2 * Math.PI);
         lCtx.strokeStyle = '#f43f5e';
-        lCtx.stroke();
+        nativeStroke.call(lCtx);
     }
 
     canvas.addEventListener('mousemove', function(e) {
@@ -375,6 +483,8 @@
             pre: { brightness: 100, contrast: 100, invert: false },
             post: { brightness: 100, contrast: 100, invert: false }
         };
+        window.hideTraces = false;
+        window.lockTraces = false;
         filterCache.pre = { src: null, key: '', canvas: null };
         filterCache.post = { src: null, key: '', canvas: null };
         prevResetAll(s);
