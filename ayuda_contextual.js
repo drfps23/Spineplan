@@ -1,144 +1,242 @@
 // ============================================================================
-// ACTUALIZACIÓN 5 V2 (ayuda_contextual.js): AYUDA CONTEXTUAL EN BARRA PRINCIPAL
-// Se ubica exclusivamente junto a "EN / Pre-Op" dentro del área de trabajo
+// ACTUALIZACIÓN 5 V3 (ayuda_contextual.js): DETECCIÓN TOTAL DE PARÁMETROS + ❓
+// Reconoce todos los botones seleccionables del menú lateral sin excepción
 // ============================================================================
 
 (function() {
     window._lastToolContext = null;
 
-    // 1. BASE DE DATOS BILINGÜE DE HERRAMIENTAS CLÍNICAS (MODO CONTEXTUAL)
+    // 1. GUÍAS CLÍNICAS DE TODAS LAS HERRAMIENTAS DE MEDICIÓN MANUAL
     const TOOL_GUIDES = {
         es: {
             calibrate: {
-                name: "📏 Calibración de Escala (cm)",
+                name: "📏 Calibrar Escala (cm)",
                 badge: "1. Herramientas Básicas • Escala Real",
                 steps: [
-                    "Haz clic en el **extremo inicial** de la regla o testigo métrico de la radiografía.",
-                    "Haz clic en el **extremo final** de la medida conocida (ej. 5 cm o 10 cm).",
-                    "Ingresa el valor en centímetros cuando aparezca el cuadro."
+                    "**Punto 1:** Haz clic en el extremo inicial del testigo métrico o regla visible en la radiografía.",
+                    "**Punto 2:** Haz clic en el extremo final de la distancia conocida (ej. 5 cm o 10 cm) e ingresa el valor en centímetros."
                 ],
-                tip: "Al calibrar la placa, el SVA, las líneas simples, las barras y el largo de cada tornillo se calculan en centímetros reales."
+                tip: "Al calibrar, el SVA, las líneas, las barras y el largo de los tornillos transpediculares se expresan en centímetros reales."
             },
             line: {
-                name: "📏 Línea Simple (Medición de Distancia)",
+                name: "📏 Línea Simple (Distancia Lineal)",
                 badge: "1. Herramientas Básicas • Longitud",
                 steps: [
-                    "**Punto 1:** Haz clic en el punto anatómico inicial que deseas medir.",
-                    "**Punto 2:** Haz clic en el punto final para obtener la distancia lineal."
+                    "**Punto 1:** Haz clic en la primera referencia anatómica.",
+                    "**Punto 2:** Haz clic en la segunda referencia para medir la distancia."
                 ],
-                tip: "Si ya calibraste la radiografía, te mostrará la distancia exacta en centímetros (cm); de lo contrario, en píxeles (px)."
+                tip: "Muestra la distancia en centímetros (cm) si la placa está calibrada, o en píxeles (px)."
             },
             circle: {
-                name: "⭕ Círculo (Referencia Anatómica / Cabeza Femoral)",
+                name: "⭕ Círculo (Contorno / Cabeza Femoral)",
                 badge: "1. Herramientas Básicas • Geometría",
                 steps: [
-                    "**Punto 1 (Centro):** Haz clic en el centro de la estructura esférica o vertebral.",
-                    "**Punto 2 (Radio):** Desliza y haz clic en el borde para fijar el diámetro del círculo."
+                    "**Punto 1 (Centro):** Haz clic en el centro de la cabeza femoral o estructura redonda.",
+                    "**Punto 2 (Borde):** Haz clic en el contorno externo para fijar el radio."
                 ],
-                tip: "Puedes arrastrar el centro o el borde del círculo en cualquier momento para ajustarlo con precisión."
+                tip: "Puedes arrastrar el centro o el borde del círculo en cualquier momento para ajustarlo."
             },
             cobb: {
-                name: "📐 Ángulos de Cobb Sagitales (Lordosis / Cifosis TK)",
-                badge: "Módulos 1 y 3 • Curvas Sagitales",
+                name: "📐 Ángulo de Cobb Libre",
+                badge: "1. Herramientas Básicas • Ángulo Intervertebral",
                 steps: [
-                    "**Puntos 1 y 2 (Platillo Superior):** Haz clic en el borde anterior y posterior del platillo vertebral superior del segmento (ej. L1, L4, T4 o C2).",
-                    "**Puntos 3 y 4 (Platillo Inferior):** Haz clic en el borde anterior y posterior del platillo vertebral inferior del segmento (ej. S1, L5, T12 o C7)."
+                    "**Puntos 1 y 2 (Platillo Superior):** Marca el borde anterior y posterior del platillo vertebral superior.",
+                    "**Puntos 3 y 4 (Platillo Inferior):** Marca el borde anterior y posterior del platillo vertebral inferior."
                 ],
-                tip: "Si necesitas corregir la inclinación de una línea después de medir, solo arrastra cualquiera de sus extremos con el mouse o el dedo."
+                tip: "Arrastra cualquiera de los 4 puntos si deseas perfeccionar la inclinación sobre los platillos."
+            },
+            tk: {
+                name: "📐 Tk - Cifosis Torácica (T4 - T12)",
+                badge: "1 y 4. Curvas Sagitales • Cifosis Torácica",
+                steps: [
+                    "**Puntos 1 y 2 (Platillo Superior de T4):** Haz clic en el borde anterior y posterior del platillo superior de **T4**.",
+                    "**Puntos 3 y 4 (Platillo Inferior de T12):** Haz clic en el borde anterior y posterior del platillo inferior de **T12**."
+                ],
+                tip: "El valor de la cifosis torácica se integra automáticamente en la tabla de resultados y responde al cierre de osteotomías."
             },
             pelvis: {
-                name: "🦴 Parámetros Pélvicos (PI, PT y SS)",
-                badge: "2. Parámetros Pélvicos • Base S1",
+                name: "🦴 Medir PI, PT y SS (Parámetros Pélvicos)",
+                badge: "2. Parámetros Pélvicos • Base Espinopélvica",
                 steps: [
-                    "**Puntos 1 y 2 (Cabezas Femorales):** Haz clic en el centro de cada cabeza femoral (si están superpuestas, haz clic dos veces en el centro bicoxofemoral).",
-                    "**Punto 3 (Borde Anterior de S1):** Haz clic en la esquina anterosuperior del platillo sacro (promontorio de S1).",
-                    "**Punto 4 (Borde Posterior de S1):** Haz clic en la esquina posterosuperior del platillo de S1."
+                    "**Punto 1 (Cabeza Femoral 1):** Haz clic en el centro de la primera cabeza femoral.",
+                    "**Punto 2 (Cabeza Femoral 2):** Haz clic en el centro de la segunda cabeza femoral (si están superpuestas, haz clic en el mismo centro bicoxofemoral).",
+                    "**Punto 3 (Borde Anterior de S1):** Haz clic en el promontorio sacro (esquina anterosuperior de **S1**).",
+                    "**Punto 4 (Borde Posterior de S1):** Haz clic en la esquina posterosuperior del platillo de **S1**."
                 ],
-                tip: "Mide siempre la Pelvis primero: calcula PI, PT y SS al instante y habilita el cálculo automático de L1-PA, T4-PA, C7-PA, C2-PA, Global Tilt (GT) y GAP Score."
+                tip: "Al colocar el 4to punto, el programa calcula automáticamente PI, PT y SS, y deja registrada la pelvis para que los ángulos PA, Tilt, Global Tilt y GAP Score funcionen con un solo clic."
             },
-            pa: {
-                name: "🎯 Ángulos Proporcionales (L1-PA / T4-PA / C7-PA / C2-PA)",
-                badge: "3. Balance Sagital • Ángulos Pélvico-Vertebrales",
+            l1_pa: {
+                name: "🎯 L1-PA (Ángulo Pélvico de L1)",
+                badge: "3. Balance Sagital • Proporcionalidad Lumbar",
                 steps: [
-                    "**Requisito previo:** Haber medido primero **PI, PT y SS** para registrar el platillo de S1 y las cabezas femorales.",
-                    "**Un solo clic:** Haz clic directamente en el **centro del cuerpo vertebral** correspondiente (L1, T4, C7 o C2)."
+                    "**Requisito:** Haber medido primero **PI, PT y SS**.",
+                    "**1 solo clic:** Haz clic directamente en el **centro del cuerpo vertebral de L1**."
                 ],
-                tip: "El programa une automáticamente la vértebra con el centro de S1 y el eje bicoxofemoral, y calcula el Mismatch (T4-PA menos L1-PA) en la tabla."
+                tip: "Se une automáticamente al centro de S1 y al eje bicoxofemoral. Su valor ideal se calcula según la PI del paciente (0.5 × PI - 19°)."
             },
-            tilt: {
-                name: "🧭 Inclinación Vertebral Sagital (L1 / T4 / C7 / C2 Tilt)",
-                badge: "3. Balance Sagital • Inclinación respecto a la Vertical",
+            t4_pa: {
+                name: "🎯 T4-PA (Ángulo Pélvico de T4)",
+                badge: "3. Balance Sagital • Alineación Toracolumbar",
                 steps: [
-                    "**Si ya mediste la Pelvis (S1):** Solo haz **1 clic** en el centro del cuerpo vertebral (L1, T4, C7 o C2) y se unirá automáticamente al centro de S1.",
-                    "**Si es independiente:** Marca el punto superior y el punto inferior de referencia respecto al eje vertical."
+                    "**Requisito:** Haber medido primero **PI, PT y SS**.",
+                    "**1 solo clic:** Haz clic directamente en el **centro del cuerpo vertebral de T4**."
                 ],
-                tip: "Los ángulos Tilt no dependen de la calibración en centímetros y se actualizan en tiempo real al cerrar las osteotomías de Schwab."
+                tip: "Al tener medidos L1-PA y T4-PA, el programa calcula automáticamente el Mismatch (T4-PA menos L1-PA, ideal < 3°)."
+            },
+            c7_pa: {
+                name: "🎯 C7-PA (Ángulo Pélvico de C7)",
+                badge: "3. Balance Sagital • Alineación Global",
+                steps: [
+                    "**Requisito:** Haber medido primero **PI, PT y SS**.",
+                    "**1 solo clic:** Haz clic directamente en el **centro del cuerpo vertebral de C7**."
+                ],
+                tip: "Une automáticamente C7 con el centro del platillo de S1 y las cabezas femorales."
+            },
+            c2_pa: {
+                name: "🎯 C2-PA (Ángulo Pélvico de C2)",
+                badge: "3. Balance Sagital • Alineación Craneocervical",
+                steps: [
+                    "**Requisito:** Haber medido primero **PI, PT y SS**.",
+                    "**1 solo clic:** Haz clic directamente en el **centro del cuerpo/odontoides de C2**."
+                ],
+                tip: "Evalúa la alineación global desde C2 hasta la base pélvica sin depender de la calibración de la imagen."
+            },
+            l1_tilt: {
+                name: "🧭 L1 Tilt (Inclinación Sagital de L1)",
+                badge: "3. Balance Sagital • Inclinación Respecto a la Vertical",
+                steps: [
+                    "**Con Pelvis ya medida:** Haz **1 solo clic** en el **centro del cuerpo de L1** (se conecta automáticamente al centro de S1).",
+                    "**Sin Pelvis medida:** Marca el centro de L1 y luego el centro del platillo de S1."
+                ],
+                tip: "Mide el ángulo de inclinación de L1 respecto a la línea vertical."
+            },
+            t4_tilt: {
+                name: "🧭 T4 Tilt (Inclinación Sagital de T4)",
+                badge: "3. Balance Sagital • Inclinación Respecto a la Vertical",
+                steps: [
+                    "**Con Pelvis ya medida:** Haz **1 solo clic** en el **centro del cuerpo de T4**.",
+                    "**Sin Pelvis medida:** Marca el centro de T4 y luego el centro del platillo de S1."
+                ],
+                tip: "Mide la inclinación del segmento torácico superior respecto a la vertical desde S1."
+            },
+            c7_tilt: {
+                name: "🧭 C7 Tilt (Inclinación Sagital de C7)",
+                badge: "3. Balance Sagital • Inclinación Global de C7",
+                steps: [
+                    "**Con Pelvis ya medida:** Haz **1 solo clic** en el **centro del cuerpo de C7**.",
+                    "**Sin Pelvis medida:** Marca el centro de C7 y luego el centro del platillo de S1."
+                ],
+                tip: "Parámetro angular equivalente a la plomada de C7 pero independiente de la magnificación radiográfica."
+            },
+            c2_tilt: {
+                name: "🧭 C2 Tilt (Inclinación Sagital de C2)",
+                badge: "3. Balance Sagital • Inclinación Global de C2",
+                steps: [
+                    "**Con Pelvis ya medida:** Haz **1 solo clic** en el **centro del cuerpo/odontoides de C2**.",
+                    "**Sin Pelvis medida:** Marca el centro de C2 y luego el centro del platillo de S1."
+                ],
+                tip: "Valor ideal entre 1° y -3°. Se actualiza en vivo cuando simulas el cierre de osteotomías."
             },
             sva: {
-                name: "📍 Plomada Sagital (SVA: C7 a S1 / cSVA)",
-                badge: "3. Balance Sagital • Traslación Horizontal",
+                name: "📍 SVA (Plomada de C7 a S1)",
+                badge: "3. Balance Sagital • Traslación Sagital Global",
                 steps: [
-                    "**Punto 1 (Plomada):** Haz clic en el **centro del cuerpo vertebral de C7** (o C2 para cSVA).",
-                    "**Punto 2 (Referencia S1):** Haz clic en la **esquina posterosuperior del platillo de S1** (si ya mediste la Pelvis, se ancla automáticamente o con el segundo clic)."
+                    "**Punto 1 (C7):** Haz clic en el **centro del cuerpo vertebral de C7**.",
+                    "**Punto 2 (S1):** Si no has medido la pelvis, haz clic en la **esquina posterosuperior del platillo de S1** (si ya mediste la pelvis, toma S1 automáticamente o con el 2do clic)."
                 ],
-                tip: "Con la radiografía calibrada, el SVA te muestra la distancia horizontal exacta en centímetros (normal < 4 cm)."
+                tip: "Mide la distancia horizontal entre la plomada de C7 y el borde posterosuperior de S1 (valor normal < 4 cm)."
             },
-            gt: {
-                name: "📐 Global Tilt (GT - Inclinación Global C7-S1-Fémures)",
-                badge: "3. Balance Sagital • Ángulo Global Espinopélvico",
+            l1_s1: {
+                name: "📐 L1-S1 (Lordosis Lumbar Global)",
+                badge: "4. Alineación Regional • Lordosis Lumbar",
                 steps: [
-                    "**Requisito previo:** Haber medido primero los **Parámetros Pélvicos (PI, PT y SS)**.",
-                    "**Un solo clic:** Haz clic en el **centro del cuerpo vertebral de C7**."
+                    "**Puntos 1 y 2 (Platillo Superior de L1):** Marca el borde anterior y posterior del platillo superior de **L1**.",
+                    "**Puntos 3 y 4 (Platillo Superior de S1):** Marca el borde anterior y posterior del platillo de **S1**."
                 ],
-                tip: "El Global Tilt (GT) combina la anteversión del tronco (SVA) y la retroversión pélvica (PT) en un solo ángulo que no se altera si la radiografía no está calibrada."
+                tip: "Al medir L1-S1, el programa calcula la lordosis ideal (0.6 × PI + 30°) y alimenta automáticamente el cálculo del GAP Score."
+            },
+            l4_s1: {
+                name: "📐 L4-S1 (Lordosis Lumbar Distal)",
+                badge: "4. Alineación Regional • Arco Inferior Lumbar",
+                steps: [
+                    "**Puntos 1 y 2 (Platillo Superior de L4):** Marca el borde anterior y posterior del platillo superior de **L4**.",
+                    "**Puntos 3 y 4 (Platillo Superior de S1):** Marca el borde anterior y posterior del platillo de **S1**."
+                ],
+                tip: "Representa ~2/3 de la lordosis total (ideal 35° a 40°) y permite calcular el Índice de Distribución de Lordosis (LDI) en el GAP Score."
+            },
+            l4_l5: {
+                name: "📐 L4-L5 (Ángulo Segmentario)",
+                badge: "4. Alineación Regional • Segmento L4-L5",
+                steps: [
+                    "**Puntos 1 y 2:** Marca el borde anterior y posterior del platillo superior de **L4**.",
+                    "**Puntos 3 y 4:** Marca el borde anterior y posterior del platillo inferior de **L5**."
+                ],
+                tip: "Útil para cuantificar cuánto aporta el segmento L4-L5 a la lordosis distal."
+            },
+            cervical_cobb: {
+                name: "📐 Curva Cervical (C2-C7 / C0-C2 / T1 Slope)",
+                badge: "5. Alineación Cervical • Ángulos Cervicales",
+                steps: [
+                    "**Puntos 1 y 2 (Referencia Superior):** Marca el borde anterior y posterior del platillo inferior de **C2** (o línea de McGregor/T1 según el botón elegido).",
+                    "**Puntos 3 y 4 (Referencia Inferior):** Marca el borde anterior y posterior del platillo inferior de **C7** (o horizontal de referencia)."
+                ],
+                tip: "Puedes arrastrar cualquiera de los puntos posteriormente para ajustar la precisión sobre los platillos cervicales."
+            },
+            csva: {
+                name: "📍 cSVA (Plomada Cervical C2 a C7)",
+                badge: "5. Alineación Cervical • Balance Traslacional Cervical",
+                steps: [
+                    "**Punto 1 (C2):** Haz clic en el **centro de la odontoides / cuerpo de C2**.",
+                    "**Punto 2 (C7):** Haz clic en la **esquina posterosuperior del cuerpo vertebral de C7**."
+                ],
+                tip: "Mide la traslación sagital cervical en centímetros cuando la placa está calibrada (normal < 4 cm)."
             },
             cobb_coronal: {
                 name: "📐 Ángulo de Cobb Coronal (Escoliosis AP)",
-                badge: "Plano Coronal (AP) • Curvas Escolióticas",
+                badge: "6. Plano Coronal (AP) • Curvas Escolióticas",
                 steps: [
                     "**Puntos 1 y 2 (Vértebra Límite Superior):** Marca los bordes izquierdo y derecho del platillo superior de la vértebra más inclinada arriba.",
                     "**Puntos 3 y 4 (Vértebra Límite Inferior):** Marca los bordes izquierdo y derecho del platillo inferior de la vértebra más inclinada abajo."
                 ],
-                tip: "Cuando traces las Barras Coronales AP y deslices 'Reducción a la Barra (0-100%)', este ángulo de Cobb disminuirá en vivo mostrando la corrección."
+                tip: "Se reduce en tiempo real cuando trazas las Barras Coronales AP y mueves el deslizador de Reducción y Desrotación."
             },
             point_marker: {
-                name: "📍 Balance Coronal (Plomada C7 - CSVL)",
-                badge: "Plano Coronal (AP) • Alineación Media",
+                name: "📍 Balance Coronal AP (Plomada C7 y Línea Media S1)",
+                badge: "6. Plano Coronal (AP) • Balance C7 - CSVL",
                 steps: [
-                    "**Marcador C7:** Selecciona el botón de C7 y haz clic en el centro de C7 en la radiografía AP.",
-                    "**Marcador S1 (CSVL):** Selecciona el botón de S1 y haz clic en el centro del sacro (Línea Vertical Centro-Sacra)."
+                    "**Si seleccionaste C7:** Haz **1 clic** en el centro del cuerpo/proceso espinoso de **C7** en la placa AP.",
+                    "**Si seleccionaste S1 (CSVL):** Haz **1 clic** en el centro del sacro (**S1**) para trazar la Línea Vertical Centro-Sacra."
                 ],
-                tip: "Calcula automáticamente el desplazamiento lateral del tronco respecto a la línea media sacra."
+                tip: "Al marcar ambos puntos, el programa mide automáticamente la desviación coronal del tronco respecto a la pelvis."
             },
             osteotomy: {
-                name: "✂️ Osteotomía Correctiva de Schwab (Grados 1 al 6)",
-                badge: "Módulo 7 • Simulación Quirúrgica Sagital",
+                name: "✂️ Colocar Osteotomía de Schwab (Cuña 1 a 6)",
+                badge: "7. Osteotomías Correctivas • Simulación Sagital",
                 steps: [
-                    "**Punto 1 (Corte Superior):** Haz clic en la cortical anterior del cuerpo vertebral (borde superior de la cuña).",
-                    "**Punto 2 (Ápex / Bisagra Posterior):** Haz clic en el muro vertebral posterior (vértice de bisagra).",
-                    "**Punto 3 (Corte Inferior):** Haz clic más abajo en la cortical anterior para fijar la apertura de la cuña."
+                    "**Punto 1 (Corte Superior):** Haz clic en el borde anterior del cuerpo vertebral donde inicia el corte superior.",
+                    "**Punto 2 (Bisagra / Ápex):** Haz clic en el muro vertebral posterior (punto de bisagra).",
+                    "**Punto 3 (Corte Inferior):** Haz clic más abajo en la cortical anterior para abrir el ángulo de la cuña."
                 ],
-                tip: "Abre '⚙️ 3. Ajustar Grados' para elegir un Grado de Schwab (1 a 6) y presiona '✂️ 2. Simular Cierre' para plegar la radiografía, los tornillos y recalcular toda la tabla."
+                tip: "Puedes colocar varios cortes en distintos niveles. Todos los puntos son arrastrables cuando la simulación está apagada."
             },
             rod_sagittal: {
                 name: "🔩 Barra y Tornillos Transpediculares Sagitales",
-                badge: "Módulo 7B • Instrumentación en Perfil",
+                badge: "7B. Instrumentación • Perfil con Largo en cm",
                 steps: [
-                    "**Colocar tornillos:** Haz clic en cada pedículo vertebral siguiendo tu planificación.",
-                    "**Cerrar la barra:** Haz **doble clic en el último tornillo** (o toca el botón verde de Terminar Barra).",
-                    "**Medir largo del tornillo (cm):** Arrastra el **punto amarillo de la punta de cualquier tornillo** hasta la cortical anterior del cuerpo vertebral."
+                    "**Colocar tornillos:** Haz clic en cada pedículo vertebral a instrumentar.",
+                    "**Terminar barra:** Haz **doble clic en el último tornillo** (o toca el botón verde '✅ Terminar Barra Actual').",
+                    "**Ajustar largo del tornillo (cm):** Arrastra el **punto amarillo de la punta de cualquier tornillo** hasta la cortical anterior vertebral."
                 ],
-                tip: "Puedes estirar e inclinar cada tornillo individualmente. Al activar el cierre de osteotomías, los tornillos y la barra rotan solidarios con la columna."
+                tip: "Cada tornillo muestra su longitud exacta en cm y permite ajustar su inclinación (ej. S1 al promontorio o tornillos ilíacos)."
             },
             rod_coronal: {
-                name: "🔩 Barras Coronales AP y Reducción de Escoliosis",
-                badge: "Módulo 7B • Instrumentación AP (2 Lados)",
+                name: "🔩 Barras Coronales AP (2 Lados)",
+                badge: "7B. Instrumentación • Escoliosis AP",
                 steps: [
-                    "**Primera Barra:** Haz clic en cada pedículo de un lado de la columna y cierra con **doble clic en el último tornillo**.",
-                    "**Segunda Barra:** Vuelve a tocar '🔩 2. Barras Coronales' y traza el lado opuesto, cerrando con doble clic.",
-                    "**Simular Corrección:** En la ventana morada, mueve el deslizador **'Reducción a la Barra y Desrotación (0% a 100%)'**."
+                    "**Primera Barra:** Haz clic en cada pedículo de un lado de la curva y haz **doble clic en el último tornillo** para cerrarla.",
+                    "**Segunda Barra:** Vuelve a tocar el botón y marca los pedículos del lado contrario, cerrando con doble clic."
                 ],
-                tip: "Endereza progresivamente las dos barras, alinea la radiografía AP en vivo y calcula el Cobb Coronal corregido y la desrotación apical."
+                tip: "Al cerrar la barra en AP, se abre automáticamente el panel para simular la reducción coronal y ver el pronóstico de desrotación."
             }
         },
         en: {
@@ -146,161 +244,360 @@
                 name: "📏 Calibrate Scale (cm)",
                 badge: "1. Basic Tools • Real Metric Scale",
                 steps: [
-                    "Click the **start point** of the radiographic ruler or marker.",
-                    "Click the **end point** of the known distance (e.g., 5 cm or 10 cm).",
-                    "Enter the real length in centimeters when prompted."
+                    "**Point 1:** Click the start of the radiographic ruler or marker.",
+                    "**Point 2:** Click the end of the known segment (e.g., 5 cm or 10 cm) and enter its value in cm."
                 ],
-                tip: "Once calibrated, SVA, simple lines, rod lengths, and pedicle screw lengths are automatically displayed in real centimeters."
+                tip: "Converts SVA, lines, rods, and pedicle screw lengths into real centimeters."
             },
             line: {
-                name: "📏 Simple Line (Distance Measurement)",
-                badge: "1. Basic Tools • Linear Distance",
+                name: "📏 Simple Line (Linear Distance)",
+                badge: "1. Basic Tools • Length",
                 steps: [
                     "**Point 1:** Click the starting anatomical landmark.",
-                    "**Point 2:** Click the ending landmark to measure distance."
+                    "**Point 2:** Click the ending landmark."
                 ],
-                tip: "Displays real centimeters (cm) once the radiograph is calibrated."
+                tip: "Displays distance in cm when calibrated, or pixels (px) otherwise."
             },
             circle: {
                 name: "⭕ Circle (Anatomical Reference)",
                 badge: "1. Basic Tools • Geometry",
                 steps: [
-                    "**Point 1 (Center):** Click the center of the femoral head or structure.",
-                    "**Point 2 (Radius):** Click the outer edge to set the diameter."
+                    "**Point 1 (Center):** Click the center of the femoral head or circular structure.",
+                    "**Point 2 (Radius):** Click the outer margin to set the diameter."
                 ],
-                tip: "Drag the center or edge point anytime to adjust."
+                tip: "Drag the center or edge point at any time to adjust."
             },
             cobb: {
-                name: "📐 Sagittal Cobb Angle & TK (Kyphosis)",
-                badge: "Modules 1 & 3 • Sagittal Curves",
+                name: "📐 Free Cobb Angle",
+                badge: "1. Basic Tools • Intervertebral Angle",
                 steps: [
-                    "**Points 1 & 2 (Superior Endplate):** Click the anterior and posterior corners of the upper endplate.",
-                    "**Points 3 & 4 (Inferior Endplate):** Click the anterior and posterior corners of the lower endplate."
+                    "**Points 1 & 2 (Upper Endplate):** Click the anterior and posterior corners of the superior endplate.",
+                    "**Points 3 & 4 (Lower Endplate):** Click the anterior and posterior corners of the inferior endplate."
                 ],
-                tip: "Drag any endpoint afterward to fine-tune the angle."
+                tip: "Drag any of the 4 points afterward to refine alignment."
+            },
+            tk: {
+                name: "📐 Tk - Thoracic Kyphosis (T4 - T12)",
+                badge: "1 & 4. Sagittal Curves • Thoracic Kyphosis",
+                steps: [
+                    "**Points 1 & 2 (T4 Upper Endplate):** Click the anterior and posterior corners of the **T4** superior endplate.",
+                    "**Points 3 & 4 (T12 Lower Endplate):** Click the anterior and posterior corners of the **T12** inferior endplate."
+                ],
+                tip: "Automatically feeds the alignment table and updates during osteotomy closure."
             },
             pelvis: {
                 name: "🦴 Measure PI, PT & SS (Pelvic Parameters)",
-                badge: "2. Pelvic Parameters • S1 Base",
+                badge: "2. Pelvic Parameters • Spinopelvic Base",
                 steps: [
-                    "**Points 1 & 2 (Femoral Heads):** Click the center of each femoral head (click twice if overlapped).",
-                    "**Point 3 (Anterior S1):** Click the anterosuperior corner of the S1 endplate.",
-                    "**Point 4 (Posterior S1):** Click the posterosuperior corner of the S1 endplate."
+                    "**Point 1 (Femoral Head 1):** Click the center of the first femoral head.",
+                    "**Point 2 (Femoral Head 2):** Click the center of the second femoral head (click the same center if overlapped).",
+                    "**Point 3 (Anterior S1):** Click the anterosuperior corner of **S1** (sacral promontory).",
+                    "**Point 4 (Posterior S1):** Click the posterosuperior corner of the **S1** endplate."
                 ],
-                tip: "Always measure Pelvis first: it unlocks automatic calculations for L1-PA, T4-PA, C7-PA, C2-PA, Global Tilt (GT), and GAP Score."
+                tip: "Calculates PI, PT, and SS automatically and unlocks 1-click measurements for all PA angles, Tilt angles, Global Tilt, and GAP Score."
             },
-            pa: {
-                name: "🎯 Proportional Angles (L1-PA / T4-PA / C7-PA / C2-PA)",
-                badge: "3. Sagittal Balance • Pelvic-Vertebral Angles",
-                steps: [
-                    "**Prerequisite:** Measure **PI, PT & SS** first so S1 and the femoral heads are registered.",
-                    "**Single Click:** Click directly on the **center of the target vertebral body** (L1, T4, C7, or C2)."
-                ],
-                tip: "Automatically connects to the S1 center and bicoxofemoral axis, computing the T4-L1 Mismatch."
-            },
-            tilt: {
-                name: "🧭 Sagittal Vertebral Tilt (L1 / T4 / C7 / C2 Tilt)",
-                badge: "3. Sagittal Balance • Vertical Inclination",
-                steps: [
-                    "**If Pelvis is already measured:** Simply click **once** on the center of the vertebral body (L1, T4, C7, or C2).",
-                    "**If standalone:** Click the upper and lower reference points."
-                ],
-                tip: "Scale-free angular parameter that updates live during Schwab osteotomy closure."
-            },
-            sva: {
-                name: "📍 SVA (C7 Plumbline to S1) & cSVA",
-                badge: "3. Sagittal Balance • Translational Offset",
-                steps: [
-                    "**Point 1:** Click the **center of the C7 body** (or C2 for cSVA).",
-                    "**Point 2:** Click the **posterosuperior corner of S1**."
-                ],
-                tip: "Displays real centimeters (cm) once the X-Ray is calibrated."
-            },
-            gt: {
-                name: "📐 Global Tilt (GT)",
-                badge: "3. Sagittal Balance • Global Spinopelvic Angle",
+            l1_pa: {
+                name: "🎯 L1-PA (L1 Pelvic Angle)",
+                badge: "3. Sagittal Balance • Lumbar Proportionality",
                 steps: [
                     "**Prerequisite:** Measure **PI, PT & SS** first.",
-                    "**Single Click:** Click the **center of the C7 vertebral body**."
+                    "**Single Click:** Click directly on the **center of the L1 vertebral body**."
                 ],
-                tip: "Combines trunk inclination and pelvic retroversion into a single angle independent of radiographic magnification."
+                tip: "Automatically connects to the S1 center and bicoxofemoral axis (ideal = 0.5 × PI - 19°)."
+            },
+            t4_pa: {
+                name: "🎯 T4-PA (T4 Pelvic Angle)",
+                badge: "3. Sagittal Balance • Thoracolumbar Alignment",
+                steps: [
+                    "**Prerequisite:** Measure **PI, PT & SS** first.",
+                    "**Single Click:** Click directly on the **center of the T4 vertebral body**."
+                ],
+                tip: "Automatically computes the T4-L1 Mismatch (T4-PA minus L1-PA, ideal < 3°)."
+            },
+            c7_pa: {
+                name: "🎯 C7-PA (C7 Pelvic Angle)",
+                badge: "3. Sagittal Balance • Global Alignment",
+                steps: [
+                    "**Prerequisite:** Measure **PI, PT & SS** first.",
+                    "**Single Click:** Click directly on the **center of the C7 vertebral body**."
+                ],
+                tip: "Connects C7 to the S1 endplate center and femoral heads."
+            },
+            c2_pa: {
+                name: "🎯 C2-PA (C2 Pelvic Angle)",
+                badge: "3. Sagittal Balance • Craniocervical Alignment",
+                steps: [
+                    "**Prerequisite:** Measure **PI, PT & SS** first.",
+                    "**Single Click:** Click directly on the **center of the C2 body/dens**."
+                ],
+                tip: "Evaluates global spinopelvic alignment from C2 to the pelvis."
+            },
+            l1_tilt: {
+                name: "🧭 L1 Tilt (Sagittal L1 Inclination)",
+                badge: "3. Sagittal Balance • Vertical Tilt",
+                steps: [
+                    "**With Pelvis measured:** Click **once** on the **center of the L1 body** (auto-connects to S1).",
+                    "**Without Pelvis:** Click the center of L1 and then the S1 endplate center."
+                ],
+                tip: "Measures the inclination of L1 relative to the vertical axis."
+            },
+            t4_tilt: {
+                name: "🧭 T4 Tilt (Sagittal T4 Inclination)",
+                badge: "3. Sagittal Balance • Vertical Tilt",
+                steps: [
+                    "**With Pelvis measured:** Click **once** on the **center of the T4 body**.",
+                    "**Without Pelvis:** Click the center of T4 and then the S1 endplate center."
+                ],
+                tip: "Measures upper thoracic inclination from S1 relative to the vertical."
+            },
+            c7_tilt: {
+                name: "🧭 C7 Tilt (Sagittal C7 Inclination)",
+                badge: "3. Sagittal Balance • Global C7 Tilt",
+                steps: [
+                    "**With Pelvis measured:** Click **once** on the **center of the C7 body**.",
+                    "**Without Pelvis:** Click the center of C7 and then the S1 endplate center."
+                ],
+                tip: "Scale-free angular equivalent of the C7 plumbline."
+            },
+            c2_tilt: {
+                name: "🧭 C2 Tilt (Sagittal C2 Inclination)",
+                badge: "3. Sagittal Balance • Global C2 Tilt",
+                steps: [
+                    "**With Pelvis measured:** Click **once** on the **center of the C2 body/dens**.",
+                    "**Without Pelvis:** Click the center of C2 and then the S1 endplate center."
+                ],
+                tip: "Ideal range is 1° to -3°. Updates dynamically during osteotomy simulation."
+            },
+            sva: {
+                name: "📍 SVA (C7 Plumbline to S1)",
+                badge: "3. Sagittal Balance • Global Translation",
+                steps: [
+                    "**Point 1 (C7):** Click the **center of the C7 vertebral body**.",
+                    "**Point 2 (S1):** Click the **posterosuperior corner of the S1 endplate** (or auto-anchors if Pelvis is measured)."
+                ],
+                tip: "Measures horizontal offset between C7 plumbline and posterosuperior S1 (normal < 4 cm)."
+            },
+            l1_s1: {
+                name: "📐 L1-S1 (Global Lumbar Lordosis)",
+                badge: "4. Regional Alignment • Lumbar Lordosis",
+                steps: [
+                    "**Points 1 & 2 (L1 Upper Endplate):** Click the anterior and posterior corners of the **L1** superior endplate.",
+                    "**Points 3 & 4 (S1 Upper Endplate):** Click the anterior and posterior corners of the **S1** endplate."
+                ],
+                tip: "Computes ideal lordosis (0.6 × PI + 30°) and feeds the GAP Score automatically."
+            },
+            l4_s1: {
+                name: "📐 L4-S1 (Distal Lumbar Lordosis)",
+                badge: "4. Regional Alignment • Lower Lumbar Arc",
+                steps: [
+                    "**Points 1 & 2 (L4 Upper Endplate):** Click the anterior and posterior corners of the **L4** superior endplate.",
+                    "**Points 3 & 4 (S1 Upper Endplate):** Click the anterior and posterior corners of the **S1** endplate."
+                ],
+                tip: "Represents ~2/3 of total lordosis (ideal 35°-40°) and powers the Lordosis Distribution Index (LDI)."
+            },
+            l4_l5: {
+                name: "📐 L4-L5 (Segmental Lordosis)",
+                badge: "4. Regional Alignment • L4-L5 Segment",
+                steps: [
+                    "**Points 1 & 2:** Click the anterior and posterior corners of the **L4** superior endplate.",
+                    "**Points 3 & 4:** Click the anterior and posterior corners of the **L5** inferior endplate."
+                ],
+                tip: "Quantifies the segmental contribution of L4-L5."
+            },
+            cervical_cobb: {
+                name: "📐 Cervical Alignment (C2-C7 / C0-C2 / T1 Slope)",
+                badge: "5. Cervical Alignment • Cervical Curves",
+                steps: [
+                    "**Points 1 & 2 (Upper Reference):** Click the anterior and posterior corners of the **C2** inferior endplate (or T1 superior endplate).",
+                    "**Points 3 & 4 (Lower Reference):** Click the anterior and posterior corners of the **C7** inferior endplate (or horizontal reference)."
+                ],
+                tip: "Drag any endpoint afterward to fine-tune cervical endplate alignment."
+            },
+            csva: {
+                name: "📍 cSVA (Cervical C2-C7 Plumbline)",
+                badge: "5. Cervical Alignment • Cervical Translation",
+                steps: [
+                    "**Point 1 (C2):** Click the **center of the C2 dens/body**.",
+                    "**Point 2 (C7):** Click the **posterosuperior corner of the C7 vertebral body**."
+                ],
+                tip: "Measures horizontal cervical offset in cm once calibrated."
             },
             cobb_coronal: {
                 name: "📐 Coronal Cobb Angle (AP Scoliosis)",
-                badge: "Coronal Plane (AP) • Scoliotic Curves",
+                badge: "6. Coronal Plane (AP) • Scoliotic Curves",
                 steps: [
                     "**Points 1 & 2 (Upper End Vertebra):** Click the left and right borders of the upper endplate.",
                     "**Points 3 & 4 (Lower End Vertebra):** Click the left and right borders of the lower endplate."
                 ],
-                tip: "Dynamically reduces in real time when you slide the AP Coronal Rod Reduction control (0-100%)."
+                tip: "Reduces live when you slide the AP Coronal Rod Reduction bar (0-100%)."
             },
             point_marker: {
-                name: "📍 Coronal Balance (C7 - CSVL)",
-                badge: "Coronal Plane (AP) • Plumbline Offset",
+                name: "📍 Coronal Balance AP (C7 Plumbline & S1 CSVL)",
+                badge: "6. Coronal Plane (AP) • C7 - CSVL Offset",
                 steps: [
-                    "**C7 Marker:** Click the center of C7 on the AP radiograph.",
-                    "**S1 Marker (CSVL):** Click the center of S1 (Center Sacral Vertical Line)."
+                    "**If C7 selected:** Click **once** on the center of **C7** on the AP radiograph.",
+                    "**If S1 (CSVL) selected:** Click **once** on the center of the sacrum (**S1**) to set the Center Sacral Vertical Line."
                 ],
-                tip: "Calculates horizontal offset between the C7 plumbline and sacral midline."
+                tip: "Once both markers are placed, coronal trunk shift is calculated automatically."
             },
             osteotomy: {
-                name: "✂️ Schwab Corrective Osteotomy (Grades 1 to 6)",
-                badge: "Module 7 • Sagittal Surgical Simulation",
+                name: "✂️ Place Corrective Osteotomy (Schwab 1-6)",
+                badge: "7. Corrective Osteotomies • Sagittal Wedge",
                 steps: [
                     "**Point 1 (Upper Cut):** Click the anterior vertebral cortex at the upper edge of the wedge.",
-                    "**Point 2 (Apex / Hinge):** Click the posterior vertebral wall (hinge apex).",
-                    "**Point 3 (Lower Cut):** Click the anterior cortex below Point 1 to set the wedge angle."
+                    "**Point 2 (Hinge / Apex):** Click the posterior vertebral wall (hinge point).",
+                    "**Point 3 (Lower Cut):** Click the anterior cortex below Point 1 to open the wedge angle."
                 ],
-                tip: "Use '⚙️ 3. Adjust Degrees' to pick Schwab Grades 1-6, and toggle '✂️ 2. Simulate Wedge Closure' to fold the X-Ray, screws, and alignment table."
+                tip: "Place multiple cuts if needed. All 3 points of each wedge can be dragged freely when simulation is off."
             },
             rod_sagittal: {
                 name: "🔩 Sagittal Pedicle Screws & Rod",
-                badge: "Module 7B • Profile Construct",
+                badge: "7B. Instrumentation • Profile with cm Sizing",
                 steps: [
                     "**Place Screws:** Click each vertebral pedicle along your construct.",
                     "**Finish Rod:** **Double-click the last screw** (or click the green Finish button).",
-                    "**Size Screw Length (cm):** Drag the **yellow tip** of any screw to the anterior vertebral cortex to measure its length in cm."
+                    "**Measure Screw Length (cm):** Drag the **yellow tip** of any screw to the anterior vertebral cortex."
                 ],
-                tip: "Angle and stretch each screw tip independently. Screws and rods rotate automatically with osteotomy closure."
+                tip: "Each screw displays its exact length in cm and can be angled freely."
             },
             rod_coronal: {
-                name: "🔩 Coronal AP Rods & Scoliosis Reduction",
-                badge: "Module 7B • Bilateral AP Construct",
+                name: "🔩 Coronal AP Rods (2 Sides)",
+                badge: "7B. Instrumentation • AP Scoliosis",
                 steps: [
-                    "**First Rod:** Click each pedicle on one side and **double-click the last screw** to finish.",
-                    "**Second Rod:** Click '🔩 2. Coronal Rods' again and trace the opposite pedicles, finishing with a double-click.",
-                    "**Simulate Reduction:** Slide **'Rod Translation & Derotation (0-100%)'** in the purple panel."
+                    "**First Rod:** Click each pedicle on one side of the curve and **double-click the last screw** to finish.",
+                    "**Second Rod:** Click the button again and mark the contralateral pedicles, finishing with a double-click."
                 ],
-                tip: "Straightens both rods, aligns the AP radiograph live, and computes post-reduction Cobb and apical derotation."
+                tip: "Finishing an AP rod automatically opens the Coronal Reduction & Derotation prognosis panel."
             }
         }
     };
 
-    // 2. IDENTIFICAR LA HERRAMIENTA ACTIVA CON PRECISIÓN
-    function resolveCurrentToolKey(tool, subType, title) {
-        if (!tool) return null;
-        const tLow = (tool || '').toLowerCase();
-        const sLow = (subType || '').toLowerCase();
-        const tiLow = (title || '').toLowerCase();
+    // 2. MOTOR UNIVERSAL DE CLASIFICACIÓN (NUNCA FALLA CON NINGÚN BOTÓN DEL MENÚ)
+    function classifyParameterToKey(rawStr) {
+        if (!rawStr) return null;
+        const s = rawStr.toLowerCase();
 
-        if (tLow === 'rod') return sLow === 'coronal' ? 'rod_coronal' : 'rod_sagittal';
-        if (tLow === 'gt' || sLow === 'gt' || tiLow.includes('global tilt') || tiLow === 'gt') return 'gt';
-        if (tLow === 'line' || tLow === 'simple_line' || tiLow.includes('simple line') || tiLow.includes('línea')) return 'line';
-        if (tLow === 'circle' || tiLow.includes('circle') || tiLow.includes('círculo')) return 'circle';
-        if (tLow === 'tk' || tiLow.includes('tk') || tiLow.includes('kyphosis')) return 'cobb';
-        if (TOOL_GUIDES.es[tLow]) return tLow;
+        // Ignorar botones de acción inmediata / automática que abren modales o simulan sin marcar puntos
+        if (s.includes('toggleostsim') || s.includes('showostmodal') || s.includes('showgapmodal') || s.includes('showrodpanel') || s.includes('clearallrods')) {
+            return null;
+        }
+
+        if (s.includes('rod') || s.includes('barra') || s.includes('startorfinishrod')) {
+            return s.includes('coronal') || s.includes('ap ') || s.includes('2 lado') || s.includes('2 side') ? 'rod_coronal' : 'rod_sagittal';
+        }
+        if (s.includes('osteo') || s.includes('schwab') || s.includes('cuña') || s.includes('wedge')) return 'osteotomy';
+        if (s.includes('pelv') || s.includes('pi, pt') || s.includes('pi,pt') || s.includes('pi_pt') || s.includes('spinopelv') || /\bpi\b/.test(s)) return 'pelvis';
+        if (s.includes('calibr')) return 'calibrate';
+        if (s.includes('circle') || s.includes('círculo') || s.includes('circulo')) return 'circle';
+        if (s.includes('simple line') || s.includes('línea simple') || s.includes('linea simple') || /\bline\b/.test(s)) return 'line';
+
+        // Parámetros Sagitales PA y Tilt específicos
+        if (s.includes('l1-pa') || s.includes('l1_pa') || s.includes('l1pa')) return 'l1_pa';
+        if (s.includes('t4-pa') || s.includes('t4_pa') || s.includes('t4pa')) return 't4_pa';
+        if (s.includes('c7-pa') || s.includes('c7_pa') || s.includes('c7pa')) return 'c7_pa';
+        if (s.includes('c2-pa') || s.includes('c2_pa') || s.includes('c2pa')) return 'c2_pa';
+
+        if (s.includes('l1 tilt') || s.includes('l1-tilt') || s.includes('l1_tilt')) return 'l1_tilt';
+        if (s.includes('t4 tilt') || s.includes('t4-tilt') || s.includes('t4_tilt')) return 't4_tilt';
+        if (s.includes('c7 tilt') || s.includes('c7-tilt') || s.includes('c7_tilt')) return 'c7_tilt';
+        if (s.includes('c2 tilt') || s.includes('c2-tilt') || s.includes('c2_tilt')) return 'c2_tilt';
+
+        // Curvas regionales y cervicales
+        if (s.includes('l1-s1') || s.includes('l1_s1')) return 'l1_s1';
+        if (s.includes('l4-s1') || s.includes('l4_s1')) return 'l4_s1';
+        if (s.includes('l4-l5') || s.includes('l4_l5')) return 'l4_l5';
+        if (s.includes('tk') || s.includes('kypho') || s.includes('cifos') || s.includes('t4-t12') || s.includes('t1-t12') || s.includes('t5-t12')) return 'tk';
+
+        if (s.includes('csva') || s.includes('c2-c7 sva') || s.includes('c2 sva')) return 'csva';
+        if (s.includes('c2-c7') || s.includes('c0-c2') || s.includes('t1 slope') || s.includes('t1-slope') || s.includes('cervical')) return 'cervical_cobb';
+        if (s.includes('sva') || s.includes('plumbline') || s.includes('plomada')) {
+            return (s.includes('coronal') || s.includes('csvl') || s.includes('bao')) ? 'point_marker' : 'sva';
+        }
+
+        // Coronal
+        if (s.includes('cobb_coronal') || s.includes('coronal cobb') || s.includes('cobb coronal') || s.includes('escoliosis') || s.includes('scoliosis')) return 'cobb_coronal';
+        if (s.includes('point_marker') || s.includes('bao') || s.includes('csvl') || s.includes('coronal c7') || s.includes('coronal s1')) return 'point_marker';
+
+        // Genéricos de respaldo
+        if (/\bpa\b/.test(s)) return 'l1_pa';
+        if (s.includes('tilt')) return 'c2_tilt';
+        if (s.includes('cobb')) return 'cobb';
+
         return null;
     }
+
+    // Buscar si hay algún botón pintado de activo (verde/seleccionado) en la barra lateral
+    function detectActiveSidebarButtonContext() {
+        const sidebar = document.querySelector('aside') || document.getElementById('sidebar');
+        if (sidebar) {
+            const buttons = Array.from(sidebar.querySelectorAll('button'));
+            for (const btn of buttons) {
+                const cls = (btn.className || '').toLowerCase();
+                const onclickStr = btn.getAttribute('onclick') || '';
+                const i18nStr = btn.getAttribute('data-i18n') || '';
+                const label = (btn.innerText || '').trim();
+
+                // Ignorar botones automáticos que abren modales o interruptores de simulación
+                if (/toggleostsim|showostmodal|showgapmodal|showrodpanel|calculateoractivategt/i.test(onclickStr)) {
+                    continue;
+                }
+
+                // Detectar si el botón tiene la clase de herramienta seleccionada en index.html
+                const isSelectedStyle = cls.includes('active') ||
+                                        cls.includes('bg-emerald-600') ||
+                                        cls.includes('bg-green-600') ||
+                                        cls.includes('ring-2') ||
+                                        btn.innerHTML.includes('Finish Current Rod') ||
+                                        btn.innerHTML.includes('Terminar Barra Actual');
+
+                if (isSelectedStyle) {
+                    const combined = `${label} ${onclickStr} ${i18nStr} ${typeof activeTool !== 'undefined' ? activeTool : ''} ${typeof activeSubType !== 'undefined' ? activeSubType : ''}`;
+                    const key = classifyParameterToKey(combined) || 'cobb';
+                    return { key, label, isLive: true };
+                }
+            }
+        }
+
+        // Si activeTool está definido en variables globales
+        if (typeof activeTool !== 'undefined' && activeTool) {
+            const tStr = `${activeTool} ${typeof activeSubType !== 'undefined' ? activeSubType : ''} ${typeof activeTitle !== 'undefined' ? activeTitle : ''}`;
+            const key = classifyParameterToKey(tStr);
+            if (key) {
+                return {
+                    key,
+                    label: (typeof activeTitle !== 'undefined' && activeTitle) ? activeTitle : activeTool.toUpperCase(),
+                    isLive: true
+                };
+            }
+        }
+
+        return null;
+    }
+
+    // Escuchar cualquier clic en los botones de herramientas del menú lateral izquierdo
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('aside button, .tool-btn');
+        if (!btn) return;
+        const onclickStr = btn.getAttribute('onclick') || '';
+        // Ignorar botones que solo abren paneles automáticos
+        if (/toggleostsim|showostmodal|showgapmodal|showrodpanel|calculateoractivategt/i.test(onclickStr)) return;
+
+        const label = (btn.innerText || '').trim();
+        const i18nStr = btn.getAttribute('data-i18n') || '';
+        const combined = `${label} ${onclickStr} ${i18nStr}`;
+        const key = classifyParameterToKey(combined);
+        if (key) {
+            window._lastToolContext = { key, label, isLive: true };
+            setTimeout(updateHelpButtonBadge, 30);
+        }
+    }, true);
 
     if (typeof activateTool === 'function') {
         const origActivate = activateTool;
         activateTool = function(tool, title, subType) {
-            window._lastToolContext = {
-                key: resolveCurrentToolKey(tool, subType, title),
-                tool: tool,
-                title: title || '',
-                subType: subType || ''
-            };
+            const combined = `${title || ''} ${subType || ''} ${tool || ''}`;
+            const key = classifyParameterToKey(combined) || 'cobb';
+            window._lastToolContext = { key, label: title || tool || '', isLive: true };
             const res = origActivate.apply(this, arguments);
             updateHelpButtonBadge();
             return res;
@@ -310,6 +607,7 @@
     if (typeof deactivateTool === 'function') {
         const origDeactivate = deactivateTool;
         deactivateTool = function() {
+            if (window._lastToolContext) window._lastToolContext.isLive = false;
             const res = origDeactivate.apply(this, arguments);
             updateHelpButtonBadge();
             return res;
@@ -319,27 +617,23 @@
     function updateHelpButtonBadge() {
         const btn = document.getElementById('btn-top-help');
         if (!btn) return;
-        const isToolActive = (typeof activeTool !== 'undefined' && activeTool !== null);
-        if (isToolActive) {
+        const activeCtx = detectActiveSidebarButtonContext();
+        if (activeCtx && activeCtx.isLive) {
             btn.className = "bg-amber-500 hover:bg-amber-400 text-gray-950 border border-amber-300 px-2.5 py-1 rounded-md text-xs font-extrabold transition-all flex items-center justify-center shadow-[0_0_12px_rgba(245,158,11,0.65)] animate-pulse select-none shrink-0";
         } else {
             btn.className = "bg-sky-600/25 hover:bg-sky-600 text-sky-300 hover:text-white border border-sky-500/60 px-2.5 py-1 rounded-md text-xs font-bold transition-colors flex items-center justify-center shadow-sm select-none shrink-0";
         }
     }
 
-    // 3. UBICAR EL BOTÓN ❓ EXCLUSIVAMENTE EN EL HEADER DEL ÁREA DE TRABAJO (NUNCA EN EL LOGIN)
+    // 3. INYECTAR BOTÓN ❓ EXCLUSIVAMENTE EN EL HEADER DEL ÁREA DE TRABAJO
     function injectHelpButton() {
-        // Buscar primero el botón Pre-Op o el selector de idioma que está DENTRO de <header>
         const headerEl = document.querySelector('header');
         const preOpBtn = document.querySelector('header button[onclick*="switchStage"]') ||
                          document.querySelector('button[onclick*="switchStage(\'pre\')"]') ||
                          document.getElementById('btn-stage-pre');
 
-        // Buscar el <select> de idioma que pertenece al header principal (no al login)
         let headerLangSelect = null;
-        if (headerEl) {
-            headerLangSelect = headerEl.querySelector('select');
-        }
+        if (headerEl) headerLangSelect = headerEl.querySelector('select');
         if (!headerLangSelect && preOpBtn && preOpBtn.parentElement && preOpBtn.parentElement.parentElement) {
             headerLangSelect = preOpBtn.parentElement.parentElement.querySelector('select');
         }
@@ -358,10 +652,9 @@
         }
 
         btnHelp.title = (typeof currentLang !== 'undefined' && currentLang === 'es')
-            ? 'Ayuda Contextual de la Herramienta Activa / Leyenda de Iconos'
+            ? 'Ayuda Contextual de la Herramienta Seleccionada / Leyenda de Iconos'
             : 'Contextual Tool Help & Icon Legend';
 
-        // Insertar justo a la izquierda del selector "us EN" del Header principal
         if (headerLangSelect && headerLangSelect.parentNode) {
             if (btnHelp.parentNode !== headerLangSelect.parentNode) {
                 headerLangSelect.parentNode.insertBefore(btnHelp, headerLangSelect);
@@ -396,8 +689,8 @@
             </div>
             <div id="help-modal-content" class="p-4 overflow-y-auto space-y-3 flex-1"></div>
             <div class="bg-gray-950 px-4 py-2.5 border-t border-gray-800 flex justify-between items-center">
-                <span id="help-footer-hint" class="text-[10px] text-gray-400">Tip: Selecciona cualquier herramienta y toca ❓ para ver qué marcar.</span>
-                <button onclick="document.getElementById('help-context-modal').classList.add('hidden')" id="help-close-btn" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-4 py-1.5 rounded text-xs transition-colors">Entendido</button>
+                <span id="help-footer-hint" class="text-[10px] text-gray-400">Selecciona cualquier parámetro del menú y toca ❓ para ver los pasos.</span>
+                <button onclick="document.getElementById('help-context-modal').classList.add('hidden')" id="help-close-btn" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-4 py-1.5 rounded text-xs transition-colors">Continuar</button>
             </div>
         </div>
     `;
@@ -407,16 +700,9 @@
     document.body.appendChild(helpModal);
 
     window.openContextualHelpModal = function() {
-        const isActiveNow = (typeof activeTool !== 'undefined' && activeTool !== null);
-        if (isActiveNow) {
-            const curTitle = (typeof activeTitle !== 'undefined' && activeTitle) ? activeTitle : '';
-            const curSub = (typeof activeSubType !== 'undefined' && activeSubType) ? activeSubType : '';
-            window._lastToolContext = {
-                key: resolveCurrentToolKey(activeTool, curSub, curTitle),
-                tool: activeTool,
-                title: curTitle,
-                subType: curSub
-            };
+        const liveCtx = detectActiveSidebarButtonContext();
+        if (liveCtx) {
+            window._lastToolContext = liveCtx;
             switchHelpTab('ctx');
         } else if (window._lastToolContext && window._lastToolContext.key) {
             switchHelpTab('ctx');
@@ -427,7 +713,7 @@
     };
 
     window.selectToolGuideFromList = function(key) {
-        window._lastToolContext = { key: key, tool: key, title: '', subType: '' };
+        window._lastToolContext = { key: key, label: '', isLive: false };
         switchHelpTab('ctx');
     };
 
@@ -436,12 +722,12 @@
         const langKey = isEs ? 'es' : 'en';
 
         document.getElementById('help-modal-title').innerText = isEs ? 'Centro de Ayuda y Guía Clínica' : 'Clinical Help & Quick Guide';
-        document.getElementById('tab-btn-ctx').innerText = isEs ? '🎯 Herramienta' : '🎯 Active Tool';
+        document.getElementById('tab-btn-ctx').innerText = isEs ? '🎯 Parámetro Activo' : '🎯 Active Parameter';
         document.getElementById('tab-btn-ico').innerText = isEs ? '🎛️ Iconos (11)' : '🎛️ Icons (11)';
         document.getElementById('tab-btn-mod').innerText = isEs ? '📚 Módulos' : '📚 Modules';
         document.getElementById('help-footer-hint').innerText = isEs
-            ? 'Selecciona cualquier botón del menú y toca ❓ para ver los pasos.'
-            : 'Select any tool button and tap ❓ for step-by-step guidance.';
+            ? 'Selecciona cualquier parámetro del menú y toca ❓ para ver los pasos.'
+            : 'Select any parameter in the sidebar and tap ❓ for step-by-step guidance.';
         document.getElementById('help-close-btn').innerText = isEs ? 'Continuar' : 'Got it';
 
         ['ctx', 'ico', 'mod'].forEach(t => {
@@ -455,19 +741,18 @@
 
         const box = document.getElementById('help-modal-content');
         if (tab === 'ctx') {
-            const isNow = (typeof activeTool !== 'undefined' && activeTool !== null);
-            const curTitle = (isNow && typeof activeTitle !== 'undefined' && activeTitle) ? activeTitle : (window._lastToolContext?.title || '');
-            const curSub = (isNow && typeof activeSubType !== 'undefined' && activeSubType) ? activeSubType : (window._lastToolContext?.subType || '');
-            const ctxKey = isNow
-                ? resolveCurrentToolKey(activeTool, curSub, curTitle)
-                : (window._lastToolContext ? window._lastToolContext.key : null);
+            const liveCtx = detectActiveSidebarButtonContext();
+            const activeObj = liveCtx || window._lastToolContext;
+            const ctxKey = activeObj ? activeObj.key : null;
             const g = ctxKey ? TOOL_GUIDES[langKey][ctxKey] : null;
+            const isNow = Boolean(liveCtx && liveCtx.isLive);
+            const customLabel = activeObj && activeObj.label ? activeObj.label : '';
 
             let html = '';
             if (g) {
                 const statusBadge = isNow
-                    ? (isEs ? `🟢 HERRAMIENTA ACTIVA AHORA${curTitle ? ': ' + curTitle : ''}` : `🟢 CURRENTLY ACTIVE TOOL${curTitle ? ': ' + curTitle : ''}`)
-                    : (isEs ? `🕒 ÚLTIMA HERRAMIENTA CONSULTADA${curTitle ? ': ' + curTitle : ''}` : `🕒 LAST SELECTED TOOL${curTitle ? ': ' + curTitle : ''}`);
+                    ? (isEs ? `🟢 PARÁMETRO SELECCIONADO${customLabel ? ': ' + customLabel : ''}` : `🟢 SELECTED PARAMETER${customLabel ? ': ' + customLabel : ''}`)
+                    : (isEs ? `🕒 ÚLTIMO PARÁMETRO CONSULTADO${customLabel ? ': ' + customLabel : ''}` : `🕒 LAST VIEWED PARAMETER${customLabel ? ': ' + customLabel : ''}`);
                 const badgeCls = isNow ? "bg-emerald-900/60 text-emerald-300 border-emerald-500/60" : "bg-amber-900/50 text-amber-300 border-amber-500/50";
 
                 html += `
@@ -478,13 +763,13 @@
                         </div>
                         <h4 class="text-sm font-bold text-white">${g.name}</h4>
                         <div class="space-y-1.5 pt-1 border-t border-gray-700">
-                            <div class="text-[10px] font-bold uppercase text-sky-400">${isEs ? 'Pasos Anatómicos a Marcar:' : 'Anatomical Steps:'}</div>
+                            <div class="text-[10px] font-bold uppercase text-sky-400">${isEs ? 'Pasos Anatómicos a Marcar en la Radiografía:' : 'Anatomical Steps to Mark on X-Ray:'}</div>
                             <ol class="list-decimal list-inside space-y-1.5 text-gray-200 leading-relaxed">
                                 ${g.steps.map(s => `<li>${s.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')}</li>`).join('')}
                             </ol>
                         </div>
                         <div class="bg-sky-950/50 border border-sky-700/60 rounded p-2.5 text-[11px] text-sky-200">
-                            <strong class="text-sky-400">💡 ${isEs ? 'Truco Clínico / Edición:' : 'Clinical & Editing Tip:'}</strong> ${g.tip}
+                            <strong class="text-sky-400">💡 ${isEs ? 'Nota Clínica / Edición:' : 'Clinical & Editing Tip:'}</strong> ${g.tip}
                         </div>
                     </div>
                 `;
@@ -492,15 +777,15 @@
                 html += `
                     <div class="bg-gray-800/60 border border-gray-700 rounded-lg p-3.5 text-center space-y-1">
                         <div class="text-base">👆</div>
-                        <div class="font-bold text-white">${isEs ? 'Ninguna herramienta seleccionada en este momento' : 'No measurement tool currently active'}</div>
-                        <p class="text-[11px] text-gray-400">${isEs ? 'Toca cualquier herramienta en el menú lateral izquierdo y luego presiona ❓, o elige una de la lista inferior para ver cómo se mide:' : 'Click any tool in the left sidebar and tap ❓, or choose one below to see how it works:'}</p>
+                        <div class="font-bold text-white">${isEs ? 'Selecciona un parámetro en el menú izquierdo' : 'Select any parameter in the left menu'}</div>
+                        <p class="text-[11px] text-gray-400">${isEs ? 'Toca cualquier parámetro de medición en el menú lateral y presiona ❓, o elige uno directamente de la lista inferior:' : 'Click any measurement parameter in the sidebar and tap ❓, or pick one below:'}</p>
                     </div>
                 `;
             }
 
             html += `
                 <div class="pt-1">
-                    <div class="text-[10px] font-bold uppercase text-gray-400 mb-1.5">${isEs ? 'Consultar guía paso a paso de cualquier herramienta:' : 'Browse step-by-step guide for any tool:'}</div>
+                    <div class="text-[10px] font-bold uppercase text-gray-400 mb-1.5">${isEs ? 'Todos los parámetros de medición manual:' : 'All manual measurement parameters:'}</div>
                     <div class="grid grid-cols-2 gap-1.5">
                         ${Object.keys(TOOL_GUIDES[langKey]).map(k => `
                             <button onclick="selectToolGuideFromList('${k}')" class="text-left px-2.5 py-1.5 rounded border ${k === ctxKey ? 'bg-sky-900/50 border-sky-400 text-white font-bold' : 'bg-gray-800/70 border-gray-700 text-gray-300 hover:bg-gray-800'} text-[11px] truncate">
@@ -554,21 +839,19 @@
             `;
         } else if (tab === 'mod') {
             const mods = isEs ? [
-                ['1. Herramientas Básicas y Calibración', 'Calibra la escala en cm con un testigo métrico, traza líneas simples, círculos de referencia o ángulos de Cobb libres y cifosis torácica (TK).'],
-                ['2. Parámetros Pélvicos (PI, PT y SS)', 'Mide siempre primero la pelvis (cabezas femorales + platillo de S1). Es la llave maestra para calcular L1-PA, T4-PA, C7-PA, C2-PA, Global Tilt (GT) y GAP Score.'],
-                ['3, 4 y 5. Balance Sagital, Regional y Cervical', 'Mide L1-PA, T4-PA, C2 Tilt, SVA, Global Tilt, L1-S1 y L4-S1. Arrastra cualquier etiqueta para acomodarla o haz clic derecho para cambiar tamaño de fuente o eliminar.'],
-                ['6. Plano Coronal (Escoliosis AP)', 'Mide los ángulos de Cobb coronales y la plomada C7-CSVL para evaluar deformidades escolióticas.'],
-                ['7. Osteotomías de Schwab (Grados 1 al 6)', 'Marca 3 puntos sobre la vértebra (anterior-superior, bisagra posterior, anterior-inferior). Ajusta el grado de Schwab (1 a 6) y simula el cierre de la cuña en vivo.'],
-                ['7B. Tornillos (cm) y Barras Sagital / AP', 'En vista sagital, marca los pedículos, cierra con doble clic y estira la punta amarilla de cada tornillo para medir su longitud en cm. En vista AP, traza las 2 barras y simula la reducción coronal.'],
-                ['8. Tabla de Resultados y GAP Score', 'Compara valores Base, Ideales y Logrados tras la simulación quirúrgica, incluyendo el Mismatch (T4PA - L1PA), Global Tilt y el semáforo de GAP Score.']
+                ['1. Herramientas Básicas y Calibración', 'Calibra la escala en cm con un testigo métrico, traza líneas simples, círculos de referencia o ángulos de Cobb libres y cifosis torácica (Tk).'],
+                ['2. Parámetros Pélvicos (PI, PT y SS)', 'Mide siempre primero la pelvis (cabezas femorales + platillo de S1). Es la llave maestra para que los ángulos PA, Tilt, Global Tilt y GAP Score se calculen automáticamente.'],
+                ['3, 4 y 5. Balance Sagital, Regional y Cervical', 'Mide L1-PA, T4-PA, C7-PA, C2-PA, Tilts, SVA, L1-S1, L4-S1, L4-L5, C2-C7 y cSVA. Arrastra cualquier etiqueta para acomodarla o haz clic derecho para cambiar tamaño o eliminar.'],
+                ['6. Plano Coronal (Escoliosis AP)', 'Mide los ángulos de Cobb coronales y los marcadores de plomada C7 y línea media sacra S1 (CSVL).'],
+                ['7. Osteotomías de Schwab (Grados 1 al 6)', 'Marca 3 puntos sobre la vértebra (anterior-superior, bisagra posterior, anterior-inferior). El cierre de la cuña y el ajuste de grados son automáticos desde sus controles.'],
+                ['7B. Tornillos (cm) y Barras Sagital / AP', 'Marca los pedículos, cierra con doble clic y estira la punta amarilla de cada tornillo sagital para medir su longitud en cm. En vista AP, traza las 2 barras para habilitar el deslizador de reducción.']
             ] : [
-                ['1. Basic Tools & Calibration', 'Calibrate scale in cm, draw simple lines, reference circles, or Cobb angles and Thoracic Kyphosis (TK).'],
-                ['2. Pelvic Parameters (PI, PT & SS)', 'Always measure the pelvis first (femoral heads + S1 endplate). It unlocks automatic L1-PA, T4-PA, C7-PA, C2-PA, Global Tilt (GT), and GAP Score.'],
-                ['3, 4 & 5. Sagittal, Regional & Cervical Balance', 'Measure L1-PA, T4-PA, C2 Tilt, SVA, Global Tilt, L1-S1, and L4-S1. Drag any label to reposition or right-click to resize or delete.'],
-                ['6. Coronal Plane (AP Scoliosis)', 'Measure Coronal Cobb angles and C7-CSVL plumbline offset.'],
-                ['7. Schwab Osteotomies (Grades 1-6)', 'Place 3 points on the vertebra (anterior-superior, posterior hinge, anterior-inferior). Select Schwab Grades 1-6 and simulate wedge closure live.'],
-                ['7B. Pedicle Screws (cm) & Rods', 'In sagittal view, click pedicles, double-click to finish, and drag the yellow screw tips to measure length in cm. In AP view, trace bilateral rods and simulate scoliosis reduction.'],
-                ['8. Alignment Table & GAP Score', 'Compare Base, Ideal, and Achieved values including T4-L1 Mismatch, Global Tilt, and GAP Score proportionality.']
+                ['1. Basic Tools & Calibration', 'Calibrate scale in cm, draw simple lines, reference circles, or Cobb angles and Thoracic Kyphosis (Tk).'],
+                ['2. Pelvic Parameters (PI, PT & SS)', 'Always measure the pelvis first (femoral heads + S1 endplate). It powers automatic PA angles, Tilts, Global Tilt, and GAP Score.'],
+                ['3, 4 & 5. Sagittal, Regional & Cervical Balance', 'Measure L1-PA, T4-PA, C7-PA, C2-PA, Tilts, SVA, L1-S1, L4-S1, L4-L5, C2-C7, and cSVA. Drag any label to reposition or right-click to resize or delete.'],
+                ['6. Coronal Plane (AP Scoliosis)', 'Measure Coronal Cobb angles and C7 / S1 (CSVL) plumbline markers.'],
+                ['7. Schwab Osteotomies (Grades 1-6)', 'Place 3 points on the vertebra (anterior-superior, posterior hinge, anterior-inferior). Wedge closure and degree adjustments run automatically from their controls.'],
+                ['7B. Pedicle Screws (cm) & Rods', 'Click pedicles, double-click to finish, and drag the yellow screw tips to measure length in cm. In AP view, trace bilateral rods to enable reduction simulation.']
             ];
 
             box.innerHTML = `
