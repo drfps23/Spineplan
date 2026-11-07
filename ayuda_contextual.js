@@ -1,10 +1,11 @@
 // ============================================================================
-// ACTUALIZACIÓN 5 V3 (ayuda_contextual.js): DETECCIÓN TOTAL DE PARÁMETROS + ❓
-// Reconoce todos los botones seleccionables del menú lateral sin excepción
+// ACTUALIZACIÓN 5 V4 (ayuda_contextual.js): AYUDA CONTEXTUAL EXACTA + LEYENDA (❓)
+// Solo marca parámetro activo cuando realmente hay una herramienta seleccionada
 // ============================================================================
 
 (function() {
-    window._lastToolContext = null;
+    window._lastClickedToolBtnText = '';
+    window._manualPreviewKey = null;
 
     // 1. GUÍAS CLÍNICAS DE TODAS LAS HERRAMIENTAS DE MEDICIÓN MANUAL
     const TOOL_GUIDES = {
@@ -31,7 +32,7 @@
                 name: "⭕ Círculo (Contorno / Cabeza Femoral)",
                 badge: "1. Herramientas Básicas • Geometría",
                 steps: [
-                    "**Punto 1 (Centro):** Haz clic en el centro de la cabeza femoral o estructura redonda.",
+                    "**Punto 1 (Centro):** Haz clic en el centro de la cabeza femoral o estructura circular.",
                     "**Punto 2 (Borde):** Haz clic en el contorno externo para fijar el radio."
                 ],
                 tip: "Puedes arrastrar el centro o el borde del círculo en cualquier momento para ajustarlo."
@@ -472,18 +473,20 @@
         }
     };
 
-    // 2. MOTOR UNIVERSAL DE CLASIFICACIÓN (NUNCA FALLA CON NINGÚN BOTÓN DEL MENÚ)
+    // 2. CLASIFICADOR SIN FALSOS POSITIVOS
     function classifyParameterToKey(rawStr) {
         if (!rawStr) return null;
         const s = rawStr.toLowerCase();
 
-        // Ignorar botones de acción inmediata / automática que abren modales o simulan sin marcar puntos
-        if (s.includes('toggleostsim') || s.includes('showostmodal') || s.includes('showgapmodal') || s.includes('showrodpanel') || s.includes('clearallrods')) {
+        // Excluir botones de tablas, resultados o modales automáticos
+        if (s.includes('calcular / comparar') || s.includes('calculate / compare') || s.includes('showresults') ||
+            s.includes('toggleostsim') || s.includes('showostmodal') || s.includes('showgapmodal') ||
+            s.includes('showrodpanel') || s.includes('clearallrods')) {
             return null;
         }
 
         if (s.includes('rod') || s.includes('barra') || s.includes('startorfinishrod')) {
-            return s.includes('coronal') || s.includes('ap ') || s.includes('2 lado') || s.includes('2 side') ? 'rod_coronal' : 'rod_sagittal';
+            return (s.includes('coronal') || s.includes('ap ') || s.includes('2 lado') || s.includes('2 side')) ? 'rod_coronal' : 'rod_sagittal';
         }
         if (s.includes('osteo') || s.includes('schwab') || s.includes('cuña') || s.includes('wedge')) return 'osteotomy';
         if (s.includes('pelv') || s.includes('pi, pt') || s.includes('pi,pt') || s.includes('pi_pt') || s.includes('spinopelv') || /\bpi\b/.test(s)) return 'pelvis';
@@ -491,7 +494,6 @@
         if (s.includes('circle') || s.includes('círculo') || s.includes('circulo')) return 'circle';
         if (s.includes('simple line') || s.includes('línea simple') || s.includes('linea simple') || /\bline\b/.test(s)) return 'line';
 
-        // Parámetros Sagitales PA y Tilt específicos
         if (s.includes('l1-pa') || s.includes('l1_pa') || s.includes('l1pa')) return 'l1_pa';
         if (s.includes('t4-pa') || s.includes('t4_pa') || s.includes('t4pa')) return 't4_pa';
         if (s.includes('c7-pa') || s.includes('c7_pa') || s.includes('c7pa')) return 'c7_pa';
@@ -502,7 +504,6 @@
         if (s.includes('c7 tilt') || s.includes('c7-tilt') || s.includes('c7_tilt')) return 'c7_tilt';
         if (s.includes('c2 tilt') || s.includes('c2-tilt') || s.includes('c2_tilt')) return 'c2_tilt';
 
-        // Curvas regionales y cervicales
         if (s.includes('l1-s1') || s.includes('l1_s1')) return 'l1_s1';
         if (s.includes('l4-s1') || s.includes('l4_s1')) return 'l4_s1';
         if (s.includes('l4-l5') || s.includes('l4_l5')) return 'l4_l5';
@@ -514,11 +515,9 @@
             return (s.includes('coronal') || s.includes('csvl') || s.includes('bao')) ? 'point_marker' : 'sva';
         }
 
-        // Coronal
         if (s.includes('cobb_coronal') || s.includes('coronal cobb') || s.includes('cobb coronal') || s.includes('escoliosis') || s.includes('scoliosis')) return 'cobb_coronal';
         if (s.includes('point_marker') || s.includes('bao') || s.includes('csvl') || s.includes('coronal c7') || s.includes('coronal s1')) return 'point_marker';
 
-        // Genéricos de respaldo
         if (/\bpa\b/.test(s)) return 'l1_pa';
         if (s.includes('tilt')) return 'c2_tilt';
         if (s.includes('cobb')) return 'cobb';
@@ -526,78 +525,42 @@
         return null;
     }
 
-    // Buscar si hay algún botón pintado de activo (verde/seleccionado) en la barra lateral
-    function detectActiveSidebarButtonContext() {
-        const sidebar = document.querySelector('aside') || document.getElementById('sidebar');
-        if (sidebar) {
-            const buttons = Array.from(sidebar.querySelectorAll('button'));
-            for (const btn of buttons) {
-                const cls = (btn.className || '').toLowerCase();
-                const onclickStr = btn.getAttribute('onclick') || '';
-                const i18nStr = btn.getAttribute('data-i18n') || '';
-                const label = (btn.innerText || '').trim();
+    // 3. VERIFICAR ESTRICTAMENTE SI HAY UNA HERRAMIENTA ACTIVA AHORA MISMO
+    function getLiveActiveToolInfo() {
+        const isToolOn = (typeof activeTool !== 'undefined' && activeTool !== null && activeTool !== '');
+        if (!isToolOn) return null;
 
-                // Ignorar botones automáticos que abren modales o interruptores de simulación
-                if (/toggleostsim|showostmodal|showgapmodal|showrodpanel|calculateoractivategt/i.test(onclickStr)) {
-                    continue;
-                }
+        const tName = typeof activeTool !== 'undefined' ? activeTool : '';
+        const tTitle = (typeof activeTitle !== 'undefined' && activeTitle) ? activeTitle : '';
+        const tSub = (typeof activeSubType !== 'undefined' && activeSubType) ? activeSubType : '';
 
-                // Detectar si el botón tiene la clase de herramienta seleccionada en index.html
-                const isSelectedStyle = cls.includes('active') ||
-                                        cls.includes('bg-emerald-600') ||
-                                        cls.includes('bg-green-600') ||
-                                        cls.includes('ring-2') ||
-                                        btn.innerHTML.includes('Finish Current Rod') ||
-                                        btn.innerHTML.includes('Terminar Barra Actual');
+        const combined = `${tTitle} ${tSub} ${tName} ${window._lastClickedToolBtnText || ''}`;
+        const key = classifyParameterToKey(combined);
+        if (!key) return null;
 
-                if (isSelectedStyle) {
-                    const combined = `${label} ${onclickStr} ${i18nStr} ${typeof activeTool !== 'undefined' ? activeTool : ''} ${typeof activeSubType !== 'undefined' ? activeSubType : ''}`;
-                    const key = classifyParameterToKey(combined) || 'cobb';
-                    return { key, label, isLive: true };
-                }
-            }
-        }
-
-        // Si activeTool está definido en variables globales
-        if (typeof activeTool !== 'undefined' && activeTool) {
-            const tStr = `${activeTool} ${typeof activeSubType !== 'undefined' ? activeSubType : ''} ${typeof activeTitle !== 'undefined' ? activeTitle : ''}`;
-            const key = classifyParameterToKey(tStr);
-            if (key) {
-                return {
-                    key,
-                    label: (typeof activeTitle !== 'undefined' && activeTitle) ? activeTitle : activeTool.toUpperCase(),
-                    isLive: true
-                };
-            }
-        }
-
-        return null;
+        return {
+            key: key,
+            label: tTitle || window._lastClickedToolBtnText || tName.toUpperCase()
+        };
     }
 
-    // Escuchar cualquier clic en los botones de herramientas del menú lateral izquierdo
+    // Guardar el texto del botón cuando el usuario hace clic en una herramienta del menú lateral
     document.addEventListener('click', function(e) {
         const btn = e.target.closest('aside button, .tool-btn');
         if (!btn) return;
         const onclickStr = btn.getAttribute('onclick') || '';
-        // Ignorar botones que solo abren paneles automáticos
-        if (/toggleostsim|showostmodal|showgapmodal|showrodpanel|calculateoractivategt/i.test(onclickStr)) return;
-
         const label = (btn.innerText || '').trim();
-        const i18nStr = btn.getAttribute('data-i18n') || '';
-        const combined = `${label} ${onclickStr} ${i18nStr}`;
-        const key = classifyParameterToKey(combined);
-        if (key) {
-            window._lastToolContext = { key, label, isLive: true };
-            setTimeout(updateHelpButtonBadge, 30);
+        if (classifyParameterToKey(`${label} ${onclickStr}`)) {
+            window._lastClickedToolBtnText = label;
+            window._manualPreviewKey = null;
         }
+        setTimeout(updateHelpButtonBadge, 20);
     }, true);
 
     if (typeof activateTool === 'function') {
         const origActivate = activateTool;
         activateTool = function(tool, title, subType) {
-            const combined = `${title || ''} ${subType || ''} ${tool || ''}`;
-            const key = classifyParameterToKey(combined) || 'cobb';
-            window._lastToolContext = { key, label: title || tool || '', isLive: true };
+            window._manualPreviewKey = null;
             const res = origActivate.apply(this, arguments);
             updateHelpButtonBadge();
             return res;
@@ -607,7 +570,7 @@
     if (typeof deactivateTool === 'function') {
         const origDeactivate = deactivateTool;
         deactivateTool = function() {
-            if (window._lastToolContext) window._lastToolContext.isLive = false;
+            window._lastClickedToolBtnText = '';
             const res = origDeactivate.apply(this, arguments);
             updateHelpButtonBadge();
             return res;
@@ -617,15 +580,15 @@
     function updateHelpButtonBadge() {
         const btn = document.getElementById('btn-top-help');
         if (!btn) return;
-        const activeCtx = detectActiveSidebarButtonContext();
-        if (activeCtx && activeCtx.isLive) {
+        const liveInfo = getLiveActiveToolInfo();
+        if (liveInfo) {
             btn.className = "bg-amber-500 hover:bg-amber-400 text-gray-950 border border-amber-300 px-2.5 py-1 rounded-md text-xs font-extrabold transition-all flex items-center justify-center shadow-[0_0_12px_rgba(245,158,11,0.65)] animate-pulse select-none shrink-0";
         } else {
             btn.className = "bg-sky-600/25 hover:bg-sky-600 text-sky-300 hover:text-white border border-sky-500/60 px-2.5 py-1 rounded-md text-xs font-bold transition-colors flex items-center justify-center shadow-sm select-none shrink-0";
         }
     }
 
-    // 3. INYECTAR BOTÓN ❓ EXCLUSIVAMENTE EN EL HEADER DEL ÁREA DE TRABAJO
+    // 4. INYECTAR BOTÓN ❓ EN EL HEADER PRINCIPAL
     function injectHelpButton() {
         const headerEl = document.querySelector('header');
         const preOpBtn = document.querySelector('header button[onclick*="switchStage"]') ||
@@ -669,7 +632,7 @@
         updateHelpButtonBadge();
     }
 
-    // 4. MODAL DE AYUDA CONTEXTUAL Y LEYENDA POR PESTAÑAS
+    // 5. MODAL DE AYUDA CONTEXTUAL Y LEYENDA POR PESTAÑAS
     const helpModal = document.createElement('div');
     helpModal.id = 'help-context-modal';
     helpModal.className = 'hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm';
@@ -683,7 +646,7 @@
                 <button onclick="document.getElementById('help-context-modal').classList.add('hidden')" class="text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded px-2.5 py-1 text-xs font-bold">&times;</button>
             </div>
             <div class="grid grid-cols-3 gap-1 bg-gray-950/70 px-3 pt-2 border-b border-gray-800">
-                <button id="tab-btn-ctx" onclick="switchHelpTab('ctx')" class="py-2 px-2 rounded-t-lg font-bold text-[11px] transition-colors border-b-2">🎯 Herramienta</button>
+                <button id="tab-btn-ctx" onclick="switchHelpTab('ctx')" class="py-2 px-2 rounded-t-lg font-bold text-[11px] transition-colors border-b-2">🎯 Parámetro Activo</button>
                 <button id="tab-btn-ico" onclick="switchHelpTab('ico')" class="py-2 px-2 rounded-t-lg font-bold text-[11px] transition-colors border-b-2">🎛️ Iconos (11)</button>
                 <button id="tab-btn-mod" onclick="switchHelpTab('mod')" class="py-2 px-2 rounded-t-lg font-bold text-[11px] transition-colors border-b-2">📚 Módulos</button>
             </div>
@@ -700,20 +663,13 @@
     document.body.appendChild(helpModal);
 
     window.openContextualHelpModal = function() {
-        const liveCtx = detectActiveSidebarButtonContext();
-        if (liveCtx) {
-            window._lastToolContext = liveCtx;
-            switchHelpTab('ctx');
-        } else if (window._lastToolContext && window._lastToolContext.key) {
-            switchHelpTab('ctx');
-        } else {
-            switchHelpTab('ico');
-        }
+        window._manualPreviewKey = null;
+        switchHelpTab('ctx');
         document.getElementById('help-context-modal').classList.remove('hidden');
     };
 
     window.selectToolGuideFromList = function(key) {
-        window._lastToolContext = { key: key, label: '', isLive: false };
+        window._manualPreviewKey = key;
         switchHelpTab('ctx');
     };
 
@@ -741,19 +697,20 @@
 
         const box = document.getElementById('help-modal-content');
         if (tab === 'ctx') {
-            const liveCtx = detectActiveSidebarButtonContext();
-            const activeObj = liveCtx || window._lastToolContext;
-            const ctxKey = activeObj ? activeObj.key : null;
-            const g = ctxKey ? TOOL_GUIDES[langKey][ctxKey] : null;
-            const isNow = Boolean(liveCtx && liveCtx.isLive);
-            const customLabel = activeObj && activeObj.label ? activeObj.label : '';
+            const liveInfo = getLiveActiveToolInfo();
+            const isNow = Boolean(liveInfo);
+            const shownKey = window._manualPreviewKey || (liveInfo ? liveInfo.key : null);
+            const g = shownKey ? TOOL_GUIDES[langKey][shownKey] : null;
 
             let html = '';
             if (g) {
-                const statusBadge = isNow
-                    ? (isEs ? `🟢 PARÁMETRO SELECCIONADO${customLabel ? ': ' + customLabel : ''}` : `🟢 SELECTED PARAMETER${customLabel ? ': ' + customLabel : ''}`)
-                    : (isEs ? `🕒 ÚLTIMO PARÁMETRO CONSULTADO${customLabel ? ': ' + customLabel : ''}` : `🕒 LAST VIEWED PARAMETER${customLabel ? ': ' + customLabel : ''}`);
-                const badgeCls = isNow ? "bg-emerald-900/60 text-emerald-300 border-emerald-500/60" : "bg-amber-900/50 text-amber-300 border-amber-500/50";
+                const isShowingLive = isNow && (!window._manualPreviewKey || window._manualPreviewKey === liveInfo.key);
+                const statusBadge = isShowingLive
+                    ? (isEs ? `🟢 PARÁMETRO SELECCIONADO: ${liveInfo.label}` : `🟢 SELECTED PARAMETER: ${liveInfo.label}`)
+                    : (isEs ? `📖 VISTA DE CONSULTA RÁPIDA` : `📖 QUICK REFERENCE PREVIEW`);
+                const badgeCls = isShowingLive
+                    ? "bg-emerald-900/60 text-emerald-300 border-emerald-500/60"
+                    : "bg-sky-900/50 text-sky-300 border-sky-500/50";
 
                 html += `
                     <div class="bg-gray-800/80 border border-sky-500/60 rounded-lg p-3.5 space-y-2.5 shadow-lg">
@@ -777,8 +734,8 @@
                 html += `
                     <div class="bg-gray-800/60 border border-gray-700 rounded-lg p-3.5 text-center space-y-1">
                         <div class="text-base">👆</div>
-                        <div class="font-bold text-white">${isEs ? 'Selecciona un parámetro en el menú izquierdo' : 'Select any parameter in the left menu'}</div>
-                        <p class="text-[11px] text-gray-400">${isEs ? 'Toca cualquier parámetro de medición en el menú lateral y presiona ❓, o elige uno directamente de la lista inferior:' : 'Click any measurement parameter in the sidebar and tap ❓, or pick one below:'}</p>
+                        <div class="font-bold text-white">${isEs ? 'Ninguna herramienta seleccionada en este momento' : 'No measurement tool currently selected'}</div>
+                        <p class="text-[11px] text-gray-400">${isEs ? 'Selecciona cualquier parámetro de medición en el menú lateral izquierdo y toca ❓, o haz clic en cualquiera de la lista inferior para consultar sus pasos:' : 'Select any measurement parameter in the left sidebar and tap ❓, or click any item below to view its steps:'}</p>
                     </div>
                 `;
             }
@@ -788,7 +745,7 @@
                     <div class="text-[10px] font-bold uppercase text-gray-400 mb-1.5">${isEs ? 'Todos los parámetros de medición manual:' : 'All manual measurement parameters:'}</div>
                     <div class="grid grid-cols-2 gap-1.5">
                         ${Object.keys(TOOL_GUIDES[langKey]).map(k => `
-                            <button onclick="selectToolGuideFromList('${k}')" class="text-left px-2.5 py-1.5 rounded border ${k === ctxKey ? 'bg-sky-900/50 border-sky-400 text-white font-bold' : 'bg-gray-800/70 border-gray-700 text-gray-300 hover:bg-gray-800'} text-[11px] truncate">
+                            <button onclick="selectToolGuideFromList('${k}')" class="text-left px-2.5 py-1.5 rounded border ${k === shownKey ? 'bg-sky-900/50 border-sky-400 text-white font-bold' : 'bg-gray-800/70 border-gray-700 text-gray-300 hover:bg-gray-800'} text-[11px] truncate">
                                 ${TOOL_GUIDES[langKey][k].name}
                             </button>
                         `).join('')}
