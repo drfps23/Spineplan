@@ -1,33 +1,50 @@
 // ============================================================================
-// MÓDULO INDEPENDIENTE V4 (ambitos_legales.js): RESPETA VIDEO E INICIO DE SESIÓN (⚖️)
-// Nunca interrumpe el video inicial; solo se activa al tocar el enlace o TRAS meter la clave
+// MÓDULO INDEPENDIENTE V5 (ambitos_legales.js): ACEPTACIÓN ÚNICA POR DISPOSITIVO (⚖️)
+// Guarda la aceptación en localStorage (solo pide aceptar 1 vez salvo que borren la app)
 // ============================================================================
 
 (function() {
     try {
-        window._spinePlanLegalAccepted = false;
+        const STORAGE_KEY = 'spineplan_legal_accepted_v1';
+
+        function hasAcceptedPreviously() {
+            try {
+                return localStorage.getItem(STORAGE_KEY) === 'true' || window._spinePlanLegalAccepted === true;
+            } catch (e) {
+                return Boolean(window._spinePlanLegalAccepted);
+            }
+        }
+
+        function saveLegalAcceptance() {
+            window._spinePlanLegalAccepted = true;
+            try {
+                localStorage.setItem(STORAGE_KEY, 'true');
+            } catch (e) {}
+        }
+
+        window._spinePlanLegalAccepted = hasAcceptedPreviously();
         window._loginAttemptTriggered = false;
 
         const LEGAL_TEXTS = {
             es: {
                 btnTitle: "Ámbitos Legales, Uso No Diagnóstico y Privacidad",
-                modalTitle: "Ámbitos Legales y Regulación de Software Médico",
+                modalTitle: "Ámbitos Legales y Condiciones de Uso Clínico",
                 badge: "Exención Regulatoria • Privacidad Local • Propiedad Intelectual",
                 loginNotice: "⚖️ Uso exclusivo para profesionales de la salud. Herramienta de cálculo geométrico y referencia académica (No diagnóstica). Tus radiografías y datos nunca salen de tu dispositivo.",
                 loginLink: "Ver términos legales completos",
                 scrollHint: "⬇️ Desliza hasta el final del documento para aceptar los términos",
-                checkboxTitle: "DECLARACIÓN OBLIGATORIA DE ACEPTACIÓN DE TÉRMINOS",
+                checkboxTitle: "DECLARACIÓN ÚNICA DE ACEPTACIÓN DE TÉRMINOS",
                 checkboxLabel: "Declaro ser un profesional de la salud calificado y haber leído y aceptado los ámbitos legales, el carácter no diagnóstico del software y la responsabilidad clínica exclusiva.",
                 continueDisabled: "🔒 Baja al final y marca 'Acepto' para continuar",
                 continueEnabled: "✅ Aceptar y Continuar →",
-                alreadyAcceptedBadge: "✅ Términos legales aceptados en esta sesión",
+                alreadyAcceptedBadge: "✅ Términos legales aceptados en este dispositivo",
                 closeBtn: "Cerrar",
                 pdfDisclaimer: "AVISO LEGAL: SpinePlan Pro es una herramienta informática de cálculo geométrico y apoyo visual basada en literatura científica publicada. No constituye un dispositivo de diagnóstico autónomo. La exactitud de los puntos anatómicos marcados y la decisión quirúrgica final son responsabilidad exclusiva del médico tratante.",
                 sections: [
                     {
                         icon: "🩺",
                         title: "1. Herramienta de Cálculo Geométrico (No Diagnóstica)",
-                        body: "SpinePlan Pro es un software de cálculo goniométrico, trigonométrico y de referencia bibliográfica diseñado como apoyo visual y educativo para cirujanos de columna y traumatólogos. No clasifica como un dispositivo médico de diagnóstico autónomo (SaMD) bajo las normativas de la FDA, CE o ministerios de salud, ya que el programa no interpreta imágenes por sí solo ni emite diagnósticos automáticos: únicamente calcula ángulos y distancias a partir de las coordenadas marcadas manualmente por el especialista."
+                        body: "SpinePlan Pro es un software de cálculo goniométrico, trigonométrico y de referencia bibliográfica diseñado como apoyo visual y educativo para cirujanos de columna y traumatólogos. No constituye un dispositivo médico de diagnóstico autónomo bajo las normativas sanitarias internacionales de software médico (SaMD), ya que el programa no interpreta imágenes por sí solo ni prescribe tratamientos automáticos: únicamente calcula ángulos y distancias a partir de las coordenadas marcadas manualmente por el especialista."
                     },
                     {
                         icon: "👨‍⚕️",
@@ -37,7 +54,7 @@
                     {
                         icon: "🔒",
                         title: "3. Privacidad Absoluta de Pacientes (Arquitectura 100% Local)",
-                        body: "En cumplimiento con los estándares internacionales de confidencialidad médica (incluyendo principios HIPAA y secreto profesional), SpinePlan Pro procesa todas las radiografías, nombres, identificaciones y reportes PDF exclusivamente en la memoria interna del dispositivo (computadora, tablet o teléfono) del usuario. Ninguna radiografía ni dato clínico de pacientes es enviado, almacenado ni compartido en servidores externos ni en la nube del desarrollador."
+                        body: "En cumplimiento con los estándares internacionales de confidencialidad médica y secreto profesional, SpinePlan Pro procesa todas las radiografías, nombres, identificaciones y reportes PDF exclusivamente en la memoria interna del dispositivo (computadora, tablet o teléfono) del usuario. Ninguna radiografía ni dato clínico de pacientes es enviado, almacenado ni compartido en servidores externos ni en la nube del desarrollador."
                     },
                     {
                         icon: "🏛️",
@@ -48,23 +65,23 @@
             },
             en: {
                 btnTitle: "Legal Disclaimer, Non-Diagnostic Use & Privacy Policy",
-                modalTitle: "Legal Notice & Medical Software Disclaimer",
+                modalTitle: "Legal Notice & Clinical Terms of Use",
                 badge: "Regulatory Exemption • Local Privacy • Copyright",
                 loginNotice: "⚖️ For qualified healthcare professionals only. Geometric calculation & academic reference tool (Non-diagnostic). All radiographs and patient data remain 100% local on your device.",
                 loginLink: "View full legal terms",
                 scrollHint: "⬇️ Scroll to the bottom of the document to accept the terms",
-                checkboxTitle: "MANDATORY TERMS ACCEPTANCE DECLARATION",
+                checkboxTitle: "ONE-TIME TERMS ACCEPTANCE DECLARATION",
                 checkboxLabel: "I declare that I am a qualified healthcare professional and I have read and accept the legal terms, the non-diagnostic nature of the software, and sole clinical responsibility.",
                 continueDisabled: "🔒 Scroll down & check 'Accept' to continue",
                 continueEnabled: "✅ Accept & Continue →",
-                alreadyAcceptedBadge: "✅ Legal terms accepted for this session",
+                alreadyAcceptedBadge: "✅ Legal terms accepted on this device",
                 closeBtn: "Close",
                 pdfDisclaimer: "LEGAL DISCLAIMER: SpinePlan Pro is a geometric calculation and visual planning aid based on published scientific literature. It is not an autonomous diagnostic medical device. Landmark accuracy, clinical interpretation, and final surgical decisions are the sole responsibility of the attending physician.",
                 sections: [
                     {
                         icon: "🩺",
                         title: "1. Geometric & Educational Calculation Tool (Non-Diagnostic)",
-                        body: "SpinePlan Pro is a goniometric, trigonometric, and bibliographic reference calculator designed as a visual and educational aid for spine surgeons and orthopedic specialists. It is not an autonomous diagnostic medical device under FDA or CE regulations, as it does not autonomously interpret medical images or prescribe treatments; it strictly computes geometric angles and distances from landmarks manually placed by the clinician."
+                        body: "SpinePlan Pro is a goniometric, trigonometric, and bibliographic reference calculator designed as a visual and educational aid for spine surgeons and orthopedic specialists. It does not constitute an autonomous diagnostic medical device under international healthcare software regulations (SaMD), as it does not autonomously interpret medical images or prescribe treatments; it strictly computes geometric angles and distances from landmarks manually placed by the clinician."
                     },
                     {
                         icon: "👨‍⚕️",
@@ -74,7 +91,7 @@
                     {
                         icon: "🔒",
                         title: "3. 100% Local Patient Privacy (Zero Cloud Storage)",
-                        body: "In accordance with medical data protection standards (including HIPAA principles), SpinePlan Pro processes all radiographs, patient names, IDs, and PDF reports strictly within the local memory of the user's device. No patient radiographs or clinical records are ever uploaded, transmitted, or stored on external servers."
+                        body: "In accordance with international medical data protection and confidentiality standards, SpinePlan Pro processes all radiographs, patient names, IDs, and PDF reports strictly within the local memory of the user's device. No patient radiographs or clinical records are ever uploaded, transmitted, or stored on external servers."
                     },
                     {
                         icon: "🏛️",
@@ -96,7 +113,6 @@
             return 'es';
         }
 
-        // 1. CREAR MODAL LEGAL (OCULTO POR DEFECTO, JAMÁS SALE EN EL VIDEO INICIAL)
         function createLegalModal() {
             if (document.getElementById('legal-scope-modal')) return;
 
@@ -126,7 +142,7 @@
             `;
 
             modal.addEventListener('click', function() {
-                if (window._spinePlanLegalAccepted) {
+                if (hasAcceptedPreviously()) {
                     modal.classList.add('hidden');
                 }
             });
@@ -162,15 +178,14 @@
         };
 
         window.handleLegalContinueClick = function() {
-            if (window._spinePlanLegalAccepted) {
+            if (hasAcceptedPreviously()) {
                 document.getElementById('legal-scope-modal').classList.add('hidden');
                 return;
             }
 
             const chk = document.getElementById('legal-accept-checkbox');
             if (chk && chk.checked) {
-                // Guardar que ya aceptó para que NO vuelva a salir al entrar con la contraseña
-                window._spinePlanLegalAccepted = true;
+                saveLegalAcceptance();
                 document.getElementById('legal-scope-modal').classList.add('hidden');
                 injectLoginLegalNotice();
             } else {
@@ -184,7 +199,7 @@
         };
 
         window.tryCloseLegalModal = function() {
-            if (window._spinePlanLegalAccepted) {
+            if (hasAcceptedPreviously()) {
                 document.getElementById('legal-scope-modal').classList.add('hidden');
             }
         };
@@ -202,6 +217,7 @@
 
         function renderLegalContent() {
             const t = LEGAL_TEXTS[getLangKey()];
+            const isAccepted = hasAcceptedPreviously();
             const titleEl = document.getElementById('legal-modal-title');
             const bodyEl = document.getElementById('legal-modal-body');
             const closeBtn = document.getElementById('legal-modal-close');
@@ -212,7 +228,7 @@
             if (titleEl) titleEl.innerText = t.modalTitle;
 
             let bottomAcceptHtml = '';
-            if (window._spinePlanLegalAccepted) {
+            if (isAccepted) {
                 bottomAcceptHtml = `
                     <div class="bg-emerald-950/50 border border-emerald-500/60 rounded-xl p-3 text-center">
                         <span class="text-xs text-emerald-400 font-bold">${t.alreadyAcceptedBadge}</span>
@@ -248,7 +264,7 @@
 
             bodyEl.scrollTop = 0;
 
-            if (window._spinePlanLegalAccepted) {
+            if (isAccepted) {
                 if (topXBtn) topXBtn.classList.remove('hidden');
                 if (status) {
                     status.innerText = t.alreadyAcceptedBadge;
@@ -264,7 +280,6 @@
             }
         }
 
-        // 2. DETECTAR ESTRICTAMENTE CUANDO EL USUARIO METE LA CONTRASEÑA Y ENTRA AL SISTEMA
         function isPasswordInputVisible() {
             const passInput = document.querySelector('input[type="password"]');
             if (!passInput) return false;
@@ -284,13 +299,12 @@
         }
 
         function verifyTransitionAfterPasswordSubmit() {
-            if (!window._loginAttemptTriggered || window._spinePlanLegalAccepted) return;
+            if (!window._loginAttemptTriggered || hasAcceptedPreviously()) return;
 
-            // Verificar tras enviar la contraseña si la pantalla de clave ya desapareció (contraseña correcta)
             let checks = 0;
             const timer = setInterval(function() {
                 checks++;
-                if (window._spinePlanLegalAccepted) {
+                if (hasAcceptedPreviously()) {
                     clearInterval(timer);
                     return;
                 }
@@ -298,14 +312,12 @@
                     clearInterval(timer);
                     window.openLegalScopeModal();
                 } else if (checks > 20) {
-                    // Si después de 2 segundos sigue visible la caja de clave, fue contraseña incorrecta
                     window._loginAttemptTriggered = false;
                     clearInterval(timer);
                 }
             }, 100);
         }
 
-        // Escuchar únicamente cuando el usuario pulsa el botón "Ingresar / Enter" de la clave o presiona Enter en la caja de contraseña
         document.addEventListener('click', function(e) {
             const passInput = document.querySelector('input[type="password"]');
             if (!passInput) return;
@@ -329,9 +341,8 @@
             }
         }, true);
 
-        // Si ya está dentro del área de trabajo (por ejemplo, toca el menú lateral o el lienzo) sin haber aceptado los términos, pedir aceptación
         document.addEventListener('pointerdown', function(e) {
-            if (window._spinePlanLegalAccepted) return;
+            if (hasAcceptedPreviously()) return;
             const workspaceClicked = e.target.closest('aside, canvas, header');
             if (!workspaceClicked) return;
             if (isPasswordInputVisible()) return;
@@ -341,7 +352,6 @@
             window.openLegalScopeModal();
         }, true);
 
-        // 3. INYECTAR BOTÓN ⚖️ EN EL HEADER PRINCIPAL
         function injectLegalHeaderButton() {
             const headerEl = document.querySelector('header');
             const helpBtn = document.getElementById('btn-top-help');
@@ -381,7 +391,6 @@
             }
         }
 
-        // 4. NOTA LEGAL EN LA PANTALLA DE CONTRASEÑA
         function injectLoginLegalNotice() {
             const passInput = document.querySelector('input[type="password"]');
             if (!passInput) return;
@@ -397,8 +406,8 @@
                 loginCard.appendChild(noticeBox);
             }
 
-            const statusLinkHtml = window._spinePlanLegalAccepted
-                ? `<span class="text-[10px] text-emerald-400 font-bold">${t.alreadyAcceptedBadge}</span>`
+            const statusLinkHtml = hasAcceptedPreviously()
+                ? `<button type="button" id="login-legal-link-btn" onclick="window.openLegalScopeModal()" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold cursor-pointer">${t.alreadyAcceptedBadge} (${t.loginLink})</button>`
                 : `<button type="button" id="login-legal-link-btn" onclick="window.openLegalScopeModal()" class="text-[10px] text-emerald-400 hover:text-emerald-300 underline font-semibold cursor-pointer">${t.loginLink}</button>`;
 
             noticeBox.innerHTML = `
@@ -407,7 +416,6 @@
             `;
         }
 
-        // 5. PIE LEGAL AUTOMÁTICO EN EL REPORTE PDF
         function injectPdfLegalFooter() {
             const pdfContainer = document.getElementById('pdf-report-paper') ||
                                  document.getElementById('report-printable-area') ||
