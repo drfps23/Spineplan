@@ -1,6 +1,6 @@
 // ============================================================================
-// MÓDULO INDEPENDIENTE V2 (ambitos_legales.js): ACEPTACIÓN OBLIGATORIA (CLICKWRAP) + ⚖️
-// Bloquea el uso del sistema hasta que el usuario marque la casilla y pulse Continuar
+// MÓDULO INDEPENDIENTE V3 (ambitos_legales.js): BLOQUEO LEGAL OBLIGATORIO + SCROLL AL FINAL (⚖️)
+// Exige bajar hasta el final, marcar "Acepto" y pulsar "Continuar" para poder medir
 // ============================================================================
 
 (function() {
@@ -14,9 +14,11 @@
                 badge: "Exención Regulatoria • Privacidad Local • Propiedad Intelectual",
                 loginNotice: "⚖️ Uso exclusivo para profesionales de la salud. Herramienta de cálculo geométrico y referencia académica (No diagnóstica). Tus radiografías y datos nunca salen de tu dispositivo.",
                 loginLink: "Ver términos legales completos",
+                scrollHint: "⬇️ Desliza hasta el final del documento para aceptar los términos",
+                checkboxTitle: "DECLARACIÓN OBLIGATORIA DE ACEPTACIÓN DE TÉRMINOS",
                 checkboxLabel: "Declaro ser un profesional de la salud calificado y haber leído y aceptado los ámbitos legales, el carácter no diagnóstico del software y la responsabilidad clínica exclusiva.",
-                continueDisabled: "🔒 Marca la casilla para continuar",
-                continueEnabled: "Aceptar y Continuar al Sistema →",
+                continueDisabled: "🔒 Baja al final y marca 'Acepto' para continuar",
+                continueEnabled: "✅ Aceptar y Continuar al Sistema →",
                 alreadyAcceptedBadge: "✅ Términos legales aceptados en esta sesión",
                 closeBtn: "Cerrar",
                 pdfDisclaimer: "AVISO LEGAL: SpinePlan Pro es una herramienta informática de cálculo geométrico y apoyo visual basada en literatura científica publicada. No constituye un dispositivo de diagnóstico autónomo. La exactitud de los puntos anatómicos marcados y la decisión quirúrgica final son responsabilidad exclusiva del médico tratante.",
@@ -49,9 +51,11 @@
                 badge: "Regulatory Exemption • Local Privacy • Copyright",
                 loginNotice: "⚖️ For qualified healthcare professionals only. Geometric calculation & academic reference tool (Non-diagnostic). All radiographs and patient data remain 100% local on your device.",
                 loginLink: "View full legal terms",
+                scrollHint: "⬇️ Scroll to the bottom of the document to accept the terms",
+                checkboxTitle: "MANDATORY TERMS ACCEPTANCE DECLARATION",
                 checkboxLabel: "I declare that I am a qualified healthcare professional and I have read and accept the legal terms, the non-diagnostic nature of the software, and sole clinical responsibility.",
-                continueDisabled: "🔒 Check the box above to continue",
-                continueEnabled: "Accept & Continue to System →",
+                continueDisabled: "🔒 Scroll down & check 'Accept' to continue",
+                continueEnabled: "✅ Accept & Continue to System →",
                 alreadyAcceptedBadge: "✅ Legal terms accepted for this session",
                 closeBtn: "Close",
                 pdfDisclaimer: "LEGAL DISCLAIMER: SpinePlan Pro is a geometric calculation and visual planning aid based on published scientific literature. It is not an autonomous diagnostic medical device. Landmark accuracy, clinical interpretation, and final surgical decisions are the sole responsibility of the attending physician.",
@@ -84,40 +88,36 @@
             return (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en' : 'es';
         }
 
-        // 1. CREAR MODAL CON BLOQUEO DE ACEPTACIÓN OBLIGATORIA Y Z-INDEX MÁXIMO
+        // 1. CREAR MODAL CON CASILLA DE ACEPTACIÓN AL FINAL DEL SCROLL
         function createLegalModal() {
             if (document.getElementById('legal-scope-modal')) return;
 
             const modal = document.createElement('div');
             modal.id = 'legal-scope-modal';
-            modal.style.zIndex = '999999';
-            modal.className = 'hidden fixed inset-0 bg-black/85 flex items-center justify-center p-3 sm:p-4 backdrop-blur-md';
+            modal.style.zIndex = '2147483647';
+            modal.className = 'hidden fixed inset-0 bg-black/90 flex items-center justify-center p-3 sm:p-4 backdrop-blur-md';
             modal.innerHTML = `
-                <div class="bg-gray-900 border border-emerald-500/80 rounded-xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-xs text-gray-200" onclick="event.stopPropagation()">
-                    <div class="flex justify-between items-center bg-gray-950 px-4 py-3 border-b border-gray-800">
+                <div class="bg-gray-900 border-2 border-emerald-500/80 rounded-xl max-w-lg w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden text-xs text-gray-200" onclick="event.stopPropagation()">
+                    <div class="flex justify-between items-center bg-gray-950 px-4 py-3 border-b border-gray-800 shrink-0">
                         <div class="flex items-center space-x-2">
                             <span class="text-base">⚖️</span>
                             <h3 id="legal-modal-title" class="text-emerald-400 font-bold text-sm">Ámbitos Legales y Regulación</h3>
                         </div>
                         <button type="button" id="legal-top-x-btn" onclick="window.tryCloseLegalModal()" class="hidden text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded px-2.5 py-1 text-xs font-bold">×</button>
                     </div>
-                    <div id="legal-modal-body" class="p-4 overflow-y-auto space-y-3 flex-1"></div>
-                    <div class="bg-gray-950 px-4 py-3 border-t border-gray-800 space-y-2.5">
-                        <label id="legal-checkbox-container" class="flex items-start space-x-2.5 bg-gray-900/90 border border-emerald-500/40 rounded-lg p-2.5 cursor-pointer select-none hover:border-emerald-400 transition-colors">
-                            <input type="checkbox" id="legal-accept-checkbox" onchange="window.toggleLegalContinueBtn(this.checked)" class="mt-0.5 w-4 h-4 accent-emerald-500 rounded cursor-pointer shrink-0">
-                            <span id="legal-checkbox-text" class="text-[11px] text-gray-200 leading-snug font-medium"></span>
-                        </label>
-                        <div class="flex justify-between items-center pt-0.5">
-                            <span class="text-[10px] text-gray-400">SpinePlan Pro • Fundescoliosis</span>
-                            <button type="button" id="legal-modal-close" onclick="window.confirmAndAcceptLegalTerms()" disabled class="bg-gray-800 text-gray-500 border border-gray-700 font-bold px-4 py-2 rounded-lg text-xs transition-all cursor-not-allowed">
-                                🔒 Marca la casilla para continuar
-                            </button>
-                        </div>
+
+                    <div id="legal-modal-body" class="p-4 overflow-y-auto space-y-3 flex-1 scroll-smooth"></div>
+
+                    <div class="bg-gray-950 px-4 py-3 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-2 shrink-0">
+                        <span id="legal-footer-status" class="text-[10px] text-amber-400 font-semibold text-center sm:text-left">⬇️ Desliza hasta el final del documento para aceptar</span>
+                        <button type="button" id="legal-modal-close" onclick="window.handleLegalContinueClick()" class="w-full sm:w-auto bg-gray-800 text-gray-400 border border-gray-700 font-bold px-4 py-2 rounded-lg text-xs transition-all">
+                            🔒 Baja al final y marca 'Acepto' para continuar
+                        </button>
                     </div>
                 </div>
             `;
 
-            // Solo permitir cerrar tocando afuera si ya aceptó previamente los términos
+            // Impedir cerrar tocando afuera si aún no ha aceptado los términos
             modal.addEventListener('click', function() {
                 if (window._spinePlanLegalAccepted) {
                     modal.classList.add('hidden');
@@ -130,32 +130,52 @@
         window.toggleLegalContinueBtn = function(isChecked) {
             const t = LEGAL_TEXTS[getLangKey()];
             const btn = document.getElementById('legal-modal-close');
+            const status = document.getElementById('legal-footer-status');
             if (!btn) return;
 
             if (isChecked) {
-                btn.disabled = false;
+                btn.dataset.ready = 'true';
                 btn.innerText = t.continueEnabled;
-                btn.className = 'bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2 rounded-lg text-xs transition-all cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.45)]';
+                btn.className = 'w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-5 py-2 rounded-lg text-xs transition-all cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.5)]';
+                if (status) {
+                    status.innerText = '✅ Casilla marcada. Presiona el botón verde para continuar.';
+                    status.className = 'text-[10px] text-emerald-400 font-semibold text-center sm:text-left';
+                }
             } else {
-                btn.disabled = true;
+                btn.dataset.ready = 'false';
                 btn.innerText = t.continueDisabled;
-                btn.className = 'bg-gray-800 text-gray-500 border border-gray-700 font-bold px-4 py-2 rounded-lg text-xs transition-all cursor-not-allowed';
+                btn.className = 'w-full sm:w-auto bg-gray-800 text-gray-400 border border-gray-700 font-bold px-4 py-2 rounded-lg text-xs transition-all cursor-pointer';
+                if (status) {
+                    status.innerText = t.scrollHint;
+                    status.className = 'text-[10px] text-amber-400 font-semibold text-center sm:text-left';
+                }
             }
         };
 
-        window.confirmAndAcceptLegalTerms = function() {
-            const chk = document.getElementById('legal-accept-checkbox');
-            if (!window._spinePlanLegalAccepted && (!chk || !chk.checked)) return;
+        window.handleLegalContinueClick = function() {
+            if (window._spinePlanLegalAccepted) {
+                document.getElementById('legal-scope-modal').classList.add('hidden');
+                return;
+            }
 
-            window._spinePlanLegalAccepted = true;
-            const modal = document.getElementById('legal-scope-modal');
-            if (modal) modal.classList.add('hidden');
+            const chk = document.getElementById('legal-accept-checkbox');
+            if (chk && chk.checked) {
+                window._spinePlanLegalAccepted = true;
+                document.getElementById('legal-scope-modal').classList.add('hidden');
+            } else {
+                // Si el usuario pulsa el botón bloqueado sin haber bajado, lo desplaza hasta la casilla al final y la resalta
+                const card = document.getElementById('legal-bottom-accept-card');
+                if (card) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.classList.add('ring-2', 'ring-amber-400');
+                    setTimeout(() => card.classList.remove('ring-2', 'ring-amber-400'), 1200);
+                }
+            }
         };
 
         window.tryCloseLegalModal = function() {
             if (window._spinePlanLegalAccepted) {
-                const modal = document.getElementById('legal-scope-modal');
-                if (modal) modal.classList.add('hidden');
+                document.getElementById('legal-scope-modal').classList.add('hidden');
             }
         };
 
@@ -163,7 +183,8 @@
             try {
                 createLegalModal();
                 renderLegalContent();
-                document.getElementById('legal-scope-modal').classList.remove('hidden');
+                const modal = document.getElementById('legal-scope-modal');
+                if (modal) modal.classList.remove('hidden');
             } catch (e) {
                 console.warn(e);
             }
@@ -173,15 +194,32 @@
             const t = LEGAL_TEXTS[getLangKey()];
             const titleEl = document.getElementById('legal-modal-title');
             const bodyEl = document.getElementById('legal-modal-body');
-            const chkContainer = document.getElementById('legal-checkbox-container');
-            const chkText = document.getElementById('legal-checkbox-text');
-            const chkInput = document.getElementById('legal-accept-checkbox');
             const closeBtn = document.getElementById('legal-modal-close');
             const topXBtn = document.getElementById('legal-top-x-btn');
+            const status = document.getElementById('legal-footer-status');
 
             if (!bodyEl) return;
             if (titleEl) titleEl.innerText = t.modalTitle;
-            if (chkText) chkText.innerText = t.checkboxLabel;
+
+            // La casilla de aceptación va AL FINAL de las 4 secciones para obligar a bajar leyendo el contenido
+            let bottomAcceptHtml = '';
+            if (window._spinePlanLegalAccepted) {
+                bottomAcceptHtml = `
+                    <div class="bg-emerald-950/50 border border-emerald-500/60 rounded-xl p-3 text-center">
+                        <span class="text-xs text-emerald-400 font-bold">${t.alreadyAcceptedBadge}</span>
+                    </div>
+                `;
+            } else {
+                bottomAcceptHtml = `
+                    <div id="legal-bottom-accept-card" class="bg-emerald-950/60 border-2 border-emerald-500 rounded-xl p-3.5 mt-4 space-y-2 shadow-lg transition-all">
+                        <div class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">${t.checkboxTitle}</div>
+                        <label class="flex items-start space-x-3 cursor-pointer select-none">
+                            <input type="checkbox" id="legal-accept-checkbox" onchange="window.toggleLegalContinueBtn(this.checked)" class="mt-0.5 w-4 h-4 accent-emerald-500 rounded cursor-pointer shrink-0">
+                            <span class="text-[11.5px] text-white font-semibold leading-snug">${t.checkboxLabel}</span>
+                        </label>
+                    </div>
+                `;
+            }
 
             bodyEl.innerHTML = `
                 <div class="bg-emerald-950/40 border border-emerald-600/50 rounded-lg p-2.5 text-center">
@@ -196,40 +234,73 @@
                         <p class="text-[11px] text-gray-300 leading-relaxed">${sec.body}</p>
                     </div>
                 `).join('')}
+                ${bottomAcceptHtml}
             `;
+
+            bodyEl.scrollTop = 0;
 
             if (window._spinePlanLegalAccepted) {
                 if (topXBtn) topXBtn.classList.remove('hidden');
-                if (chkContainer) {
-                    chkContainer.innerHTML = `<span class="text-[11px] text-emerald-400 font-bold w-full text-center">${t.alreadyAcceptedBadge}</span>`;
+                if (status) {
+                    status.innerText = t.alreadyAcceptedBadge;
+                    status.className = 'text-[10px] text-emerald-400 font-semibold';
                 }
                 if (closeBtn) {
-                    closeBtn.disabled = false;
                     closeBtn.innerText = t.closeBtn;
-                    closeBtn.className = 'bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer';
+                    closeBtn.className = 'w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer';
                 }
             } else {
                 if (topXBtn) topXBtn.classList.add('hidden');
-                const isChecked = chkInput ? chkInput.checked : false;
-                window.toggleLegalContinueBtn(isChecked);
+                window.toggleLegalContinueBtn(false);
             }
         }
 
-        // 2. DETECTAR CUANDO EL USUARIO INGRESA LA CONTRASEÑA PARA MOSTRAR EL CONTRATO OBLIGATORIO
-        function isLoginScreenVisible() {
-            const passInput = document.querySelector('input[type="password"]');
-            if (!passInput) return false;
-            const style = window.getComputedStyle(passInput);
-            if (style.display === 'none' || style.visibility === 'hidden') return false;
-            return passInput.offsetParent !== null;
+        // 2. DETECTOR INFALIBLE DE PANTALLA DE CONTRASEÑA VS SOFTWARE PRINCIPAL
+        function isElementReallyVisible(el) {
+            if (!el) return false;
+            let cur = el;
+            while (cur && cur !== document.body && cur !== document.documentElement) {
+                const style = window.getComputedStyle(cur);
+                if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) {
+                    return false;
+                }
+                if (cur.classList && (cur.classList.contains('hidden') || cur.classList.contains('invisible') || cur.classList.contains('opacity-0'))) {
+                    return false;
+                }
+                cur = cur.parentElement;
+            }
+            const rect = el.getBoundingClientRect();
+            return rect.width > 0 && rect.height > 0;
         }
 
-        function checkPostLoginMandatoryLegalGate() {
+        function isLoginOverlayStillActive() {
+            const passInput = document.querySelector('input[type="password"]');
+            if (!passInput) return false;
+            return isElementReallyVisible(passInput);
+        }
+
+        // Vigilante automático: en el instante en que se oculta la pantalla de contraseña, si no ha aceptado, lanza el bloqueo legal
+        function enforceMandatoryLegalGate() {
             if (window._spinePlanLegalAccepted) return;
-            if (!isLoginScreenVisible()) {
+            const modal = document.getElementById('legal-scope-modal');
+            const isModalOpen = modal && !modal.classList.contains('hidden');
+
+            if (!isLoginOverlayStillActive() && !isModalOpen) {
                 window.openLegalScopeModal();
             }
         }
+
+        // Bloquear cualquier intento de usar herramientas o el lienzo si no ha aceptado
+        document.addEventListener('pointerdown', function(e) {
+            if (window._spinePlanLegalAccepted) return;
+            if (isLoginOverlayStillActive()) return;
+            const modal = document.getElementById('legal-scope-modal');
+            if (modal && modal.contains(e.target)) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+            window.openLegalScopeModal();
+        }, true);
 
         // 3. INYECTAR BOTÓN ⚖️ EN EL HEADER PRINCIPAL
         function injectLegalHeaderButton() {
@@ -271,7 +342,7 @@
             }
         }
 
-        // 4. NOTA LEGAL EN LA PANTALLA DE LOGIN (Y ENLACE QUE ABRE POR ENCIMA DE LA PORTADA)
+        // 4. NOTA LEGAL EN LA PANTALLA DE CONTRASEÑA
         function injectLoginLegalNotice() {
             const passInput = document.querySelector('input[type="password"]');
             if (!passInput) return;
@@ -315,22 +386,14 @@
             injectLegalHeaderButton();
             injectLoginLegalNotice();
             injectPdfLegalFooter();
-            checkPostLoginMandatoryLegalGate();
+            enforceMandatoryLegalGate();
         }
 
-        // Detectar ingreso por clic en "Ingresar" o tecla Enter en la contraseña
-        document.addEventListener('click', function() {
-            setTimeout(function() {
-                injectPdfLegalFooter();
-                checkPostLoginMandatoryLegalGate();
-            }, 120);
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                setTimeout(checkPostLoginMandatoryLegalGate, 120);
-            }
-        });
+        // Monitor permanente cada 250ms para detectar el ingreso al software sin escapatoria
+        setInterval(function() {
+            enforceMandatoryLegalGate();
+            injectPdfLegalFooter();
+        }, 250);
 
         document.addEventListener('change', function(e) {
             if (e.target && e.target.tagName === 'SELECT') {
